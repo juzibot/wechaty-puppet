@@ -25,6 +25,12 @@ export enum MessageType {
   Markdown    = 19,   // Markdown Message
 }
 
+export enum MessageStatus {
+  Unknown = 0,
+  SendFail = 1,
+  Revoke = 1,
+}
+
 /**
  * Huan(202001): Wechat Server Message Type Value (to be confirmed.)
  */
@@ -98,6 +104,7 @@ export interface MessagePayloadBase {
   timestamp     : number,       // Huan(202001): we support both seconds & milliseconds in Wechaty now.
   type          : MessageType,
   quoteId?      : string,
+  status?       : MessageStatus,
 }
 
 /** @hidden */
