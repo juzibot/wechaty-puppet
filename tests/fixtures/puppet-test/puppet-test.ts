@@ -259,6 +259,10 @@ class PuppetTest extends PUPPET.Puppet {
     return { text } as any
   }
 
+  override momentVisibleList (): Promise<string[]> {
+    return [] as any
+  }
+
   /**
    * Tap
    */
