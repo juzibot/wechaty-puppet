@@ -1,3 +1,4 @@
+import type { LocationPayload } from './location.js'
 import type {
   SayablePayload,
   sayableTypes,
@@ -51,6 +52,9 @@ interface PostPayloadBase {
   parentId? : string    // `undefined` means it's original
   rootId?   : string    // `undefined` means it's not a reply (original or repost)
   type?     : PostType
+
+  location? : LocationPayload,
+  visibleList?: string[],
 }
 
 interface PostPayloadClient extends PostPayloadBase {
