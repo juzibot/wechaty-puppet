@@ -74,6 +74,14 @@ export interface EventRoomTopicPayload {
   timestamp : number,
 }
 
+export interface EventRoomAnnouncePayload {
+  changerId: string,
+  newAnnounce: string,
+  oldAnnounce?: string,
+  roomId: string,
+  timestamp: number
+}
+
 export interface EventScanPayload {
   status: ScanStatus,
 
