@@ -15,20 +15,21 @@ export const YOU = Symbol.for('YOU@wechaty-puppet')
 
 /** @hidden */
 export const CHAT_EVENT_DICT = {
-  friendship    : 'receive a friend request',
-  login         : 'puppet had logged in',
-  logout        : 'puppet had logged out',
-  message       : 'received a new message',
-  post          : 'received a new post',
-  'room-invite' : 'received a room invitation',
-  'room-join'   : 'be added to a room',
-  'room-leave'  : 'leave or be removed from a room',
-  'room-topic'  : 'room topic had been changed',
-  scan          : 'a QR Code scan is required',
-  tag           : 'tag created, deleted or changed',
-  'tag-group'   : 'tag group created, deleted or changed',
-  'post-comment': 'a post receives a new comment',
-  'post-tap'    : 'a post receives a new tap',
+  friendship     : 'receive a friend request',
+  login          : 'puppet had logged in',
+  logout         : 'puppet had logged out',
+  message        : 'received a new message',
+  post           : 'received a new post',
+  'room-invite'  : 'received a room invitation',
+  'room-join'    : 'be added to a room',
+  'room-leave'   : 'leave or be removed from a room',
+  'room-topic'   : 'room topic had been changed',
+  'room-announce': 'new room announcement received',
+  scan           : 'a QR Code scan is required',
+  tag            : 'tag created, deleted or changed',
+  'tag-group'    : 'tag group created, deleted or changed',
+  'post-comment' : 'a post receives a new comment',
+  'post-tap'     : 'a post receives a new tap',
 }
 export type ChatEventName = keyof typeof CHAT_EVENT_DICT
 
