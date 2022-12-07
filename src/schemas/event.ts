@@ -149,6 +149,7 @@ export type EventPayload =
   | EventRoomJoinPayload
   | EventRoomLeavePayload
   | EventRoomTopicPayload
+  | EventRoomAnnouncePayload
   | EventScanPayload
   | EventTagPayload
   | EventTagGroupPayload
