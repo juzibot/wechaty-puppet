@@ -1,3 +1,11 @@
+export enum RoomMemberJoinScene {
+  Unknown       = 0,
+  Add           = 1,
+  InviteLink    = 2,
+  QRCode        = 3,
+  Other         = 4,
+}
+
 export interface RoomMemberQueryFilter {
   name?         : string,
   roomAlias?    : string,
@@ -39,6 +47,8 @@ export interface RoomMemberPayload {
   inviterId? : string,   // "wxid_7708837087612",
   avatar     : string,
   name       : string,
+  joinTime?  : number,
+  joinScene? : RoomMemberJoinScene,
 
   /**
  * a stringified JSON object to handle any IM specific data

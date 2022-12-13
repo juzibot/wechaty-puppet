@@ -77,6 +77,7 @@ import type {
   RoomPayload,
   RoomQueryFilter,
   RoomMemberPayload,
+  RoomMemberJoinScene,
   RoomMemberQueryFilter,
 }                             from './room.js'
 import type {
@@ -135,6 +136,7 @@ export {
   MessageType,
   PaginationRequest,
   PaginationResponse,
+  RoomMemberJoinScene,
   PostType,
   PUPPET_EVENT_DICT,
   sayablePayloads,
