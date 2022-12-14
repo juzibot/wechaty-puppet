@@ -48,7 +48,7 @@ export interface RoomMemberPayload {
   avatar     : string,
   name       : string,
   joinTime?  : number,
-  joinScene? : RoomMemberJoinScene,
+  joinScene? : RoomMemberJoinSceneType,
 
   /**
  * a stringified JSON object to handle any IM specific data
