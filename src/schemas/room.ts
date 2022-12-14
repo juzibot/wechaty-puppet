@@ -1,4 +1,4 @@
-export enum RoomMemberJoinScene {
+export enum RoomMemberJoinSceneType {
   Unknown       = 0,
   Add           = 1,
   InviteLink    = 2,

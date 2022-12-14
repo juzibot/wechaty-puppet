@@ -73,12 +73,12 @@ import type {
   EventTagPayload,
   EventTagGroupPayload,
 }                             from './event.js'
-import type {
-  RoomPayload,
-  RoomQueryFilter,
-  RoomMemberPayload,
-  RoomMemberJoinScene,
-  RoomMemberQueryFilter,
+import {
+  type RoomPayload,
+  type RoomQueryFilter,
+  type RoomMemberPayload,
+  type RoomMemberQueryFilter,
+  RoomMemberJoinSceneType,
 }                             from './room.js'
 import type {
   RoomInvitationPayload,
@@ -136,7 +136,7 @@ export {
   MessageType,
   PaginationRequest,
   PaginationResponse,
-  RoomMemberJoinScene,
+  RoomMemberJoinSceneType,
   PostType,
   PUPPET_EVENT_DICT,
   sayablePayloads,
