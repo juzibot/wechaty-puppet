@@ -52,6 +52,8 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
 
     abstract contactList (): Promise<string[]>
 
+    abstract contactDelete (contactId: string): Promise<void>
+
     /**
      * @protected Issue #155 - https://github.com/wechaty/puppet/issues/155
      */
