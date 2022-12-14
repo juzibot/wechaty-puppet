@@ -8,6 +8,7 @@ import {
   ContactGender,
   ContactType,
   DirtyType,
+  RoomMemberJoinSceneType,
   FriendshipSceneType,
   FriendshipType,
   ImageType,
@@ -28,23 +29,24 @@ export {
   type PuppetEventName,
   type ChatEventName,
   ContactGender,
-  ContactType         as Contact,
-  FriendshipSceneType as FriendshipScene,
-  FriendshipType      as Friendship,
-  ImageType           as Image,
-  MessageType         as Message,
-  PostType            as Post,
-  TapType             as Tap,
-  TagType             as Tag,
-  sayableTypes        as Sayable,
-  TagEventType        as TagEvent,
-  TagGroupEventType   as TagGroupEvent,
+  RoomMemberJoinSceneType as RoomMemberJoinScene,
+  ContactType             as Contact,
+  FriendshipSceneType     as FriendshipScene,
+  FriendshipType          as Friendship,
+  ImageType               as Image,
+  MessageType             as Message,
+  PostType                as Post,
+  TapType                 as Tap,
+  TagType                 as Tag,
+  sayableTypes            as Sayable,
+  TagEventType            as TagEvent,
+  TagGroupEventType       as TagGroupEvent,
   /**
    * Huan(202201): `DirtyType as Payload` will be removed after Dec 31, 2023
    * @deprecated: use Dirty instead of Payload
    */
-  DirtyType           as Payload,
-  DirtyType           as Dirty,
+  DirtyType               as Payload,
+  DirtyType               as Dirty,
 }
 
 export {
