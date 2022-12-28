@@ -7,4 +7,10 @@ export interface ChannelPayload {
   nickname: string,
   thumbUrl: string,
   url: string,
+
+  /**
+   * The following two fields are required for Live Channel only.
+   */
+  objectId?: string,
+  objectNonceId?: string,
 }
