@@ -9,8 +9,7 @@ export interface ChannelPayload {
   url: string,
 
   /**
-   * The following two fields are required when posting Channel Live moment.
-   * However sending Channel Live message without such fields is fine.
+   * The following two fields are required for Live Channel only.
    */
   objectId?: string,
   objectNonceId?: string,
