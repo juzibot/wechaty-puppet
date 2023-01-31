@@ -51,7 +51,7 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
         */
       if (typeof query === 'symbol') {
         if (query === YOU) {
-          return [this.currentUserId]
+          return [ this.currentUserId ]
         }
         /**
          * Huan(202111): We use `symbol` instead of `uniq symbol` in the method argument
