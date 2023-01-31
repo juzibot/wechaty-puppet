@@ -12,6 +12,7 @@ enum ContactType {
   Individual  = 1,
   Official    = 2,
   Corporation = 3,
+  Application = 4,
 }
 
 interface ContactQueryFilter {
