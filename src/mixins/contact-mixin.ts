@@ -48,6 +48,13 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
 
     abstract contactCorporationRemark (contactId: string, corporationRemark: string | null): Promise<void>
 
+    /**
+     * modify any attribute of contactPayload in one function
+     * puppet should check if the attribute passed is editable
+     * if not, should throw error before making any change
+     */
+    abstract contactPayloadModify(contactId: string, payload: Partial<ContactPayload>): Promise<void>
+
     abstract contactDescription (contactId: string, description: string | null): Promise<void>
 
     abstract contactList (): Promise<string[]>
