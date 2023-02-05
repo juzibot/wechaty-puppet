@@ -39,6 +39,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
     abstract roomQuit (roomId: string)                                         : Promise<void>
     abstract roomTopic (roomId: string)                                        : Promise<string>
     abstract roomTopic (roomId: string, topic: string)                         : Promise<void>
+    abstract roomRemark (roomId: string, remark: string)                       : Promise<void>
 
     /**
      * Issue #155 - https://github.com/wechaty/puppet/issues/155

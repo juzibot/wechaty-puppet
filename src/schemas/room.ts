@@ -39,6 +39,8 @@ export interface RoomPayload {
  * a stringified JSON object to handle any IM specific data
  */
   additionalInfo?: string
+
+  remark?: string
 }
 
 export interface RoomMemberPayload {
