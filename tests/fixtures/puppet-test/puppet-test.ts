@@ -122,6 +122,7 @@ class PuppetTest extends PUPPET.Puppet {
 
   override async contactRawPayload (id: string)            : Promise<any> { return { id } as any }
   override async contactRawPayloadParser (rawPayload: any) : Promise<PUPPET.payloads.Contact> { return { rawPayload } as any }
+  override async contactPayloadModify (id: string, rawPayload: any) : Promise<void> { return { id, rawPayload } as any }
 
   /**
    *
@@ -198,6 +199,8 @@ class PuppetTest extends PUPPET.Puppet {
   override async roomTopic (roomId: string)                 : Promise<string>
   override async roomTopic (roomId: string, topic: string)  : Promise<void>
   override async roomTopic (roomId: string, topic?: string) : Promise<string | void> { return { roomId, topic } as any }
+
+  override async roomRemark (roomId: string, remark: string)  : Promise<void>
 
   override async roomList ()                     : Promise<string[]> { return {} as any }
   override async roomMemberList (roomId: string) : Promise<string[]> { return { roomId } as any }
