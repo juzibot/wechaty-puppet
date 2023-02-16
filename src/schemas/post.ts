@@ -13,6 +13,7 @@ enum PostType {
   Moment  = 1,  // <- WeChat Moments (朋友圈)
   Channel = 2,  // <- WeChat Channel (视频号)
   Message = 3,  // Quoted Message or Muitiplepart Message
+  Broadcast = 4, // 企微官方群发
 }
 
 /**
@@ -26,7 +27,7 @@ enum PostType {
  *  but reference the `PostPayload` in interface directly
  *  to prevent the ts(2502) error
  */
- interface SayablePayloadPost {
+interface SayablePayloadPost {
   type: typeof sayableTypes.Post
   // eslint-disable-next-line no-use-before-define
   payload: PostPayload
