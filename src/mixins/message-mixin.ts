@@ -17,7 +17,6 @@ import type {
   MessageType,
   MessageSendTextOptions,
   MessageBroadcastTargets,
-  MessageBroadcastTargetType,
 }                                 from '../schemas/message.js'
 import type {
   UrlLinkPayload,
@@ -92,7 +91,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     abstract messagePreview (messageId: string): Promise<FileBoxInterface | undefined>
 
     abstract getMessageBroadcastTarget(): Promise<MessageBroadcastTargets>
-    abstract createMessageBroadcast(targets: string[], type: MessageBroadcastTargetType, content: PostPayload): Promise<void | string>
+    abstract createMessageBroadcast(targets: string[], content: PostPayload): Promise<void | string>
 
     /**
      * Issue #155 - https://github.com/wechaty/puppet/issues/155

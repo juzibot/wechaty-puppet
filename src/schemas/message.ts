@@ -178,12 +178,6 @@ export type MessagePayloadFilterFunction = (payload: MessagePayload)    => boole
 /** @hidden */
 export type MessagePayloadFilterFactory  = (query: MessageQueryFilter)  => MessagePayloadFilterFunction
 
-export enum MessageBroadcastTargetType {
-  Unknown = 0,
-  Contact = 1,
-  Room = 2,
-}
-
 export interface MessageBroadcastTargets {
   contactIds?: string[],
   roomIds?: string[],
