@@ -13,6 +13,8 @@ import {
   FriendshipType,
   ImageType,
   MessageType,
+  BroadcastStatus,
+  BroadcastTargetStatus,
   PostType,
   TapType,
   TagType,
@@ -51,6 +53,8 @@ export {
 
 export {
   ScanStatus,
+  BroadcastStatus,
+  BroadcastTargetStatus,
   type FriendshipAddOptions,
   type MessageSendTextOptions,
   YOU,

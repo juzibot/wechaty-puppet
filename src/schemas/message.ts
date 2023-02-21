@@ -83,6 +83,19 @@ export enum WechatMessageType {
   Recalled          = 10002,  // NOTIFY 服务通知
 }
 
+export enum BroadcastStatus {
+  Unknown = 0,
+  Sending = 1,
+  Sent = 2
+}
+
+export enum BroadcastTargetStatus {
+  Unsent = 0,
+  Sent = 1,
+  NotFriend = 2,
+  Occupied = 3,
+}
+
 /** @hidden */
 export interface MessagePayloadBase {
   id            : string,

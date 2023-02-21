@@ -17,6 +17,8 @@ import type {
   MessageType,
   MessageSendTextOptions,
   MessageBroadcastTargets,
+  BroadcastStatus,
+  BroadcastTargetStatus,
 }                                 from '../schemas/message.js'
 import type {
   UrlLinkPayload,
@@ -92,6 +94,14 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
 
     abstract getMessageBroadcastTarget(): Promise<MessageBroadcastTargets>
     abstract createMessageBroadcast(targets: string[], content: PostPayload): Promise<void | string>
+    abstract getMessageBroadcastStatus(id: string): Promise<{
+      status: BroadcastStatus,
+      detail: {
+        contactId?: string,
+        roomId?: string,
+        status: BroadcastTargetStatus,
+      }
+    }>
 
     /**
      * Issue #155 - https://github.com/wechaty/puppet/issues/155
