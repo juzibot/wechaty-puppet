@@ -100,7 +100,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
         contactId?: string,
         roomId?: string,
         status: BroadcastTargetStatus,
-      }
+      }[]
     }>
 
     /**
