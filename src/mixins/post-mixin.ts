@@ -81,6 +81,7 @@ const postMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMi
      * Publish a post
      */
     abstract postPublish (payload: PostPayload): Promise<void | string>
+    abstract postUnpublish (id: string): Promise<void>
 
     /**
      * Search from the server.

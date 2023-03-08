@@ -21,6 +21,10 @@ const momentMixin = <MixinBase extends typeof PuppetSkeleton & PostMixin>(mixinB
       return this.postPublish(payload)
     }
 
+    momentDel (id: string): Promise<void> {
+      return this.postUnpublish(id)
+    }
+
     // R & W methods
     abstract momentSignature (text?: string): Promise<void | string>
     abstract momentCoverage (cover?: FileBoxInterface): Promise<void | FileBoxInterface>
