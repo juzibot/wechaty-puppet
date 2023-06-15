@@ -196,11 +196,14 @@ class PuppetTest extends PUPPET.Puppet {
   override async roomQuit (roomId: string)                                         : Promise<void> { return { roomId } as any }
   override async roomQRCode (roomId: string)                                       : Promise<string> { return { roomId } as any }
 
+  override async roomOwnerTransfer (roomId: string, contactId: string): Promise<void> { return { roomId, contactId } as any }
+  override async roomPermission (permission?: Partial<PUPPET.types.RoomPermission>): Promise<void | PUPPET.types.RoomPermission> { return { permission } as any }
+
   override async roomTopic (roomId: string)                 : Promise<string>
   override async roomTopic (roomId: string, topic: string)  : Promise<void>
   override async roomTopic (roomId: string, topic?: string) : Promise<string | void> { return { roomId, topic } as any }
 
-  override async roomRemark (roomId: string, remark: string)  : Promise<void> { return {roomId, remark } as any }
+  override async roomRemark (roomId: string, remark: string)  : Promise<void> { return { roomId, remark } as any }
 
   override async roomList ()                     : Promise<string[]> { return {} as any }
   override async roomMemberList (roomId: string) : Promise<string[]> { return { roomId } as any }
