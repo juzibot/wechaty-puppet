@@ -58,6 +58,12 @@ export interface RoomMemberPayload {
   additionalInfo?: string
 }
 
+export interface RoomPermission {
+  sendMessage: boolean, // mute all
+  invitationCheck: boolean, // invite contact requires approval from admin
+  roomTopicEdit: boolean, // just as its name implies
+}
+
 /** @hidden */
 export type RoomPayloadFilterFunction = (payload: RoomPayload)    => boolean
 
