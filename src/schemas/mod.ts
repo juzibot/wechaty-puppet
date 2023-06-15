@@ -80,6 +80,7 @@ import {
   type RoomQueryFilter,
   type RoomMemberPayload,
   type RoomMemberQueryFilter,
+  type RoomPermission,
   RoomMemberJoinSceneType,
 }                             from './room.js'
 import type {
@@ -197,6 +198,7 @@ export {
   type RoomMemberQueryFilter,
   type RoomPayload,
   type RoomQueryFilter,
+  type RoomPermission,
   type SayablePayload,
   type TapPayload,
   type TapQueryFilter,

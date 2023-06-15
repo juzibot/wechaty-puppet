@@ -9,6 +9,7 @@ import type {
   RoomPayload,
   RoomPayloadFilterFunction,
   RoomQueryFilter,
+  RoomPermission,
 }                                 from '../schemas/room.js'
 
 import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
@@ -40,6 +41,9 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
     abstract roomTopic (roomId: string)                                        : Promise<string>
     abstract roomTopic (roomId: string, topic: string)                         : Promise<void>
     abstract roomRemark (roomId: string, remark: string)                       : Promise<void>
+
+    abstract roomOwnerTransfer(roomId: string, contactId: string): Promise<void>
+    abstract roomPermission(permission?: Partial<RoomPermission>): Promise<void | RoomPermission>
 
     /**
      * Issue #155 - https://github.com/wechaty/puppet/issues/155
