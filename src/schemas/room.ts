@@ -59,9 +59,11 @@ export interface RoomMemberPayload {
 }
 
 export interface RoomPermission {
-  sendMessage: boolean, // mute all
-  invitationCheck: boolean, // invite contact requires approval from admin
-  roomTopicEdit: boolean, // just as its name implies
+  inviteConfirm: boolean, // 群聊邀请确认 内外部
+  adminOnlyManage: boolean, // 仅群主或管理员可管理 内部
+  adminOnlyAtAll: boolean, // 仅群主或管理员可@所有人 内部
+  muteAll: boolean, // 全员禁言 内部
+  forbidRoomTopicEdit: boolean, // 禁止修改群名 外部
 }
 
 /** @hidden */
