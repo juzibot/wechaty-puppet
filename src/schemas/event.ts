@@ -140,6 +140,7 @@ export interface EventVerifyCodePayload {
   scene: VerifyCodeScene,
   status: VerifyCodeStatus,
   message?: string,
+  wrongCodeCount?: number,
 }
 
 export type EventPayload =
