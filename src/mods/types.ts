@@ -26,6 +26,8 @@ import {
 
   ScanStatus,
   YOU,
+  VerifyCodeScene,
+  VerifyCodeStatus,
 }                       from '../schemas/mod.js'
 
 export {
@@ -54,6 +56,8 @@ export {
 
 export {
   ScanStatus,
+  VerifyCodeStatus,
+  VerifyCodeScene,
   BroadcastStatus,
   BroadcastTargetStatus,
   type FriendshipAddOptions,

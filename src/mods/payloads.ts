@@ -44,6 +44,7 @@ import type {
   ChannelPayload,
   TagGroupPayload,
   TagPayload,
+  EventVerifyCodePayload,
 }                           from '../schemas/mod.js'
 import {
   sayablePayloads,
@@ -74,6 +75,7 @@ export type {
   EventScanPayload          as EventScan,
   EventTagPayload           as EventTag,
   EventTagGroupPayload      as EventTagGroup,
+  EventVerifyCodePayload    as EventVerifyCode,
   FriendshipPayload         as Friendship,
   FriendshipPayloadConfirm  as FriendshipConfirm,
   FriendshipPayloadReceive  as FriendshipReceive,
