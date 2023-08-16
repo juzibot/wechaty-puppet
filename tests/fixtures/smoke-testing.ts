@@ -20,6 +20,8 @@ class PuppetTest extends PUPPET.Puppet {
   override async ding (data?: string): Promise<void> { return data as any as void }
   override async logout () : Promise<void> { return {} as any }
 
+  override async enterVerifyCode () : Promise<void> { return {} as any }
+
   /**
    *
    * ContactSelf
