@@ -1,6 +1,7 @@
 import type { DirtyType } from './dirty.js'
 import type { TagEventType, TapType } from './mod.js'
 import type { TagGroupEventType } from './tag.js'
+import type { VerifyCodeScene, VerifyCodeStatus } from './verify-code.js'
 
 /**
  * The event `scan` status number.
@@ -134,6 +135,13 @@ export interface EventTagGroupPayload {
   timestamp: number,
 }
 
+export interface EventVerifyCodePayload {
+  id: string,
+  scene: VerifyCodeScene,
+  status: VerifyCodeStatus,
+  message?: string,
+}
+
 export type EventPayload =
   | EventDirtyPayload
   | EventDongPayload
@@ -156,3 +164,4 @@ export type EventPayload =
   | EventPostPayload
   | EventPostCommentPayload
   | EventPostTapPayload
+  | EventVerifyCodePayload

@@ -74,6 +74,7 @@ import type {
   EventScanPayload,
   EventTagPayload,
   EventTagGroupPayload,
+  EventVerifyCodePayload,
 }                             from './event.js'
 import {
   type RoomPayload,
@@ -126,6 +127,11 @@ import type {
   PaginationResponse,
 }                         from './pagination.js'
 
+import {
+  VerifyCodeStatus,
+  VerifyCodeScene,
+} from './verify-code.js'
+
 export {
   CHAT_EVENT_DICT,
   ContactGender,
@@ -147,6 +153,8 @@ export {
   sayablePayloads,
   sayableTypes,
   ScanStatus,
+  VerifyCodeStatus,
+  VerifyCodeScene,
   TapType,
   TagType,
   type ChatEventName,
@@ -173,6 +181,7 @@ export {
   type EventScanPayload,
   type EventTagPayload,
   type EventTagGroupPayload,
+  type EventVerifyCodePayload,
   type FriendshipAddOptions,
   type FriendshipPayload,
   type FriendshipPayloadConfirm,
