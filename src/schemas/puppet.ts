@@ -30,6 +30,7 @@ export const CHAT_EVENT_DICT = {
   'tag-group'    : 'tag group created, deleted or changed',
   'post-comment' : 'a post receives a new comment',
   'post-tap'     : 'a post receives a new tap',
+  'verify-code'  : 'a verify code is required',
 }
 export type ChatEventName = keyof typeof CHAT_EVENT_DICT
 
