@@ -166,6 +166,8 @@ const loginMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
       return this.isLoggedIn
     }
 
+    abstract refreshQRCod(id: string): Promise<void>
+
   }
 
   return LoginMixin
