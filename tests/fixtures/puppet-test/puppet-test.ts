@@ -29,6 +29,8 @@ class PuppetTest extends PUPPET.Puppet {
   override async logout () : Promise<void> { return {} as any }
 
   override async enterVerifyCode () : Promise<void> { return {} as any }
+  override async cancelVerifyCode () : Promise<void> { return {} as any }
+  override async refreshQRCode () : Promise<void> { return {} as any }
 
   /**
    *
