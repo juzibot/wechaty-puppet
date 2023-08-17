@@ -14,6 +14,7 @@ const verifyCodeMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: Mix
     }
 
     abstract enterVerifyCode(id: string, code: string): Promise<void>
+    abstract cancelVerifyCode(id: string): Promise<void>
 
   }
 
