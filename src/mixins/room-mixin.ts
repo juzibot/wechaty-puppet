@@ -44,6 +44,8 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
 
     abstract roomOwnerTransfer(roomId: string, contactId: string): Promise<void>
     abstract roomPermission(roomId: string, permission?: Partial<RoomPermission>): Promise<void | Partial<RoomPermission>>
+    abstract roomAddAdmins (roomId: string, contactIdList: string[]): Promise<void>
+    abstract roomDelAdmins (roomId: string, contactIdList: string[]): Promise<void>
 
     /**
      * Issue #155 - https://github.com/wechaty/puppet/issues/155
