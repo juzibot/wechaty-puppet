@@ -208,6 +208,8 @@ class PuppetTest extends PUPPET.Puppet {
   override async roomTopic (roomId: string, topic?: string) : Promise<string | void> { return { roomId, topic } as any }
 
   override async roomRemark (roomId: string, remark: string)  : Promise<void> { return { roomId, remark } as any }
+  override async roomAddAdmins (roomId: string, contactIdList: string[])  : Promise<void> { return { roomId, contactIdList } as any }
+  override async roomDelAdmins (roomId: string, contactIdList: string[])  : Promise<void> { return { roomId, contactIdList } as any }
 
   override async roomList ()                     : Promise<string[]> { return {} as any }
   override async roomMemberList (roomId: string) : Promise<string[]> { return { roomId } as any }
