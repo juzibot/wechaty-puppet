@@ -28,6 +28,8 @@ import {
   YOU,
   VerifyCodeScene,
   VerifyCodeStatus,
+  CallStatus,
+  CallType,
 }                       from '../schemas/mod.js'
 
 export {
@@ -52,6 +54,7 @@ export {
    */
   DirtyType               as Payload,
   DirtyType               as Dirty,
+  CallType                as Call,
 }
 
 export {
@@ -60,6 +63,7 @@ export {
   VerifyCodeScene,
   BroadcastStatus,
   BroadcastTargetStatus,
+  CallStatus,
   type FriendshipAddOptions,
   type MessageSendTextOptions,
   type RoomPermission,

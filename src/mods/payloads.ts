@@ -45,6 +45,7 @@ import type {
   TagGroupPayload,
   TagPayload,
   EventVerifyCodePayload,
+  CallRecordPayload,
 }                           from '../schemas/mod.js'
 import {
   sayablePayloads,
@@ -98,6 +99,7 @@ export type {
   ChannelPayload            as Channel,
   TagGroupPayload           as TagGroup,
   TagPayload                as Tag,
+  CallRecordPayload         as CallRecord,
 }
 export {
   sayablePayloads as sayable, // Sayable payload creators

@@ -132,6 +132,12 @@ import {
   VerifyCodeScene,
 } from './verify-code.js'
 
+import {
+  CallType,
+  CallStatus,
+  CallRecordPayload,
+} from './call-record.js'
+
 export {
   CHAT_EVENT_DICT,
   ContactGender,
@@ -155,6 +161,8 @@ export {
   ScanStatus,
   VerifyCodeStatus,
   VerifyCodeScene,
+  CallStatus,
+  CallType,
   TapType,
   TagType,
   type ChatEventName,
@@ -217,6 +225,7 @@ export {
   type TagPayload,
   type TagQueryFilter,
   type TagGroupQueryFilter,
+  type CallRecordPayload,
   TagEventType,
   TagGroupEventType,
   YOU,
