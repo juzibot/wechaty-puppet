@@ -111,6 +111,7 @@ type SayablePayloadUnsupportedType =
   | 'RedEnvelope'
   | 'Transfer'
   | 'Unknown'
+  | 'CallRecord'
 
 export {
   sayablePayloads,
