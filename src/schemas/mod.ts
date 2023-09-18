@@ -136,7 +136,7 @@ import {
 import {
   CallType,
   CallStatus,
-  CallRecordPayload,
+  type CallRecordPayload,
 } from './call.js'
 
 export {
