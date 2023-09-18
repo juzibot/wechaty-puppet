@@ -23,6 +23,7 @@ export enum MessageType {
   Channel     = 17,   // Channel
   System      = 18,   // System Message
   Markdown    = 19,   // Markdown Message
+  CallRecord  = 20,   // Call Record (voice and video, maybe group?)
 }
 
 /**
