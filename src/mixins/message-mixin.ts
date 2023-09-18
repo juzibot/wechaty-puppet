@@ -42,6 +42,7 @@ import {
   sayableTypes,
 }                                 from '../schemas/sayable.js'
 import type { ChannelPayload } from '../schemas/channel.js'
+import type { CallRecordPayload } from '../schemas/call-record.js'
 
 const filebox = (filebox: string | FileBoxInterface) => typeof filebox === 'string' ? FileBox.fromJSON(filebox) : filebox
 
@@ -73,6 +74,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     abstract messageUrl          (messageId: string)                       : Promise<UrlLinkPayload>
     abstract messageLocation     (messageId: string)                       : Promise<LocationPayload>
     abstract messageChannel      (messageId: string)                       : Promise<ChannelPayload>
+    abstract messageCallREcord   (messageId: string)                       : Promise<CallRecordPayload>
 
     abstract messageForward         (conversationId: string, messageId: string,)                     : Promise<void | string>
     abstract messageSendContact     (conversationId: string, contactId: string)                      : Promise<void | string>
