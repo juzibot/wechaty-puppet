@@ -103,8 +103,9 @@ import type {
   ChatEventName,
 }                         from './puppet.js'
 
-import type {
-  ChannelPayload,
+import {
+  type ChannelPayload,
+  ChannelFeedType,
 } from './channel.js'
 
 import {
@@ -132,6 +133,12 @@ import {
   VerifyCodeScene,
 } from './verify-code.js'
 
+import {
+  CallType,
+  CallStatus,
+  type CallRecordPayload,
+} from './call.js'
+
 export {
   CHAT_EVENT_DICT,
   ContactGender,
@@ -155,8 +162,11 @@ export {
   ScanStatus,
   VerifyCodeStatus,
   VerifyCodeScene,
+  CallStatus,
+  CallType,
   TapType,
   TagType,
+  ChannelFeedType,
   type ChatEventName,
   type ContactPayload,
   type ContactQueryFilter,
@@ -217,6 +227,7 @@ export {
   type TagPayload,
   type TagQueryFilter,
   type TagGroupQueryFilter,
+  type CallRecordPayload,
   TagEventType,
   TagGroupEventType,
   YOU,

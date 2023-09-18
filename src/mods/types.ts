@@ -28,6 +28,9 @@ import {
   YOU,
   VerifyCodeScene,
   VerifyCodeStatus,
+  CallStatus,
+  CallType,
+  ChannelFeedType,
 }                       from '../schemas/mod.js'
 
 export {
@@ -43,6 +46,7 @@ export {
   PostType                as Post,
   TapType                 as Tap,
   TagType                 as Tag,
+  ChannelFeedType         as ChannelFeed,
   sayableTypes            as Sayable,
   TagEventType            as TagEvent,
   TagGroupEventType       as TagGroupEvent,
@@ -52,6 +56,7 @@ export {
    */
   DirtyType               as Payload,
   DirtyType               as Dirty,
+  CallType                as Call,
 }
 
 export {
@@ -60,6 +65,7 @@ export {
   VerifyCodeScene,
   BroadcastStatus,
   BroadcastTargetStatus,
+  CallStatus,
   type FriendshipAddOptions,
   type MessageSendTextOptions,
   type RoomPermission,
