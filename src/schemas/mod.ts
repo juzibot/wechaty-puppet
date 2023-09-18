@@ -137,7 +137,7 @@ import {
   CallType,
   CallStatus,
   CallRecordPayload,
-} from './call-record.js'
+} from './call.js'
 
 export {
   CHAT_EVENT_DICT,

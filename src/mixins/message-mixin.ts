@@ -42,7 +42,7 @@ import {
   sayableTypes,
 }                                 from '../schemas/sayable.js'
 import type { ChannelPayload } from '../schemas/channel.js'
-import type { CallRecordPayload } from '../schemas/call-record.js'
+import type { CallRecordPayload } from '../schemas/call.js'
 
 const filebox = (filebox: string | FileBoxInterface) => typeof filebox === 'string' ? FileBox.fromJSON(filebox) : filebox
 
