@@ -8,6 +8,7 @@ export enum CallStatus {
   UNKNOWN = 0,
   CANCELED, // caller cancel
   REJECTED, // callee reject
+  MISSED,
   ONGOING,
   ENDED,
 }
