@@ -101,11 +101,11 @@ abstract class PuppetSkeleton extends PuppetEventEmitter {
    *  so that all start()/stop() calls can be chained through all mixins.
    */
   async start (): Promise<void> {
-    log.verbose('PuppetSkeleton', 'start()')
+    log.info('PuppetSkeleton', 'start()')
   }
 
   async stop (): Promise<void> {
-    log.verbose('PuppetSkeleton', 'stop()')
+    log.info('PuppetSkeleton', 'stop()')
   }
 
   /**

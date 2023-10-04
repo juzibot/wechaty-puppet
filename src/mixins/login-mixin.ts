@@ -82,13 +82,14 @@ const loginMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
      * ref: https://github.com/wechaty/puppet/issues/184
      */
     override async stop (): Promise<void> {
-      log.verbose('PuppetLoginMixin', 'stop()')
+      log.info('PuppetLoginMixin', 'stop()')
       // await this.logout()
       if (this.isLoggedIn) {
         this.emit('logout', {
           contactId: this.currentUserId,
           data: 'puppet stop()',
         })
+        log.info('PuppetLoginMixin', 'logout event emitted')
       }
 
       await new Promise<void>(resolve => setImmediate(() => {
@@ -105,7 +106,7 @@ const loginMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
      * @internal for puppet internal usage
      */
     login (userId: string): void {
-      log.verbose('PuppetLoginMixin', 'login(%s)', userId)
+      log.info('PuppetLoginMixin', 'login(%s)', userId)
 
       if (this.__currentUserId) {
         throw new Error('must logout first before login again!')
@@ -122,10 +123,10 @@ const loginMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
      * Note: must set `this.currentUserId = undefined` in this function.
      */
     async logout (reason = 'logout()'): Promise<void> {
-      log.verbose('PuppetLoginMixin', 'logout(%s)', reason)
+      log.info('PuppetLoginMixin', 'logout(%s)', reason)
 
       if (!this.isLoggedIn) {
-        log.verbose('PuppetLoginMixin', 'logout() isLoggedIn === false, do nothing')
+        log.info('PuppetLoginMixin', 'logout() isLoggedIn === false, do nothing')
         return
       }
 
