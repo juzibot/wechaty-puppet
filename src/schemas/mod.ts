@@ -138,6 +138,7 @@ import {
   CallStatus,
   type CallRecordPayload,
 } from './call.js'
+import type { ChatHistoryPayload } from './chat-history.js'
 
 export {
   CHAT_EVENT_DICT,
@@ -228,6 +229,7 @@ export {
   type TagQueryFilter,
   type TagGroupQueryFilter,
   type CallRecordPayload,
+  type ChatHistoryPayload,
   TagEventType,
   TagGroupEventType,
   YOU,

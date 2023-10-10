@@ -138,8 +138,10 @@ class PuppetTest extends PUPPET.Puppet {
   override async messageContact (messageId: string)                               : Promise<string>                       { return { messageId } as any }
   override async messageMiniProgram (messageId: string)                           : Promise<PUPPET.payloads.MiniProgram>  { return { messageId } as any }
   override async messageLocation (messageId: string)                              : Promise<PUPPET.payloads.Location>     { return { messageId } as any }
+  override async messageCallRecord  (messageId: string)                           : Promise<PUPPET.payloads.CallRecord> { return { messageId } as any }
+  override async messageChatHistory (messageId: string)                           : Promise<PUPPET.payloads.ChatHistory[]> { return { messageId } as any }
 
-  override async messageForward (to: string, messageId: string)                                           : Promise<void | string> { return { messageId, to } as any }
+  override async messageForward (to: string, messageId: string | string[])                                : Promise<void | string> { return { messageId, to } as any }
   override async messageSendContact (receiver: string, contactId: string)                                 : Promise<void | string> { return { contactId, receiver } as any }
   override async messageSendFile (to: string, file: FileBoxInterface)                                     : Promise<void | string> { return { file, to } as any }
   override async messageSendText (to: string, text: string)                                               : Promise<void | string> { return { text, to } as any }
