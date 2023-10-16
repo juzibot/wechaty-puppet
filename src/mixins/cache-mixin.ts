@@ -49,7 +49,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
     override async start (): Promise<void> {
       log.verbose('PuppetCacheMixin', 'start()')
       await super.start()
-      this.cache.start()
+      await this.cache.start()
 
       const onDirty = this.onDirty.bind(this)
 

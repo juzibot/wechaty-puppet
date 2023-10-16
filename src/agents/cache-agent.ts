@@ -40,15 +40,15 @@ interface LruRoomMemberPayload {
 
 class CacheAgent {
 
-  readonly contact?        : QuickLru<string, ContactPayload>
-  readonly friendship?     : QuickLru<string, FriendshipPayload>
-  readonly message?        : QuickLru<string, MessagePayload>
-  readonly post?           : QuickLru<string, PostPayload>
-  readonly room?           : QuickLru<string, RoomPayload>
-  readonly roomInvitation? : QuickLru<string, RoomInvitationPayload>
-  readonly roomMember?     : QuickLru<string, LruRoomMemberPayload>
-  readonly tag?            : QuickLru<string, TagPayload>
-  readonly tagGroup?       : QuickLru<string, TagGroupPayload>
+  contact?        : QuickLru<string, ContactPayload>
+  friendship?     : QuickLru<string, FriendshipPayload>
+  message?        : QuickLru<string, MessagePayload>
+  post?           : QuickLru<string, PostPayload>
+  room?           : QuickLru<string, RoomPayload>
+  roomInvitation? : QuickLru<string, RoomInvitationPayload>
+  roomMember?     : QuickLru<string, LruRoomMemberPayload>
+  tag?            : QuickLru<string, TagPayload>
+  tagGroup?       : QuickLru<string, TagGroupPayload>
 
   readonly disabled: boolean
 
@@ -60,14 +60,20 @@ class CacheAgent {
         ? JSON.stringify(options)
         : '',
     )
+    this.disabled = WECHATY_PUPPET_DISABLE_LRU_CACHE(options?.disable)
+
+  }
+
+  async start (): Promise<void> {
+    log.verbose('PuppetCacheAgent', 'start()')
+
 
     /**
      * Setup LRU Caches
      */
 
-    this.disabled = WECHATY_PUPPET_DISABLE_LRU_CACHE(options?.disable)
     if (!this.disabled) {
-      const QuickLruConstructor = require('@alloc/quick-lru')
+      const QuickLruConstructor = ((await import('@alloc/quick-lru')) as any).default
       const createQuickLru = <T, K>(options: QuickLruOptions<T, K>) => {
         return new QuickLruConstructor(options) as QuickLru<T, K>
       }
@@ -78,38 +84,34 @@ class CacheAgent {
       })
 
       this.contact = createQuickLru<string, ContactPayload>(lruOptions(
-        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_CONTACT(options?.contact)),
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_CONTACT(this.options?.contact)),
       )
       this.friendship = createQuickLru<string, FriendshipPayload>(lruOptions(
-        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_FRIENDSHIP(options?.friendship)),
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_FRIENDSHIP(this.options?.friendship)),
       )
       this.message = createQuickLru<string, MessagePayload>(lruOptions(
-        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_MESSAGE(options?.message)),
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_MESSAGE(this.options?.message)),
       )
       this.roomInvitation = createQuickLru<string, RoomInvitationPayload>(lruOptions(
-        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_ROOM_INVITATION(options?.roomInvitation)),
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_ROOM_INVITATION(this.options?.roomInvitation)),
       )
       this.roomMember = createQuickLru<string, LruRoomMemberPayload>(lruOptions(
-        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_ROOM_MEMBER(options?.roomMember)),
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_ROOM_MEMBER(this.options?.roomMember)),
       )
       this.room = createQuickLru<string, RoomPayload>(lruOptions(
-        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_ROOM(options?.room)),
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_ROOM(this.options?.room)),
       )
       this.post = createQuickLru<string, PostPayload>(lruOptions(
-        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_POST(options?.post)),
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_POST(this.options?.post)),
       )
       this.tag = createQuickLru<string, TagPayload>(lruOptions(
-        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_TAG(options?.tag)),
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_TAG(this.options?.tag)),
       )
       this.tagGroup = createQuickLru<string, TagGroupPayload>(lruOptions(
-        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_TAG_GROUP(options?.tagGroup)),
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_TAG_GROUP(this.options?.tagGroup)),
       )
     }
 
-  }
-
-  start (): void {
-    log.verbose('PuppetCacheAgent', 'start()')
   }
 
   stop (): void {
