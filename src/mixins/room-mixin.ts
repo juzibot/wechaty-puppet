@@ -251,7 +251,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
       const payload    = await this.roomRawPayloadParser(rawPayload)
 
       if (!this.cache.disabled) {
-        this.cache.room.set(roomId, payload)
+        this.cache.room!.set(roomId, payload)
         log.silly('PuppetRoomMixin', 'roomPayload(%s) cache SET', roomId)
       }
 

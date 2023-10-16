@@ -2,7 +2,7 @@ import {
   timeoutPromise,
 }                           from 'gerror'
 
-import { envVars, log }  from '../config.js'
+import { log }  from '../config.js'
 
 import type {
   PuppetOptions,

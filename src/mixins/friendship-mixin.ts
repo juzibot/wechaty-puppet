@@ -122,7 +122,7 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
       )
 
       if (typeof newPayload === 'object' && !this.cache.disabled) {
-        await this.cache.friendship.set(friendshipId, newPayload)
+        await this.cache.friendship!.set(friendshipId, newPayload)
         return
       }
 
@@ -141,7 +141,7 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
       const payload    = await this.friendshipRawPayloadParser(rawPayload)
 
       if (!this.cache.disabled) {
-        this.cache.friendship.set(friendshipId, payload)
+        this.cache.friendship!.set(friendshipId, payload)
       }
 
       return payload

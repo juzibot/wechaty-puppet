@@ -63,7 +63,7 @@ const tagMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBas
 
       const payload = await this.tagPayloadPuppet(id)
       if (!this.cache.disabled) {
-        this.cache.tag.set(id, payload)
+        this.cache.tag!.set(id, payload)
         log.silly('PuppetTagMixin', 'tagPayload(%s) cache SET', id)
       }
       return payload
@@ -87,7 +87,7 @@ const tagMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBas
 
       const payload = await this.tagGroupPayloadPuppet(id)
       if (!this.cache.disabled) {
-        this.cache.tagGroup.set(id, payload)
+        this.cache.tagGroup!.set(id, payload)
         log.silly('PuppetTagMixin', 'tagGroupPayload(%s) cache SET', id)
       }
       return payload

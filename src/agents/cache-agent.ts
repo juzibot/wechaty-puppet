@@ -31,7 +31,6 @@ import type {
 }                         from '../schemas/post.js'
 import type { TagGroupPayload, TagPayload } from '../schemas/tag.js'
 import { WECHATY_PUPPET_DISABLE_LRU_CACHE } from '../env-vars.js'
-import { Constructor } from 'clone-class'
 
 type PayloadCacheOptions = Required<PuppetOptions>['cache']
 
@@ -66,40 +65,43 @@ class CacheAgent {
      * Setup LRU Caches
      */
 
-    this.disabled = WECHATY_PUPPET_DISABLE_LRU_CACHE(options.disable)
+    this.disabled = WECHATY_PUPPET_DISABLE_LRU_CACHE(options?.disable)
     if (!this.disabled) {
-      const QuickLruConstructor = require('@alloc/quick-lru').QuickLru as Constructor<QuickLru>
+      const QuickLruConstructor = require('@alloc/quick-lru')
+      const createQuickLru = <T, K>(options: QuickLruOptions<T, K>) => {
+        return new QuickLruConstructor(options) as QuickLru<T, K>
+      }
 
       const lruOptions = (maxSize = 100): QuickLruOptions<any, any> => ({
         maxAge: 15 * 60 * 1000 * 1000, // 15 minutes
         maxSize,
       })
 
-      this.contact = new QuickLruConstructor(lruOptions(
+      this.contact = createQuickLru<string, ContactPayload>(lruOptions(
         envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_CONTACT(options?.contact)),
       )
-      this.friendship = new QuickLruConstructor(lruOptions(
+      this.friendship = createQuickLru<string, FriendshipPayload>(lruOptions(
         envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_FRIENDSHIP(options?.friendship)),
       )
-      this.message = new QuickLruConstructor(lruOptions(
+      this.message = createQuickLru<string, MessagePayload>(lruOptions(
         envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_MESSAGE(options?.message)),
       )
-      this.roomInvitation = new QuickLruConstructor(lruOptions(
+      this.roomInvitation = createQuickLru<string, RoomInvitationPayload>(lruOptions(
         envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_ROOM_INVITATION(options?.roomInvitation)),
       )
-      this.roomMember = new QuickLruConstructor(lruOptions(
+      this.roomMember = createQuickLru<string, LruRoomMemberPayload>(lruOptions(
         envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_ROOM_MEMBER(options?.roomMember)),
       )
-      this.room = new QuickLruConstructor(lruOptions(
+      this.room = createQuickLru<string, RoomPayload>(lruOptions(
         envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_ROOM(options?.room)),
       )
-      this.post = new QuickLruConstructor(lruOptions(
+      this.post = createQuickLru<string, PostPayload>(lruOptions(
         envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_POST(options?.post)),
       )
-      this.tag = new QuickLruConstructor(lruOptions(
+      this.tag = createQuickLru<string, TagPayload>(lruOptions(
         envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_TAG(options?.tag)),
       )
-      this.tagGroup = new QuickLruConstructor(lruOptions(
+      this.tagGroup = createQuickLru<string, TagGroupPayload>(lruOptions(
         envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_TAG_GROUP(options?.tagGroup)),
       )
     }

@@ -73,7 +73,7 @@ const roomInvitationMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixi
       log.verbose('PuppetRoomInvitationMixin', 'roomInvitationPayload(%s)', roomInvitationId)
 
       if (typeof newPayload === 'object' && !this.cache.disabled) {
-        this.cache.roomInvitation.set(roomInvitationId, newPayload)
+        this.cache.roomInvitation!.set(roomInvitationId, newPayload)
         return
       }
 

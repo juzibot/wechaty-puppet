@@ -69,7 +69,7 @@ const postMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMi
       const payload    = await this.postRawPayloadParser(rawPayload)
 
       if (!this.cache.disabled) {
-        this.cache.post.set(postId, payload)
+        this.cache.post!.set(postId, payload)
         log.silly('PuppetPostMixin', 'postPayload(%s) cache SET', postId)
       }
 
@@ -106,7 +106,7 @@ const postMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMi
       if (this.cache.disabled) {
         return []
       }
-      return [ ...this.cache.post.keys() ]
+      return [ ...this.cache.post!.keys() ]
     }
 
     async postPayloadDirty (

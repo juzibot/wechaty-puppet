@@ -67,7 +67,7 @@ const WECHATY_PUPPET_LRU_CACHE_SIZE_TAG_GROUP = (v?: number) => v ?? getNumber(
   DEFAULT_LRU_CACHE_SIZE_TAG_GROUP,
 )
 
-const WECHATY_PUPPET_DISABLE_LRU_CACHE = (v?: boolean) => v ?? process.env.WECHATY_PUPPET_DISABLE_LRU_CACHE === 'true'
+const WECHATY_PUPPET_DISABLE_LRU_CACHE = (v?: boolean) => v ?? process.env['WECHATY_PUPPET_DISABLE_LRU_CACHE'] === 'true'
 
 export {
   getNumberEnv,

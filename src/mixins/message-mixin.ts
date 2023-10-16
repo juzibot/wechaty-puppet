@@ -177,7 +177,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
       if (this.cache.disabled) {
         return []
       }
-      return [ ...this.cache.message.keys() ]
+      return [ ...this.cache.message!.keys() ]
     }
 
     async messageSearch (

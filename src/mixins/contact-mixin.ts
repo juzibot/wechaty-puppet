@@ -310,7 +310,7 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
       const payload    = await this.contactRawPayloadParser(rawPayload)
 
       if (!this.cache.disabled) {
-        this.cache.contact.set(contactId, payload)
+        this.cache.contact!.set(contactId, payload)
         log.silly('PuppetContactMixin', 'contactPayload(%s) cache SET', contactId)
       }
 
