@@ -73,7 +73,6 @@ const postMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMi
         log.silly('PuppetPostMixin', 'postPayload(%s) cache SET', postId)
       }
 
-
       return payload
     }
 
