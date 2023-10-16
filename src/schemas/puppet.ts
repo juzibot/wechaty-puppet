@@ -58,6 +58,7 @@ export interface PuppetOptions {
   timeoutSeconds? : number
   token?          : string
   cache?: {
+    disable?        : boolean
     contact?        : number
     friendship?     : number
     message?        : number

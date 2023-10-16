@@ -49,7 +49,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
     override async start (): Promise<void> {
       log.verbose('PuppetCacheMixin', 'start()')
       await super.start()
-      this.cache.start()
+      await this.cache.start()
 
       const onDirty = this.onDirty.bind(this)
 
@@ -107,16 +107,18 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       }: EventDirtyPayload,
     ): void {
       log.verbose('PuppetCacheMixin', 'onDirty(%s<%s>, %s)', DirtyType[payloadType], payloadType, payloadId)
-
+      if (this.cache.disabled) {
+        return
+      }
       const dirtyFuncMap = {
-        [DirtyType.Contact]:      (id: string) => this.cache.contact.delete(id),
-        [DirtyType.Friendship]:   (id: string) => this.cache.friendship.delete(id),
-        [DirtyType.Message]:      (id: string) => this.cache.message.delete(id),
-        [DirtyType.Post]:         (id: string) => this.cache.post.delete(id),
-        [DirtyType.Room]:         (id: string) => this.cache.room.delete(id),
-        [DirtyType.RoomMember]:   (id: string) => this.cache.roomMember.delete(id),
-        [DirtyType.Tag]:          (id: string) => this.cache.tag.delete(id),
-        [DirtyType.TagGroup]:     (id: string) => this.cache.tagGroup.delete(id),
+        [DirtyType.Contact]:      (id: string) => this.cache.contact?.delete(id),
+        [DirtyType.Friendship]:   (id: string) => this.cache.friendship?.delete(id),
+        [DirtyType.Message]:      (id: string) => this.cache.message?.delete(id),
+        [DirtyType.Post]:         (id: string) => this.cache.post?.delete(id),
+        [DirtyType.Room]:         (id: string) => this.cache.room?.delete(id),
+        [DirtyType.RoomMember]:   (id: string) => this.cache.roomMember?.delete(id),
+        [DirtyType.Tag]:          (id: string) => this.cache.tag?.delete(id),
+        [DirtyType.TagGroup]:     (id: string) => this.cache.tagGroup?.delete(id),
         [DirtyType.Unspecified]:  (id: string) => { throw new Error('Unspecified type with id: ' + id) },
       }
 

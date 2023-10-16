@@ -93,7 +93,7 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
       if (!friendshipId) {
         throw new Error('no id')
       }
-      const cachedPayload = this.cache.friendship.get(friendshipId)
+      const cachedPayload = this.cache.friendship?.get(friendshipId)
 
       if (cachedPayload) {
         // log.silly('PuppetFriendshipMixin', 'friendshipPayloadCache(%s) cache HIT', friendshipId)
@@ -121,8 +121,8 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
           : '',
       )
 
-      if (typeof newPayload === 'object') {
-        await this.cache.friendship.set(friendshipId, newPayload)
+      if (typeof newPayload === 'object' && !this.cache.disabled) {
+        await this.cache.friendship!.set(friendshipId, newPayload)
         return
       }
 
@@ -140,7 +140,9 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
       const rawPayload = await this.friendshipRawPayload(friendshipId)
       const payload    = await this.friendshipRawPayloadParser(rawPayload)
 
-      this.cache.friendship.set(friendshipId, payload)
+      if (!this.cache.disabled) {
+        this.cache.friendship!.set(friendshipId, payload)
+      }
 
       return payload
     }

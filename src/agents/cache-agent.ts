@@ -1,7 +1,7 @@
 import type {
   Options as QuickLruOptions,
 }                               from '@alloc/quick-lru'
-import QuickLru                 from '@alloc/quick-lru'
+import type QuickLru from '@alloc/quick-lru'
 
 import {
   envVars,
@@ -30,6 +30,7 @@ import type {
   PostPayload,
 }                         from '../schemas/post.js'
 import type { TagGroupPayload, TagPayload } from '../schemas/tag.js'
+import { WECHATY_PUPPET_DISABLE_LRU_CACHE } from '../env-vars.js'
 
 type PayloadCacheOptions = Required<PuppetOptions>['cache']
 
@@ -39,15 +40,17 @@ interface LruRoomMemberPayload {
 
 class CacheAgent {
 
-  readonly contact        : QuickLru<string, ContactPayload>
-  readonly friendship     : QuickLru<string, FriendshipPayload>
-  readonly message        : QuickLru<string, MessagePayload>
-  readonly post           : QuickLru<string, PostPayload>
-  readonly room           : QuickLru<string, RoomPayload>
-  readonly roomInvitation : QuickLru<string, RoomInvitationPayload>
-  readonly roomMember     : QuickLru<string, LruRoomMemberPayload>
-  readonly tag            : QuickLru<string, TagPayload>
-  readonly tagGroup       : QuickLru<string, TagGroupPayload>
+  contact?        : QuickLru<string, ContactPayload>
+  friendship?     : QuickLru<string, FriendshipPayload>
+  message?        : QuickLru<string, MessagePayload>
+  post?           : QuickLru<string, PostPayload>
+  room?           : QuickLru<string, RoomPayload>
+  roomInvitation? : QuickLru<string, RoomInvitationPayload>
+  roomMember?     : QuickLru<string, LruRoomMemberPayload>
+  tag?            : QuickLru<string, TagPayload>
+  tagGroup?       : QuickLru<string, TagGroupPayload>
+
+  readonly disabled: boolean
 
   constructor (
     protected options?: PayloadCacheOptions,
@@ -57,46 +60,57 @@ class CacheAgent {
         ? JSON.stringify(options)
         : '',
     )
+    this.disabled = WECHATY_PUPPET_DISABLE_LRU_CACHE(options?.disable)
+
+  }
+
+  async start (): Promise<void> {
+    log.verbose('PuppetCacheAgent', 'start()')
 
     /**
      * Setup LRU Caches
      */
-    const lruOptions = (maxSize = 100): QuickLruOptions<any, any> => ({
-      maxAge: 15 * 60 * 1000 * 1000, // 15 minutes
-      maxSize,
-    })
 
-    this.contact = new QuickLru<string, ContactPayload>(lruOptions(
-      envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_CONTACT(options?.contact)),
-    )
-    this.friendship = new QuickLru<string, FriendshipPayload>(lruOptions(
-      envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_FRIENDSHIP(options?.friendship)),
-    )
-    this.message = new QuickLru<string, MessagePayload>(lruOptions(
-      envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_MESSAGE(options?.message)),
-    )
-    this.roomInvitation = new QuickLru<string, RoomInvitationPayload>(lruOptions(
-      envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_ROOM_INVITATION(options?.roomInvitation)),
-    )
-    this.roomMember = new QuickLru<string, LruRoomMemberPayload>(lruOptions(
-      envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_ROOM_MEMBER(options?.roomMember)),
-    )
-    this.room = new QuickLru<string, RoomPayload>(lruOptions(
-      envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_ROOM(options?.room)),
-    )
-    this.post = new QuickLru<string, PostPayload>(lruOptions(
-      envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_POST(options?.post)),
-    )
-    this.tag = new QuickLru<string, TagPayload>(lruOptions(
-      envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_TAG(options?.tag)),
-    )
-    this.tagGroup = new QuickLru<string, TagPayload>(lruOptions(
-      envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_TAG_GROUP(options?.tagGroup)),
-    )
-  }
+    if (!this.disabled) {
+      const QuickLruConstructor = ((await import('@alloc/quick-lru')) as any).default
+      const createQuickLru = <T, K>(options: QuickLruOptions<T, K>) => {
+        return new QuickLruConstructor(options) as QuickLru<T, K>
+      }
 
-  start (): void {
-    log.verbose('PuppetCacheAgent', 'start()')
+      const lruOptions = (maxSize = 100): QuickLruOptions<any, any> => ({
+        maxAge: 15 * 60 * 1000 * 1000, // 15 minutes
+        maxSize,
+      })
+
+      this.contact = createQuickLru<string, ContactPayload>(lruOptions(
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_CONTACT(this.options?.contact)),
+      )
+      this.friendship = createQuickLru<string, FriendshipPayload>(lruOptions(
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_FRIENDSHIP(this.options?.friendship)),
+      )
+      this.message = createQuickLru<string, MessagePayload>(lruOptions(
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_MESSAGE(this.options?.message)),
+      )
+      this.roomInvitation = createQuickLru<string, RoomInvitationPayload>(lruOptions(
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_ROOM_INVITATION(this.options?.roomInvitation)),
+      )
+      this.roomMember = createQuickLru<string, LruRoomMemberPayload>(lruOptions(
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_ROOM_MEMBER(this.options?.roomMember)),
+      )
+      this.room = createQuickLru<string, RoomPayload>(lruOptions(
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_ROOM(this.options?.room)),
+      )
+      this.post = createQuickLru<string, PostPayload>(lruOptions(
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_POST(this.options?.post)),
+      )
+      this.tag = createQuickLru<string, TagPayload>(lruOptions(
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_TAG(this.options?.tag)),
+      )
+      this.tagGroup = createQuickLru<string, TagGroupPayload>(lruOptions(
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_TAG_GROUP(this.options?.tagGroup)),
+      )
+    }
+
   }
 
   stop (): void {
@@ -117,13 +131,15 @@ class CacheAgent {
   clear (): void {
     log.verbose('PuppetCacheAgent', 'clear()')
 
-    this.contact.clear()
-    this.friendship.clear()
-    this.message.clear()
-    this.post.clear()
-    this.room.clear()
-    this.roomInvitation.clear()
-    this.roomMember.clear()
+    this.contact?.clear()
+    this.friendship?.clear()
+    this.message?.clear()
+    this.post?.clear()
+    this.room?.clear()
+    this.roomInvitation?.clear()
+    this.roomMember?.clear()
+    this.tag?.clear()
+    this.tagGroup?.clear()
   }
 
 }
