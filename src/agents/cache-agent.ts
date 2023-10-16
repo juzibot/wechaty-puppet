@@ -67,7 +67,6 @@ class CacheAgent {
   async start (): Promise<void> {
     log.verbose('PuppetCacheAgent', 'start()')
 
-
     /**
      * Setup LRU Caches
      */
