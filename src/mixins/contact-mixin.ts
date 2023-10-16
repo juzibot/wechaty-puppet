@@ -275,7 +275,7 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
       if (!contactId) {
         throw new Error('no id')
       }
-      const cachedPayload = this.cache.contact.get(contactId)
+      const cachedPayload = this.cache.contact?.get(contactId)
 
       if (cachedPayload) {
         // log.silly('PuppetContactMixin', 'contactPayload(%s) cache HIT', contactId)
@@ -309,8 +309,10 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
       const rawPayload = await this.contactRawPayload(contactId)
       const payload    = await this.contactRawPayloadParser(rawPayload)
 
-      this.cache.contact.set(contactId, payload)
-      log.silly('PuppetContactMixin', 'contactPayload(%s) cache SET', contactId)
+      if (!this.cache.disabled) {
+        this.cache.contact.set(contactId, payload)
+        log.silly('PuppetContactMixin', 'contactPayload(%s) cache SET', contactId)
+      }
 
       return payload
     }

@@ -36,7 +36,7 @@ const roomInvitationMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixi
       if (!roomInvitationId) {
         throw new Error('no id')
       }
-      const cachedPayload = this.cache.roomInvitation.get(roomInvitationId)
+      const cachedPayload = this.cache.roomInvitation?.get(roomInvitationId)
 
       if (cachedPayload) {
         // log.silly('PuppetRoomInvitationMixin', 'roomInvitationPayloadCache(%s) cache HIT', roomInvitationId)
@@ -72,7 +72,7 @@ const roomInvitationMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixi
     async roomInvitationPayload (roomInvitationId: string, newPayload?: RoomInvitationPayload): Promise<void | RoomInvitationPayload> {
       log.verbose('PuppetRoomInvitationMixin', 'roomInvitationPayload(%s)', roomInvitationId)
 
-      if (typeof newPayload === 'object') {
+      if (typeof newPayload === 'object' && !this.cache.disabled) {
         this.cache.roomInvitation.set(roomInvitationId, newPayload)
         return
       }

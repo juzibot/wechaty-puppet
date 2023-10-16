@@ -131,7 +131,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
       if (!messageId) {
         throw new Error('no id')
       }
-      const cachedPayload = this.cache.message.get(messageId)
+      const cachedPayload = this.cache.message?.get(messageId)
       if (cachedPayload) {
         // log.silly('PuppetMessageMixin', 'messagePayloadCache(%s) cache HIT', messageId)
       } else {
@@ -164,14 +164,19 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
       const rawPayload = await this.messageRawPayload(messageId)
       const payload    = await this.messageRawPayloadParser(rawPayload)
 
-      this.cache.message.set(messageId, payload)
-      log.silly('PuppetMessageMixin', 'messagePayload(%s) cache SET', messageId)
+      if (!this.cache.disabled) {
+        this.cache.message?.set(messageId, payload)
+        log.silly('PuppetMessageMixin', 'messagePayload(%s) cache SET', messageId)
+      }
 
       return payload
     }
 
     messageList (): string[] {
       log.verbose('PuppetMessageMixin', 'messageList()')
+      if (this.cache.disabled) {
+        return []
+      }
       return [ ...this.cache.message.keys() ]
     }
 

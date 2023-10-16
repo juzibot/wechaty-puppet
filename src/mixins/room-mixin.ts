@@ -217,7 +217,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
       if (!roomId) {
         throw new Error('no id')
       }
-      const cachedPayload = this.cache.room.get(roomId)
+      const cachedPayload = this.cache.room?.get(roomId)
       if (cachedPayload) {
         // log.silly('PuppetRoomMixin', 'roomPayloadCache(%s) cache HIT', roomId)
       } else {
@@ -250,8 +250,10 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
       const rawPayload = await this.roomRawPayload(roomId)
       const payload    = await this.roomRawPayloadParser(rawPayload)
 
-      this.cache.room.set(roomId, payload)
-      log.silly('PuppetRoomMixin', 'roomPayload(%s) cache SET', roomId)
+      if (!this.cache.disabled) {
+        this.cache.room.set(roomId, payload)
+        log.silly('PuppetRoomMixin', 'roomPayload(%s) cache SET', roomId)
+      }
 
       return payload
     }

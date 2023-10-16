@@ -35,7 +35,7 @@ const postMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMi
       if (!postId) {
         throw new Error('no id')
       }
-      const cachedPayload = this.cache.post.get(postId)
+      const cachedPayload = this.cache.post?.get(postId)
       if (cachedPayload) {
         // log.silly('PuppetPostMixin', 'postPayloadCache(%s) cache HIT', postId)
       } else {
@@ -68,8 +68,11 @@ const postMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMi
       const rawPayload = await this.postRawPayload(postId)
       const payload    = await this.postRawPayloadParser(rawPayload)
 
-      this.cache.post.set(postId, payload)
-      log.silly('PuppetPostMixin', 'postPayload(%s) cache SET', postId)
+      if (!this.cache.disabled) {
+        this.cache.post.set(postId, payload)
+        log.silly('PuppetPostMixin', 'postPayload(%s) cache SET', postId)
+      }
+
 
       return payload
     }
@@ -100,6 +103,9 @@ const postMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMi
      */
     postList (): string[] {
       log.verbose('PuppetPostMixin', 'postList()')
+      if (this.cache.disabled) {
+        return []
+      }
       return [ ...this.cache.post.keys() ]
     }
 
