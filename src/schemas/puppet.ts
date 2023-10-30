@@ -31,13 +31,13 @@ export const CHAT_EVENT_DICT = {
   'post-comment' : 'a post receives a new comment',
   'post-tap'     : 'a post receives a new tap',
   'verify-code'  : 'a verify code is required',
+  dirty          : 'dirty the cache payload, which means payload info changed',
 }
 export type ChatEventName = keyof typeof CHAT_EVENT_DICT
 
 /** @hidden */
 export const PUPPET_EVENT_DICT = {
   ...CHAT_EVENT_DICT,
-  dirty     : 'dirty the cache payload',
   dong      : 'emit this event if you received a ding() call',
   error     : "emit an Error instance when there's any Error need to report to Wechaty",
   // Huan(202003): rename `watchdog` to `heartbeat`
