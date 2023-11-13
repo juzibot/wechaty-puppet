@@ -8,32 +8,33 @@ import type { ChannelPayload } from './channel.js'
 /**
  * Only type is MessageType.ChatHistory, message is typeof MessageTypeToContent<MessageType>[]
  */
-export interface BaseChatHistoryPayload<T, F> {
+export interface BaseChatHistoryPayload<T extends MessageType, F> {
   type: T,
   avatar: FileBoxInterface,
   senderName: string,
   corpName: string,
-  time: string,
+  time: number,
   message: F,
 }
 
 export type ChatHistoryPayload = BaseChatHistoryPayload<MessageType.ChatHistory, ChatHistoryPayload[]>
-  | BaseChatHistoryPayload<MessageType.Attachment, FileBoxInterface>
-  | BaseChatHistoryPayload<MessageType.Audio, FileBoxInterface>
   | BaseChatHistoryPayload<MessageType.Contact, string>
-  | BaseChatHistoryPayload<MessageType.Emoticon, FileBoxInterface>
-  | BaseChatHistoryPayload<MessageType.Image, FileBoxInterface>
   | BaseChatHistoryPayload<MessageType.Text, string>
-  | BaseChatHistoryPayload<MessageType.Location, LocationPayload>
-  | BaseChatHistoryPayload<MessageType.MiniProgram, MiniProgramPayload>
   | BaseChatHistoryPayload<MessageType.GroupNote, string>
-  | BaseChatHistoryPayload<MessageType.Transfer, string>
-  | BaseChatHistoryPayload<MessageType.RedEnvelope, string>
-  | BaseChatHistoryPayload<MessageType.Recalled, never>
-  | BaseChatHistoryPayload<MessageType.Url, UrlLinkPayload>
-  | BaseChatHistoryPayload<MessageType.Video, FileBoxInterface>
   | BaseChatHistoryPayload<MessageType.Post, string>
-  | BaseChatHistoryPayload<MessageType.Channel, ChannelPayload>
-  | BaseChatHistoryPayload<MessageType.System, never>
   | BaseChatHistoryPayload<MessageType.Markdown, string>
   | BaseChatHistoryPayload<MessageType.CallRecord, string>
+  | BaseChatHistoryPayload<MessageType.Attachment, FileBoxInterface>
+  | BaseChatHistoryPayload<MessageType.Audio, FileBoxInterface>
+  | BaseChatHistoryPayload<MessageType.Emoticon, FileBoxInterface>
+  | BaseChatHistoryPayload<MessageType.Image, FileBoxInterface>
+  | BaseChatHistoryPayload<MessageType.Location, LocationPayload>
+  | BaseChatHistoryPayload<MessageType.MiniProgram, MiniProgramPayload>
+  | BaseChatHistoryPayload<MessageType.Url, UrlLinkPayload>
+  | BaseChatHistoryPayload<MessageType.Video, FileBoxInterface>
+  | BaseChatHistoryPayload<MessageType.Channel, ChannelPayload>
+  | BaseChatHistoryPayload<MessageType.Transfer, never>
+  | BaseChatHistoryPayload<MessageType.RedEnvelope, never>
+  | BaseChatHistoryPayload<MessageType.System, never>
+  | BaseChatHistoryPayload<MessageType.Recalled, never>
+  | BaseChatHistoryPayload<MessageType.Unknown, never>
