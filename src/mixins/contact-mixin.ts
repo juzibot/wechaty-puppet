@@ -29,9 +29,11 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
      * ContactSelf
      *
      */
-    abstract contactSelfName (name: string)           : Promise<void>
-    abstract contactSelfQRCode ()                     : Promise<string /* QR Code Value */>
-    abstract contactSelfSignature (signature: string) : Promise<void>
+    abstract contactSelfName (name: string)          : Promise<void>
+    abstract contactSelfAka (aka: string)            : Promise<void>
+    abstract contactSelfRealName (realName: string)  : Promise<void>
+    abstract contactSelfQRCode ()                    : Promise<string /* QR Code Value */>
+    abstract contactSelfSignature (signature: string): Promise<void>
 
     abstract contactSelfRoomAlias (roomId: string, alias: string) : Promise<void>
 
