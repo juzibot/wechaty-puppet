@@ -60,6 +60,8 @@ interface ContactPayload {
    */
   additionalInfo?: string
   tags?: string[]
+  realName?: string // 企微中的 实名
+  aka?: string // 企微中的 别名 其实 alias 是更好的名字，备注应该是 remark ，但先来后到，没办法了。
 }
 
 /** @hidden */
