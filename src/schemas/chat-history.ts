@@ -14,10 +14,11 @@ export interface BaseChatHistoryPayload<T extends MessageType, F> {
   senderName: string,
   corpName: string,
   time: number,
+  title?: string,
   message: F,
 }
 
-export type ChatHistoryPayload = BaseChatHistoryPayload<MessageType.ChatHistory, ChatHistoryPayload[]>
+export type ChatHistoryPayload = BaseChatHistoryPayload<MessageType.ChatHistory, ChatHistoryPayload>
   | BaseChatHistoryPayload<MessageType.Contact, string>
   | BaseChatHistoryPayload<MessageType.Text, string>
   | BaseChatHistoryPayload<MessageType.GroupNote, string>
