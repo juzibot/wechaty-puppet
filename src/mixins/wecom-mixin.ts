@@ -14,21 +14,6 @@ const wecomMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
       log.verbose('WecomMixin', 'constructor()')
     }
 
-    override async start (): Promise<void> {
-      log.verbose('WecomMixin', 'start()')
-      await super.start()
-    }
-
-    override async stop (): Promise<void> {
-      log.verbose('WecomMixin', 'stop()')
-
-      /**
-       * Huan(202201) NOTE: super.stop() should be the last line of this method
-       *  becasue we should keep the reverse order of logic in start()
-       */
-      await super.stop()
-    }
-
     abstract getContactExternalUserId (contactIds: string[], serviceProviderId?: string): Promise<ContactIdExternalUserIdPair[]>
 
   }
@@ -37,8 +22,10 @@ const wecomMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
 }
 
 type WecomMixin = ReturnType<typeof wecomMixin>
+type ProtectedPropertyWecomMixin = never
 
 export type {
   WecomMixin,
+  ProtectedPropertyWecomMixin,
 }
 export { wecomMixin }

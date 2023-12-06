@@ -72,6 +72,7 @@ import {
 }                                     from './verify-code-mixin.js'
 import {
   wecomMixin,
+  ProtectedPropertyWecomMixin,
 } from './wecom-mixin.js'
 
 /**
@@ -102,6 +103,7 @@ type MixinProtectedProperty =
   | ProtectedPropertyValidateMixin
   | ProtectedPropertyMomentMixin
   | ProtectedPropertyVerifyCodeMixin
+  | ProtectedPropertyWecomMixin
 
 export {
   type MixinProtectedProperty,
