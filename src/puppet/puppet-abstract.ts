@@ -87,6 +87,11 @@ const PipedBase = FP.pipe(
  *
  * TODO: put `validateMixin` back in to piped list
  */
+/**
+ * ignore TS2589
+ * caused by too deep pipe (too many mixins)
+ */
+// @ts-ignore
 const MixinBase = validateMixin(PipedBase)
 
 /**
