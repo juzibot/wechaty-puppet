@@ -32,7 +32,7 @@ import {
   CallType,
   ChannelFeedType,
 
-  ContactIdExternalUserIdPair,
+  type ContactIdExternalUserIdPair,
 }                       from '../schemas/mod.js'
 
 export {
