@@ -70,6 +70,9 @@ import {
   verifyCodeMixin,
   ProtectedPropertyVerifyCodeMixin,
 }                                     from './verify-code-mixin.js'
+import {
+  wecomMixin,
+} from './wecom-mixin.js'
 
 /**
  * Issue #155 - Mixin: Property 'messageRawPayload' of exported class expression
@@ -121,4 +124,5 @@ export {
   validateMixin,
   momentMixin,
   verifyCodeMixin,
+  wecomMixin,
 }

@@ -47,6 +47,7 @@ import {
   tapMixin,
   momentMixin,
   verifyCodeMixin,
+  wecomMixin,
 }                        from '../mixins/mod.js'
 
 import { PuppetSkeleton } from './puppet-skeleton.js'
@@ -75,6 +76,7 @@ const PipedBase = FP.pipe(
   tapMixin,
   momentMixin,
   verifyCodeMixin,
+  wecomMixin,
   // TODO: validateMixin,
 )
 
