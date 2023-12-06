@@ -29,7 +29,7 @@ const wecomMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
       await super.stop()
     }
 
-    abstract getContactExternalUserId (contactIds: string[], serviceProviderIp?: string): Promise<ContactIdExternalUserIdPair[]>
+    abstract getContactExternalUserId (contactIds: string[], serviceProviderId?: string): Promise<ContactIdExternalUserIdPair[]>
 
   }
 
