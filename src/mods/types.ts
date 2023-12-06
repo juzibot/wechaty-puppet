@@ -31,6 +31,8 @@ import {
   CallStatus,
   CallType,
   ChannelFeedType,
+
+  ContactIdExternalUserIdPair,
 }                       from '../schemas/mod.js'
 
 export {
@@ -69,6 +71,7 @@ export {
   type FriendshipAddOptions,
   type MessageSendTextOptions,
   type RoomPermission,
+  type ContactIdExternalUserIdPair,
   YOU,
   CHAT_EVENT_DICT,
   PUPPET_EVENT_DICT,

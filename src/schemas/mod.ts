@@ -140,6 +140,10 @@ import {
 } from './call.js'
 import type { ChatHistoryPayload } from './chat-history.js'
 
+import type {
+  ContactIdExternalUserIdPair,
+} from './wecom.js'
+
 export {
   CHAT_EVENT_DICT,
   ContactGender,
@@ -230,6 +234,7 @@ export {
   type TagGroupQueryFilter,
   type CallRecordPayload,
   type ChatHistoryPayload,
+  type ContactIdExternalUserIdPair,
   TagEventType,
   TagGroupEventType,
   YOU,
