@@ -47,6 +47,7 @@ import {
   tapMixin,
   momentMixin,
   verifyCodeMixin,
+  wecomMixin,
 }                        from '../mixins/mod.js'
 
 import { PuppetSkeleton } from './puppet-skeleton.js'
@@ -75,6 +76,7 @@ const PipedBase = FP.pipe(
   tapMixin,
   momentMixin,
   verifyCodeMixin,
+  wecomMixin,
   // TODO: validateMixin,
 )
 
@@ -85,6 +87,11 @@ const PipedBase = FP.pipe(
  *
  * TODO: put `validateMixin` back in to piped list
  */
+/**
+ * ignore TS2589
+ * caused by too deep pipe (too many mixins)
+ */
+// @ts-ignore
 const MixinBase = validateMixin(PipedBase)
 
 /**

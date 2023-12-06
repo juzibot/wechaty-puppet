@@ -302,6 +302,13 @@ class PuppetTest extends PUPPET.Puppet {
     return { pagination, postId, query } as any
   }
 
+  override getContactExternalUserId (
+    contactIds: string[],
+    serviceProviderId?: string,
+  ): Promise<PUPPET.types.ContactIdExternalUserIdPair[]> {
+    return { contactIds, serviceProviderId } as any
+  }
+
 }
 
 export {
