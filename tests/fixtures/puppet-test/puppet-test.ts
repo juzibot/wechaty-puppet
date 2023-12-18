@@ -203,6 +203,7 @@ class PuppetTest extends PUPPET.Puppet {
   override async roomQRCode (roomId: string)                                       : Promise<string> { return { roomId } as any }
 
   override async roomOwnerTransfer (roomId: string, contactId: string): Promise<void> { return { roomId, contactId } as any }
+  override async roomDismiss (roomId: string): Promise<void> { return { roomId } as any }
   override async roomPermission (roomId: string, permission?: Partial<PUPPET.types.RoomPermission>): Promise<void | Partial<PUPPET.types.RoomPermission>> { return { roomId, permission } as any }
 
   override async roomTopic (roomId: string)                 : Promise<string>
