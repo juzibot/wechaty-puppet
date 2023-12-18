@@ -43,6 +43,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
     abstract roomRemark (roomId: string, remark: string)                       : Promise<void>
 
     abstract roomOwnerTransfer(roomId: string, contactId: string): Promise<void>
+    abstract roomDismiss(roomId: string): Promise<void>
     abstract roomPermission(roomId: string, permission?: Partial<RoomPermission>): Promise<void | Partial<RoomPermission>>
     abstract roomAddAdmins (roomId: string, contactIdList: string[]): Promise<void>
     abstract roomDelAdmins (roomId: string, contactIdList: string[]): Promise<void>
