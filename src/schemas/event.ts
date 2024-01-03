@@ -16,8 +16,9 @@ export enum ScanStatus {
 }
 
 export enum ScanType {
-  Login = 0,
-  Verify = 1,
+  Unknown = 0,
+  Login = 1,
+  Verify = 2,
 }
 
 export interface EventFriendshipPayload {
