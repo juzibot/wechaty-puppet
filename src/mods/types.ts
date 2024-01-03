@@ -25,6 +25,7 @@ import {
   PUPPET_EVENT_DICT,
 
   ScanStatus,
+  ScanType,
   YOU,
   VerifyCodeScene,
   VerifyCodeStatus,
@@ -63,6 +64,7 @@ export {
 
 export {
   ScanStatus,
+  ScanType,
   VerifyCodeStatus,
   VerifyCodeScene,
   BroadcastStatus,

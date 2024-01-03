@@ -22,6 +22,7 @@ import type {
 }                         from '../src/schemas/mod.js'
 import {
   ScanStatus,
+  ScanType,
 }                         from '../src/mods/types.js'
 
 import { PuppetTest } from './fixtures/puppet-test/puppet-test.js'
@@ -69,6 +70,7 @@ test('RxJS: fromEvent type inference', async t => {
   const future = firstValueFrom(event$)
   const payload: EventScanPayload = {
     status: ScanStatus.Unknown,
+    type: ScanType.Login,
   }
   puppet.emit('scan', payload)
 
