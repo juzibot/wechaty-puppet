@@ -71,6 +71,7 @@ test('RxJS: fromEvent type inference', async t => {
   const payload: EventScanPayload = {
     status: ScanStatus.Unknown,
     type: ScanType.Login,
+    timestamp: Date.now(),
   }
   puppet.emit('scan', payload)
 
