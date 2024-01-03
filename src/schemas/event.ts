@@ -93,9 +93,9 @@ export interface EventScanPayload {
   status: ScanStatus,
   type?: ScanType,
 
-  qrcode? : string,
-  data?   : string,
-  timestamp?: string,
+  qrcode?  : string,
+  data?    : string,
+  timestamp: number,
 }
 
 export interface EventDongPayload {
