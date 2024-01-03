@@ -15,6 +15,11 @@ export enum ScanStatus {
   Timeout   = 5,
 }
 
+export enum ScanType {
+  Login = 0,
+  Verify = 1,
+}
+
 export interface EventFriendshipPayload {
   friendshipId: string,
 }
@@ -85,6 +90,7 @@ export interface EventRoomAnnouncePayload {
 
 export interface EventScanPayload {
   status: ScanStatus,
+  type?: ScanType,
 
   qrcode? : string,
   data?   : string,

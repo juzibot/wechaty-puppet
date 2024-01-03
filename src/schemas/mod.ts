@@ -6,6 +6,7 @@ import {
 }                             from './contact.js'
 import {
   ScanStatus,
+  ScanType,
 }                             from './event.js'
 import {
   type FriendshipAddOptions,
@@ -165,6 +166,7 @@ export {
   sayablePayloads,
   sayableTypes,
   ScanStatus,
+  ScanType,
   VerifyCodeStatus,
   VerifyCodeScene,
   CallStatus,
