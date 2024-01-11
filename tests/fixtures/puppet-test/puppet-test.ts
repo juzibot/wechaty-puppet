@@ -323,6 +323,7 @@ class PuppetTest extends PUPPET.Puppet {
   override applyRoomAntiSpamStrategy (
     strategyId: string,
     roomIds: string[],
+    active: boolean,
   ): Promise<void> {
     return { strategyId, roomIds } as any
   }

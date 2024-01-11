@@ -18,7 +18,7 @@ const wecomMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
     abstract getContactExternalUserId (contactIds: string[], serviceProviderId?: string): Promise<ContactIdExternalUserIdPair[]>
     abstract getRoomAntiSpamStrategyList (): Promise<RoomAntiSpamStrategy[]>
     abstract getRoomAntiSpamStrategyEffectRoomList (strategyId: string): Promise<string[]>
-    abstract applyRoomAntiSpamStrategy (strategyId: string, roomIds: string[]): Promise<void>
+    abstract applyRoomAntiSpamStrategy (strategyId: string, roomIds: string[], active: boolean): Promise<void>
 
   }
 
