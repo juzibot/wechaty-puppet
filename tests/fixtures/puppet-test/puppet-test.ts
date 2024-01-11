@@ -325,7 +325,7 @@ class PuppetTest extends PUPPET.Puppet {
     roomIds: string[],
     active: boolean,
   ): Promise<void> {
-    return { strategyId, roomIds } as any
+    return { strategyId, roomIds, active } as any
   }
 
 }
