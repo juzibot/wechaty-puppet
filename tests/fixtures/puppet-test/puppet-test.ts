@@ -310,6 +310,23 @@ class PuppetTest extends PUPPET.Puppet {
     return { contactIds, serviceProviderId } as any
   }
 
+  override getRoomAntiSpamStrategyList (): Promise<PUPPET.types.RoomAntiSpamStrategy[]> {
+    return {} as any
+  }
+
+  override getRoomAntiSpamStrategyEffectRoomList (
+    strategyId: string,
+  ): Promise<string[]> {
+    return { strategyId } as any
+  }
+
+  override applyRoomAntiSpamStrategy (
+    strategyId: string,
+    roomIds: string[],
+  ): Promise<void> {
+    return { strategyId, roomIds } as any
+  }
+
 }
 
 export {
