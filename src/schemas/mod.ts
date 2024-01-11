@@ -143,6 +143,7 @@ import type { ChatHistoryPayload } from './chat-history.js'
 
 import type {
   ContactIdExternalUserIdPair,
+  RoomAntiSpamStrategy,
 } from './wecom.js'
 
 export {
@@ -237,6 +238,7 @@ export {
   type CallRecordPayload,
   type ChatHistoryPayload,
   type ContactIdExternalUserIdPair,
+  type RoomAntiSpamStrategy,
   TagEventType,
   TagGroupEventType,
   YOU,

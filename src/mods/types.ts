@@ -34,6 +34,7 @@ import {
   ChannelFeedType,
 
   type ContactIdExternalUserIdPair,
+  type RoomAntiSpamStrategy,
 }                       from '../schemas/mod.js'
 
 export {
@@ -74,6 +75,7 @@ export {
   type MessageSendTextOptions,
   type RoomPermission,
   type ContactIdExternalUserIdPair,
+  type RoomAntiSpamStrategy,
   YOU,
   CHAT_EVENT_DICT,
   PUPPET_EVENT_DICT,

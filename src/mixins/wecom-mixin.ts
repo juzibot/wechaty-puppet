@@ -4,6 +4,7 @@ import {
 
 import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
 import type { ContactIdExternalUserIdPair } from '../schemas/mod.js'
+import type { RoomAntiSpamStrategy } from '../schemas/wecom.js'
 
 const wecomMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBase) => {
 
@@ -15,6 +16,9 @@ const wecomMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
     }
 
     abstract getContactExternalUserId (contactIds: string[], serviceProviderId?: string): Promise<ContactIdExternalUserIdPair[]>
+    abstract getRoomAntiSpamStrategyList (): Promise<RoomAntiSpamStrategy[]>
+    abstract getRoomAntiSpamStrategyEffectRoomList (strategyId: string): Promise<string[]>
+    abstract applyRoomAntiSpamStrategy (roomId: string): Promise<void>
 
   }
 
