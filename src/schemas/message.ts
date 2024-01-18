@@ -97,6 +97,22 @@ export enum BroadcastTargetStatus {
   Occupied = 3,
 }
 
+export enum TextContentType {
+  Regular = 0,
+  At = 1,
+}
+
+export type TextContent = {
+  type: TextContentType.Regular,
+  text: string,
+} | {
+  type: TextContentType.At,
+  text: string,
+  data: {
+    contactId: string,
+  }
+}
+
 /** @hidden */
 export interface MessagePayloadBase {
   id            : string,
@@ -114,6 +130,8 @@ export interface MessagePayloadBase {
   quoteId?      : string,
 
   additionalInfo?: string,
+
+  textContent?  : TextContent[],
 }
 
 /** @hidden */
