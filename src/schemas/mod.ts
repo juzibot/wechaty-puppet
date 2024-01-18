@@ -28,6 +28,8 @@ import {
   type MessagePayloadTo,
   type MessageQueryFilter,
   type MessageSendTextOptions,
+  type TextContent,
+  TextContentType,
   MessageType,
   BroadcastStatus,
   BroadcastTargetStatus,
@@ -239,7 +241,9 @@ export {
   type ChatHistoryPayload,
   type ContactIdExternalUserIdPair,
   type RoomAntiSpamStrategy,
+  type TextContent,
   TagEventType,
   TagGroupEventType,
+  TextContentType,
   YOU,
 }

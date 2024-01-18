@@ -19,6 +19,7 @@ import {
   PostType,
   TapType,
   TagType,
+  TextContentType,
   sayableTypes,
 
   CHAT_EVENT_DICT,
@@ -35,6 +36,7 @@ import {
 
   type ContactIdExternalUserIdPair,
   type RoomAntiSpamStrategy,
+  type TextContent,
 }                       from '../schemas/mod.js'
 
 export {
@@ -61,6 +63,7 @@ export {
   DirtyType               as Payload,
   DirtyType               as Dirty,
   CallType                as Call,
+  TextContentType,
 }
 
 export {
@@ -76,6 +79,7 @@ export {
   type RoomPermission,
   type ContactIdExternalUserIdPair,
   type RoomAntiSpamStrategy,
+  type TextContent,
   YOU,
   CHAT_EVENT_DICT,
   PUPPET_EVENT_DICT,
