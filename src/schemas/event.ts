@@ -96,6 +96,9 @@ export interface EventScanPayload {
   qrcode?  : string,
   data?    : string,
   timestamp: number,
+
+  createTimestamp?: number,
+  expireTimestamp?: number,
 }
 
 export interface EventDongPayload {
