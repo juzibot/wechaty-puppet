@@ -22,6 +22,7 @@ const tagMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBas
      *  tagGroupDelete - delete a tag group from IM
      *  tagTagAdd - add a tag in a group from IM
      *  tagTagDelete - delete a tag in a group from IM
+     *  tagTagModify - modify a tag in a group from IM
      *  tagGroupList - get a list of tag groups
      *  tagGroupTagList - get a list of tags in a group
      *  tagTagList - get a list of all tags
@@ -36,6 +37,7 @@ const tagMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBas
 
     abstract tagGroupAdd(groupName: string): Promise<string | void>
     abstract tagGroupDelete(groupId: string): Promise<void>
+    abstract tagTagModify(tagId: string, tagNewName:string): Promise<void>
     abstract tagGroupList(): Promise<string[]>
     abstract tagGroupTagList(groupId?: string): Promise<string[]>
     abstract tagGroupPayloadPuppet(groupId: string): Promise<TagGroupPayload>
