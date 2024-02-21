@@ -72,6 +72,11 @@ class PuppetTest extends PUPPET.Puppet {
     void { tagId }
   }
 
+  override async tagTagModify(tagId: string, tagNewName:string): Promise<void> {
+    void { tagId, tagNewName }
+  }
+
+
   override async tagGroupList (): Promise<string[]> {
     return []
   }
