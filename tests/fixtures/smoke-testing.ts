@@ -5,7 +5,7 @@ import assert from 'assert'
 import * as PUPPET from '@juzi/wechaty-puppet'
 import type {
   FileBoxInterface,
-}                     from 'file-box'
+} from 'file-box'
 
 import * as FILTERS from '@juzi/wechaty-puppet/filters'
 import * as IMPLS from '@juzi/wechaty-puppet/impls'
@@ -52,16 +52,18 @@ class PuppetTest extends PUPPET.Puppet {
     void { groupId }
   }
 
-  override async tagTagAdd(tagName: string, groupId?: string): Promise<string | void> {
-    void { groupId, tagName }
+  override async tagTagAdd (tagNameList: string[], groupId?: string): Promise<TYPES.TagInfo[] | void> {
+    void { tagNameList, groupId }
+    return []
   }
 
-  override async tagTagDelete(tagId: string): Promise<void> {
-    void { tagId }
+  override async tagTagDelete (tagIdList: string[]): Promise<void> {
+    void { tagIdList }
   }
 
-  override async tagTagModify(tagId: string, tagNewName:string): Promise<void> {
-    void { tagId, tagNewName }
+  override async tagTagModify (tagNewInfoList: TYPES.TagInfo[]): Promise<TYPES.TagInfo[] | void> {
+    void { tagNewInfoList }
+    return []
   }
 
   override async tagGroupList(): Promise<string[]> {
