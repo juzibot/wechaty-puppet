@@ -37,11 +37,13 @@ import {
   type ContactIdExternalUserIdPair,
   type RoomAntiSpamStrategy,
   type TextContent,
+  type TagInfo,
 }                       from '../schemas/mod.js'
 
 export {
   type PuppetEventName,
   type ChatEventName,
+  type TagInfo,
   ContactGender,
   RoomMemberJoinSceneType as RoomMemberJoinScene,
   ContactType             as Contact,

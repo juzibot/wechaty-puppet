@@ -39,6 +39,11 @@ interface TagGroupQueryFilter {
   id?: string,
 }
 
+interface TagInfo {
+  id: string
+  name: string
+}
+
 export {
   type TagPayload,
   type TagGroupPayload,
@@ -47,4 +52,5 @@ export {
   TagGroupEventType,
   type TagQueryFilter,
   type TagGroupQueryFilter,
+  type TagInfo,
 }
