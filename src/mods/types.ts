@@ -19,6 +19,7 @@ import {
   PostType,
   TapType,
   TagType,
+  TagInfo,
   TextContentType,
   sayableTypes,
 
@@ -42,6 +43,7 @@ import {
 export {
   type PuppetEventName,
   type ChatEventName,
+  type TagInfo,
   ContactGender,
   RoomMemberJoinSceneType as RoomMemberJoinScene,
   ContactType             as Contact,
