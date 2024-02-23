@@ -122,8 +122,7 @@ const tagMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBas
 
 type ProtectedPropertyTagMixin = never
 
-export { tagMixin }
 export type {
-  ProtectedPropertyTagMixin
+  ProtectedPropertyTagMixin,
 }
-
+export { tagMixin }
