@@ -19,7 +19,6 @@ import {
   PostType,
   TapType,
   TagType,
-  TagInfo,
   TextContentType,
   sayableTypes,
 
@@ -38,6 +37,7 @@ import {
   type ContactIdExternalUserIdPair,
   type RoomAntiSpamStrategy,
   type TextContent,
+  type TagInfo,
 }                       from '../schemas/mod.js'
 
 export {
