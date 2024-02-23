@@ -1,7 +1,7 @@
 import { log } from '../config.js'
-import type { PuppetSkeleton }   from '../puppet/puppet-skeleton.js'
+import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
 import { DirtyType } from '../schemas/mod.js'
-import type { TagPayload, TagGroupPayload } from '../schemas/tag.js'
+import type { TagGroupPayload, TagInfo, TagPayload } from '../schemas/tag.js'
 import type { CacheMixin } from './cache-mixin.js'
 
 const tagMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBase: MixinBase) => {
@@ -41,9 +41,9 @@ const tagMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBas
     abstract tagGroupTagList(groupId?: string): Promise<string[]>
     abstract tagGroupPayloadPuppet(groupId: string): Promise<TagGroupPayload>
 
-    abstract tagTagAdd(tagName: string, groupId?: string): Promise<string | void>
-    abstract tagTagDelete(tagId: string): Promise<void>
-    abstract tagTagModify(tagId: string, tagNewName:string): Promise<void>
+    abstract tagTagAdd(tagNameList: string[], groupId?: string): Promise<TagInfo[] | void>
+    abstract tagTagDelete(tagIdList: string[]): Promise<void>
+    abstract tagTagModify(tagNewInfoList: TagInfo[]): Promise<TagInfo[] | void>
     abstract tagTagList(): Promise<string[]>
     abstract tagTagContactList(tagId: string): Promise<string[]>
     abstract tagPayloadPuppet(tagId: string): Promise<TagPayload>
@@ -122,7 +122,8 @@ const tagMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBas
 
 type ProtectedPropertyTagMixin = never
 
-export type {
-  ProtectedPropertyTagMixin,
-}
 export { tagMixin }
+export type {
+  ProtectedPropertyTagMixin
+}
+
