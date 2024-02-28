@@ -11,6 +11,7 @@ import type { PuppetSkeleton }    from '../puppet/puppet-skeleton.js'
 import { DirtyType }              from '../schemas/dirty.js'
 
 import type { CacheMixin }  from './cache-mixin.js'
+import type { ContactType } from '../schemas/contact.js'
 
 const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(mixinBase: MixinBase) => {
 
@@ -29,8 +30,8 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
     abstract friendshipAccept (friendshipId: string)           : Promise<void>
     abstract friendshipAdd (contactId: string, option?: FriendshipAddOptions) : Promise<void>
 
-    abstract friendshipSearchPhone (phone: string)   : Promise<null | string>
-    abstract friendshipSearchHandle (handle: string) : Promise<null | string>
+    abstract friendshipSearchPhone (phone: string, type?: ContactType)   : Promise<null | string>
+    abstract friendshipSearchHandle (handle: string, type?: ContactType) : Promise<null | string>
 
     /**
      * Huan(202203): `friendshipSearchWeixin()` will be removed in Puppet v2.0
