@@ -59,6 +59,7 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
 
     async friendshipSearch (
       searchQueryFilter: FriendshipSearchQueryFilter,
+      type?: ContactType,
     ): Promise<string | null> {
       log.verbose('PuppetFriendshipMixin', 'friendshipSearch("%s")', JSON.stringify(searchQueryFilter))
 
@@ -67,7 +68,7 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
       }
 
       if (searchQueryFilter.phone) {
-        return this.friendshipSearchPhone(searchQueryFilter.phone)
+        return this.friendshipSearchPhone(searchQueryFilter.phone, type)
       } else if (searchQueryFilter.weixin) {
         /**
          * Huan(202203): `weixin` will be removed in Puppet v2.0
@@ -75,9 +76,9 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
          */
         log.warn('Puppet', 'friendshipSearch() `{ weixin: ... }` is deprecated. use `{ handle: ... }` instead.')
         console.error(new Error().stack)
-        return this.friendshipSearchHandle(searchQueryFilter.weixin)
+        return this.friendshipSearchHandle(searchQueryFilter.weixin, type)
       } else if (searchQueryFilter.handle) {
-        return this.friendshipSearchHandle(searchQueryFilter.handle)
+        return this.friendshipSearchHandle(searchQueryFilter.handle, type)
       }
 
       throw new Error(`unknown key from searchQueryFilter: ${Object.keys(searchQueryFilter).join('')}`)
