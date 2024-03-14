@@ -33,9 +33,11 @@ import {
   CallStatus,
   CallType,
   ChannelFeedType,
+  CorpMessageInterceptionType,
 
   type ContactIdExternalUserIdPair,
   type RoomAntiSpamStrategy,
+  type CorpMessageInterceptionStrategy,
   type TextContent,
   type TagInfo,
 }                       from '../schemas/mod.js'
@@ -66,6 +68,7 @@ export {
   DirtyType               as Dirty,
   CallType                as Call,
   TextContentType,
+  CorpMessageInterceptionType,
 }
 
 export {
@@ -82,6 +85,7 @@ export {
   type ContactIdExternalUserIdPair,
   type RoomAntiSpamStrategy,
   type TextContent,
+  type CorpMessageInterceptionStrategy,
   YOU,
   CHAT_EVENT_DICT,
   PUPPET_EVENT_DICT,
