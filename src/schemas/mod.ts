@@ -144,9 +144,11 @@ import {
 } from './call.js'
 import type { ChatHistoryPayload } from './chat-history.js'
 
-import type {
-  ContactIdExternalUserIdPair,
-  RoomAntiSpamStrategy,
+import {
+  type ContactIdExternalUserIdPair,
+  type RoomAntiSpamStrategy,
+  type CorpMessageInterceptionStrategy,
+  CorpMessageInterceptionType,
 } from './wecom.js'
 
 export {
@@ -244,8 +246,10 @@ export {
   type ContactIdExternalUserIdPair,
   type RoomAntiSpamStrategy,
   type TextContent,
+  type CorpMessageInterceptionStrategy,
   TagEventType,
   TagGroupEventType,
   TextContentType,
+  CorpMessageInterceptionType,
   YOU,
 }

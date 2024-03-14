@@ -79,7 +79,6 @@ class PuppetTest extends PUPPET.Puppet {
     return []
   }
 
-
   override async tagGroupList (): Promise<string[]> {
     return []
   }
@@ -334,6 +333,10 @@ class PuppetTest extends PUPPET.Puppet {
     active: boolean,
   ): Promise<void> {
     return { strategyId, roomIds, active } as any
+  }
+
+  override getCorpMessageInterceptionStrategies (): Promise<PUPPET.types.CorpMessageInterceptionStrategy[]> {
+    return {} as any
   }
 
 }
