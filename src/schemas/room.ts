@@ -41,6 +41,7 @@ export interface RoomPayload {
   additionalInfo?: string
 
   remark?: string
+  createTime?: number
 }
 
 export interface RoomMemberPayload {
