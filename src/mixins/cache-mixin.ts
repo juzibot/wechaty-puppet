@@ -119,8 +119,8 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
         [DirtyType.RoomMember]:   (id: string) => {
           const frags = id.split(STRING_SPLITTER)
           if (frags.length > 1) {
-            const roomMemberId = frags[1]
-            this.cache.roomMember?.delete(roomMemberId!)
+            const roomId = frags[0]
+            this.cache.roomMember?.delete(roomId!)
           } else {
             this.cache.roomMember?.delete(id)
           }
