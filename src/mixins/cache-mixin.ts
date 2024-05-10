@@ -2,7 +2,7 @@ import {
   timeoutPromise,
 }                           from 'gerror'
 
-import { log }  from '../config.js'
+import { STRING_SPLITTER, log }  from '../config.js'
 
 import type {
   PuppetOptions,
@@ -116,7 +116,15 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
         [DirtyType.Message]:      (id: string) => this.cache.message?.delete(id),
         [DirtyType.Post]:         (id: string) => this.cache.post?.delete(id),
         [DirtyType.Room]:         (id: string) => this.cache.room?.delete(id),
-        [DirtyType.RoomMember]:   (id: string) => this.cache.roomMember?.delete(id),
+        [DirtyType.RoomMember]:   (id: string) => {
+          const frags = id.split(STRING_SPLITTER)
+          if (frags.length > 1) {
+            const roomMemberId = frags[1]
+            this.cache.roomMember?.delete(roomMemberId!)
+          } else {
+            this.cache.roomMember?.delete(id)
+          }
+        },
         [DirtyType.Tag]:          (id: string) => this.cache.tag?.delete(id),
         [DirtyType.TagGroup]:     (id: string) => this.cache.tagGroup?.delete(id),
         [DirtyType.Unspecified]:  (id: string) => { throw new Error('Unspecified type with id: ' + id) },
