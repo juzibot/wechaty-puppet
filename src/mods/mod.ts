@@ -35,6 +35,7 @@
 import '../puppet/interface-of.js'
 
 import {
+  STRING_SPLITTER,
   VERSION,
   log,
 }                             from '../config.js'
@@ -56,6 +57,7 @@ export {
   Puppet,
   throwUnsupportedError,
   VERSION,
+  STRING_SPLITTER,
 }
 
 export * as filters  from './filters.js'
