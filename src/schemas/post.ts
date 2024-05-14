@@ -14,6 +14,8 @@ enum PostType {
   Channel = 2,  // <- WeChat Channel (视频号)
   Message = 3,  // Quoted Message or Muitiplepart Message
   Broadcast = 4, // 企微官方群发
+  TextButton = 5, // puppet-mini 按钮消息
+  GoodsCard = 6, // puppet-mini 商品消息
 }
 
 /**
