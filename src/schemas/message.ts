@@ -24,6 +24,7 @@ export enum MessageType {
   System      = 18,   // System Message
   Markdown    = 19,   // Markdown Message
   CallRecord  = 20,   // Call Record (voice and video, maybe group?)
+  AppRaw      = 21,   // Raw Data from App Contact
 }
 
 /**
