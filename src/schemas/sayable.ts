@@ -112,6 +112,7 @@ type SayablePayloadUnsupportedType =
   | 'Transfer'
   | 'Unknown'
   | 'CallRecord'
+  | 'AppRaw'
 
 export {
   sayablePayloads,
