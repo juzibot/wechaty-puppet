@@ -65,6 +65,7 @@ export interface RoomPermission {
   adminOnlyAtAll: boolean, // 仅群主或管理员可@所有人 内部
   muteAll: boolean, // 全员禁言 内部
   forbidRoomTopicEdit: boolean, // 禁止修改群名 外部
+  disableMemberMutualAdd: boolean, // 禁止外部群成员互相添加
 }
 
 /** @hidden */
