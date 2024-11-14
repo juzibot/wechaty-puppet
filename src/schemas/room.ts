@@ -68,6 +68,12 @@ export interface RoomPermission {
   disableMemberMutualAdd: boolean, // 禁止外部群成员互相添加
 }
 
+export interface RoomParseDynamicQRCode {
+  qrcode: string, // 二维码url
+  qrcodeImgUrl: string, // 二维码图片url
+  roomName: string, // 群名称
+}
+
 /** @hidden */
 export type RoomPayloadFilterFunction = (payload: RoomPayload)    => boolean
 

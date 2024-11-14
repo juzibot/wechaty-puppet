@@ -173,6 +173,7 @@ class PuppetTest extends PUPPET.Puppet {
    *
    */
   override async roomInvitationAccept (roomInvitationId: string): Promise<void> { void roomInvitationId }
+  override async roomInvitationAcceptByQRCode (qrcode: string): Promise<PUPPET.types.RoomInvitationAcceptByQRCode> { void qrcode }
 
   override async roomInvitationRawPayload (roomInvitationId: string) : Promise<any> { return { roomInvitationId } as any }
   override async roomInvitationRawPayloadParser (rawPayload: any)    : Promise<PUPPET.payloads.RoomInvitation> { return rawPayload }
@@ -192,6 +193,7 @@ class PuppetTest extends PUPPET.Puppet {
   override async roomDel (roomId: string, contactId: string)          : Promise<void> { return { contactId, roomId } as any }
   override async roomQuit (roomId: string)                            : Promise<void> { return { roomId } as any }
   override async roomQRCode (roomId: string)                          : Promise<string> { return { roomId } as any }
+  override async roomParseDynamicQRCode (url: string)                 : Promise<PUPPET.types.RoomParseDynamicQRCode> { return { url } as any }
 
   override async roomTopic (roomId: string)                 : Promise<string>
   override async roomTopic (roomId: string, topic: string)  : Promise<void>
