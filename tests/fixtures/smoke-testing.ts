@@ -173,7 +173,7 @@ class PuppetTest extends PUPPET.Puppet {
    *
    */
   override async roomInvitationAccept (roomInvitationId: string): Promise<void> { void roomInvitationId }
-  override async roomInvitationAcceptByQRCode (qrcode: string): Promise<PUPPET.types.RoomInvitationAcceptByQRCode> { void qrcode }
+  override async roomInvitationAcceptByQRCode (qrcode: string): Promise<PUPPET.types.RoomInvitationAcceptByQRCode> { return { qrcode } as any }
 
   override async roomInvitationRawPayload (roomInvitationId: string) : Promise<any> { return { roomInvitationId } as any }
   override async roomInvitationRawPayloadParser (rawPayload: any)    : Promise<PUPPET.payloads.RoomInvitation> { return rawPayload }
