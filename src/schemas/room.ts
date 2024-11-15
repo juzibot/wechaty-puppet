@@ -70,7 +70,7 @@ export interface RoomPermission {
 
 export interface RoomParseDynamicQRCode {
   qrcode: string, // 二维码url
-  qrcodeImgUrl: string, // 二维码图片url
+  qrcodeImageUrl: string, // 二维码图片url
   roomName: string, // 群名称
 }
 
