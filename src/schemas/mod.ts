@@ -85,10 +85,12 @@ import {
   type RoomMemberPayload,
   type RoomMemberQueryFilter,
   type RoomPermission,
+  type RoomParseDynamicQRCode,
   RoomMemberJoinSceneType,
 }                             from './room.js'
 import type {
   RoomInvitationPayload,
+  RoomInvitationAcceptByQRCode,
 }                             from './room-invitation.js'
 import type {
   UrlLinkPayload,
@@ -226,11 +228,13 @@ export {
   type PuppetEventName,
   type PuppetOptions,
   type RoomInvitationPayload,
+  type RoomInvitationAcceptByQRCode,
   type RoomMemberPayload,
   type RoomMemberQueryFilter,
   type RoomPayload,
   type RoomQueryFilter,
   type RoomPermission,
+  type RoomParseDynamicQRCode,
   type SayablePayload,
   type TapPayload,
   type TapQueryFilter,

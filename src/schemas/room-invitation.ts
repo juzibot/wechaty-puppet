@@ -9,3 +9,8 @@ export interface RoomInvitationPayload {
   timestamp    : number,     // Unix Timestamp, in seconds or milliseconds
   receiverId   : string,     // the room invitation should send to which contact.
 }
+
+export interface RoomInvitationAcceptByQRCode {
+  roomId: string,
+  chatId: string,
+}

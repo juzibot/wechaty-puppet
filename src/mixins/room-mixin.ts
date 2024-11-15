@@ -10,6 +10,7 @@ import type {
   RoomPayloadFilterFunction,
   RoomQueryFilter,
   RoomPermission,
+  RoomParseDynamicQRCode,
 }                                 from '../schemas/room.js'
 
 import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
@@ -37,6 +38,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
     abstract roomDel (roomId: string, contactId: string | string[])            : Promise<void>
     abstract roomList ()                                                       : Promise<string[]>
     abstract roomQRCode (roomId: string)                                       : Promise<string>
+    abstract roomParseDynamicQRCode (url: string)                              : Promise<RoomParseDynamicQRCode>
     abstract roomQuit (roomId: string)                                         : Promise<void>
     abstract roomTopic (roomId: string)                                        : Promise<string>
     abstract roomTopic (roomId: string, topic: string)                         : Promise<void>

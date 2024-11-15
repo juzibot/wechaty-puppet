@@ -3,6 +3,7 @@ import {
 }                       from '../config.js'
 
 import type {
+  RoomInvitationAcceptByQRCode,
   RoomInvitationPayload,
 }                                 from '../schemas/room-invitation.js'
 
@@ -48,7 +49,7 @@ const roomInvitationMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixi
     }
 
     abstract roomInvitationAccept (roomInvitationId: string): Promise<void>
-
+    abstract roomInvitationAcceptByQRCode (qrcode: string): Promise<RoomInvitationAcceptByQRCode>
     /**
      * Issue #155 - https://github.com/wechaty/puppet/issues/155
      *
