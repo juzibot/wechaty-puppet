@@ -153,6 +153,10 @@ export interface EventVerifyCodePayload {
   message?: string,
 }
 
+export interface EventLoginUrlPayload {
+  url: string,
+}
+
 export type EventPayload =
   | EventDirtyPayload
   | EventDongPayload
@@ -176,3 +180,4 @@ export type EventPayload =
   | EventPostCommentPayload
   | EventPostTapPayload
   | EventVerifyCodePayload
+  | EventLoginUrlPayload

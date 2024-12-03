@@ -45,6 +45,7 @@ import type {
   TagGroupPayload,
   TagPayload,
   EventVerifyCodePayload,
+  EventLoginUrlPayload,
   CallRecordPayload,
   ChatHistoryPayload,
 }                           from '../schemas/mod.js'
@@ -78,6 +79,7 @@ export type {
   EventTagPayload           as EventTag,
   EventTagGroupPayload      as EventTagGroup,
   EventVerifyCodePayload    as EventVerifyCode,
+  EventLoginUrlPayload      as EventLoginUrl,
   FriendshipPayload         as Friendship,
   FriendshipPayloadConfirm  as FriendshipConfirm,
   FriendshipPayloadReceive  as FriendshipReceive,

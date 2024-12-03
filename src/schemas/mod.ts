@@ -78,6 +78,7 @@ import type {
   EventTagPayload,
   EventTagGroupPayload,
   EventVerifyCodePayload,
+  EventLoginUrlPayload,
 }                             from './event.js'
 import {
   type RoomPayload,
@@ -207,6 +208,7 @@ export {
   type EventTagPayload,
   type EventTagGroupPayload,
   type EventVerifyCodePayload,
+  type EventLoginUrlPayload,
   type FriendshipAddOptions,
   type FriendshipPayload,
   type FriendshipPayloadConfirm,
