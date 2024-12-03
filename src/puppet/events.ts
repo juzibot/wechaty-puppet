@@ -24,6 +24,7 @@ import type {
   EventTagGroupPayload,
   EventRoomAnnouncePayload,
   EventVerifyCodePayload,
+  EventLoginUrlPayload,
 }                                 from '../schemas/event.js'
 
 export type PuppetDirtyListener        = (payload: EventDirtyPayload)       => void | Promise<void>
@@ -48,6 +49,7 @@ export type PuppetScanListener         = (payload: EventScanPayload)        => v
 export type PuppetTagListener          = (payload: EventTagPayload)         => void | Promise<void>
 export type PuppetTagGroupListener     = (payload: EventTagGroupPayload)    => void | Promise<void>
 export type PuppetVerifyCodeListener   = (payload: EventVerifyCodePayload)  => void | Promise<void>
+export type PuppetLoginUrlListener     = (payload: EventLoginUrlPayload)    => void | Promise<void>
 
 export type PuppetStartListener      = () => void | Promise<void>
 export type PuppetStopListener       = () => void | Promise<void>
