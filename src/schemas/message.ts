@@ -25,6 +25,7 @@ export enum MessageType {
   Markdown    = 19,   // Markdown Message
   CallRecord  = 20,   // Call Record (voice and video, maybe group?)
   AppRaw      = 21,   // Raw Data from App Contact
+  WeChatNote  = 22,   // WeChat Note
 }
 
 /**
