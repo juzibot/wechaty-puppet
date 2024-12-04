@@ -113,6 +113,7 @@ type SayablePayloadUnsupportedType =
   | 'Unknown'
   | 'CallRecord'
   | 'AppRaw'
+  | 'WeChatNote'
 
 export {
   sayablePayloads,
