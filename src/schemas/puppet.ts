@@ -32,6 +32,7 @@ export const CHAT_EVENT_DICT = {
   'post-tap'     : 'a post receives a new tap',
   'verify-code'  : 'a verify code is required',
   dirty          : 'dirty the cache payload, which means payload info changed',
+  'login-url'    : 'an oauth url is required',
 }
 export type ChatEventName = keyof typeof CHAT_EVENT_DICT
 
