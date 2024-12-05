@@ -79,6 +79,7 @@ interface PuppetEventListener {
   tag            : PuppetTagListener,
   'tag-group'    : PuppetTagGroupListener,
   'verify-code'  : PuppetVerifyCodeListener,
+  'login-url'    : PuppetLoginUrlListener,
 }
 
 const PuppetEventEmitter = EventEmitter as unknown as new () =>
