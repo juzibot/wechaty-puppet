@@ -18,6 +18,11 @@ enum PostType {
   GoodsCard = 6, // puppet-mini 商品消息
 }
 
+enum PostStatus {
+  Normal = 0,
+  Hidden = 1,
+}
+
 /**
  * Huan(202201): Error: referenced directly or indirectly in its own type annotation. ts(2502) #180
  *  @link https://github.com/wechaty/puppet/issues/180
@@ -76,6 +81,9 @@ interface PostPayloadServer extends PostPayloadBase {
   contactId: string
   timestamp: number
 
+  status?: PostStatus // for moment only?
+  liked?: boolean // bot liked this post or not
+
   counter: {
     children?: number
     descendant?: number
@@ -126,12 +134,14 @@ interface PostQueryFilter {
   parentId?  : string    // two type of `undefined`: see above comments
   rootId?    : string    // two type of `undefined`: see above comments
   type?      : PostType
+  status?    : PostStatus
 }
 
 export {
   isPostPayloadClient,
   isPostPayloadServer,
   PostType,
+  PostStatus,
   type PostQueryFilter,
   type SayablePayloadPost,
   type PostPayload,
