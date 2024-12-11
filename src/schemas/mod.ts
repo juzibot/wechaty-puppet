@@ -48,6 +48,7 @@ import {
 import {
   type PostPayload,
   PostType,
+  PostStatus,
   isPostPayloadClient,
   isPostPayloadServer,
   type PostQueryFilter,
@@ -171,6 +172,7 @@ export {
   PaginationResponse,
   RoomMemberJoinSceneType,
   PostType,
+  PostStatus,
   PUPPET_EVENT_DICT,
   sayablePayloads,
   sayableTypes,
