@@ -32,7 +32,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
      * Room
      *
      */
-    abstract roomAdd (roomId: string, contactId: string, inviteOnly?: boolean) : Promise<void>
+    abstract roomAdd (roomId: string, contactId: string, inviteOnly?: boolean, quoteIds?: string[]) : Promise<void>
     abstract roomAvatar (roomId: string)                                       : Promise<FileBoxInterface>
     abstract roomCreate (contactIdList: string[], topic?: string)              : Promise<string>
     abstract roomDel (roomId: string, contactId: string | string[])            : Promise<void>
