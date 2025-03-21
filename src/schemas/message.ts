@@ -134,6 +134,9 @@ export interface MessagePayloadBase {
   additionalInfo?: string,
 
   textContent?  : TextContent[],
+
+  hasRead?: boolean,
+  sendError?: string,
 }
 
 /** @hidden */
