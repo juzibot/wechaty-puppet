@@ -135,8 +135,8 @@ export interface MessagePayloadBase {
 
   textContent?  : TextContent[],
 
-  hasRead?: boolean,
   sendError?: string,
+  readList?: string[],
 }
 
 /** @hidden */
