@@ -33,6 +33,26 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
     /** @protected */
     abstract roomMemberRawPayloadParser (rawPayload: any): Promise<RoomMemberPayload>
 
+    /** @protected */
+    abstract batchRoomMemberRawPayload (roomId: string, contactIds: string[]): Promise<Map<string, any>>
+
+    async batchRoomMemberPayload (roomId: string, contactIds: string[]): Promise<Map<string, RoomMemberPayload>> {
+      let rawPayloadMap: Map<string, any>
+      if (typeof this.batchRoomMemberRawPayload === 'function') {
+        rawPayloadMap = await this.batchRoomMemberRawPayload(roomId, contactIds)
+      } else {
+        rawPayloadMap = new Map<string, any>()
+        for (const contactId of contactIds) {
+          rawPayloadMap.set(contactId, await this.roomMemberRawPayload(roomId, contactId))
+        }
+      }
+      const payloadMap = new Map<string, RoomMemberPayload>()
+      for (const [ contactId, rawPayload ] of rawPayloadMap.entries()) {
+        payloadMap.set(contactId, await this.roomMemberRawPayloadParser(rawPayload))
+      }
+      return payloadMap
+    }
+
     async roomMemberSearch (
       roomId : string,
       query  : (symbol | string) | RoomMemberQueryFilter,
