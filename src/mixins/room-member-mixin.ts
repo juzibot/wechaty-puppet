@@ -208,6 +208,7 @@ type RoomMemberMixin = ReturnType<typeof roomMemberMixin>
 type ProtectedPropertyRoomMemberMixin =
 | 'roomMemberRawPayload'
 | 'roomMemberRawPayloadParser'
+| 'batchRoomMemberRawPayload'
 
 export type {
   ProtectedPropertyRoomMemberMixin,
