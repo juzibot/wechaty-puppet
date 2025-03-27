@@ -93,6 +93,28 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
     // }
 
     /**
+     * @protected
+     */
+    abstract batchContactRawPayload (contactIds: string[]): Promise<Map<string, any>>
+
+    async batchContactPayload (contactIds: string[]): Promise<Map<string, ContactPayload>> {
+      let rawPayloadMap: Map<string, any>
+      if (typeof this.batchContactRawPayload === 'function') {
+        rawPayloadMap = await this.batchContactRawPayload(contactIds)
+      } else {
+        rawPayloadMap = new Map<string, any>()
+        for (const contactId of contactIds) {
+          rawPayloadMap.set(contactId, await this.contactRawPayload(contactId))
+        }
+      }
+      const payloadMap = new Map<string, ContactPayload>()
+      for (const [ contactId, rawPayload ] of rawPayloadMap.entries()) {
+        payloadMap.set(contactId, await this.contactRawPayloadParser(rawPayload))
+      }
+      return payloadMap
+    }
+
+    /**
      * @param query {string | Object} if string, then search `name` & `alias`
      */
     async contactSearch (
@@ -340,6 +362,7 @@ type ProtectedPropertyContactMixin =
 | 'contactRawPayloadParser'
 | 'contactQueryFilterFactory'
 | 'contactPayloadCache'
+| 'batchContactRawPayload'
 
 type ContactMixin = ReturnType<typeof contactMixin>
 
