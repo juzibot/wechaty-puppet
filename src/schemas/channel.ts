@@ -7,12 +7,12 @@ export enum ChannelFeedType {
 
 export interface ChannelPayload {
   avatar: string,
-  coverUrl: string,
-  desc: string,
+  coverUrl?: string,
+  desc?: string,
   extras: string,
-  feedType: ChannelFeedType,
+  feedType?: ChannelFeedType,
   nickname: string,
-  thumbUrl: string,
+  thumbUrl?: string,
   url: string,
 
   /**
@@ -20,4 +20,10 @@ export interface ChannelPayload {
    */
   objectId?: string,
   objectNonceId?: string,
+
+  /**
+   * The following two fields are required for Channel Card only.
+   */
+  authIconUrl?: string
+  authJob?: string
 }
