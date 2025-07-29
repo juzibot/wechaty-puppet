@@ -66,6 +66,10 @@ const sayableMixin = <MixinBase extends typeof PuppetSkeleton & MessageMixin & P
           const channelPayload = await this.messageChannel(sayableId)
           return sayablePayloads.channel(channelPayload)
         }
+        case MessageType.ChannelCard: {
+          const channelCardPayload = await this.messageChannelCard(sayableId)
+          return sayablePayloads.channelCard(channelCardPayload)
+        }
 
         default:
           log.warn('PuppetSayableMixin',

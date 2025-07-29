@@ -7,23 +7,26 @@ export enum ChannelFeedType {
 
 export interface ChannelPayload {
   avatar: string,
-  coverUrl?: string,
-  desc?: string,
+  coverUrl: string,
+  desc: string,
   extras: string,
-  feedType?: ChannelFeedType,
+  feedType: ChannelFeedType,
   nickname: string,
-  thumbUrl?: string,
+  thumbUrl: string,
   url: string,
 
   /**
    * The following two fields are required for Live Channel only.
    */
   objectId?: string,
-  objectNonceId?: string,
+  objectNonceId?: string
+}
 
-  /**
-   * The following two fields are required for Channel Card only.
-   */
-  authIconUrl?: string
-  authJob?: string
+export interface ChannelCardPayload {
+  avatar: string,
+  extras: string,
+  nickname: string,
+  url: string,
+  authIconUrl: string,
+  authJob: string
 }
