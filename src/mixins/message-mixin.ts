@@ -42,6 +42,7 @@ import {
   sayableTypes,
 }                                 from '../schemas/sayable.js'
 import type { ChannelPayload } from '../schemas/channel.js'
+import type { ChannelCardPayload } from '../schemas/channel-card.js'
 import type { CallRecordPayload } from '../schemas/call.js'
 import type { ChatHistoryPayload } from '../schemas/chat-history.js'
 
@@ -75,6 +76,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     abstract messageUrl          (messageId: string)                       : Promise<UrlLinkPayload>
     abstract messageLocation     (messageId: string)                       : Promise<LocationPayload>
     abstract messageChannel      (messageId: string)                       : Promise<ChannelPayload>
+    abstract messageChannelCard  (messageId: string)                       : Promise<ChannelCardPayload>
     abstract messageCallRecord   (messageId: string)                       : Promise<CallRecordPayload>
     abstract messageChatHistory  (messageId: string)                       : Promise<ChatHistoryPayload[]>
 
@@ -87,6 +89,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     abstract messageSendText        (conversationId: string, text: string, options?: MessageSendTextOptions) : Promise<void | string>
     abstract messageSendUrl         (conversationId: string, urlLinkPayload: UrlLinkPayload)         : Promise<void | string>
     abstract messageSendChannel     (conversationId: string, channelPayload: ChannelPayload)         : Promise<void | string>
+    abstract messageSendChannelCard (conversationId: string, channelCardPayload: ChannelCardPayload) : Promise<void | string>
 
     abstract messageRecall (messageId: string) : Promise<boolean>
 
@@ -315,6 +318,8 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
           return this.messageSendPost(conversationId, sayable.payload)
         case sayableTypes.Channel:
           return this.messageSendChannel(conversationId, sayable.payload)
+        case sayableTypes.ChannelCard:
+          return this.messageSendChannelCard(conversationId, sayable.payload)
         default:
           throw new Error('unsupported sayable payload: ' + JSON.stringify(sayable))
       }

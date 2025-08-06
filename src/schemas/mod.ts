@@ -115,6 +115,10 @@ import {
   ChannelFeedType,
 } from './channel.js'
 
+import type {
+  ChannelCardPayload,
+} from './channel-card.js'
+
 import {
   type TagGroupPayload,
   type TagPayload,
@@ -245,6 +249,7 @@ export {
   type TagInfo,
   type UrlLinkPayload,
   type ChannelPayload,
+  type ChannelCardPayload,
   type TagGroupPayload,
   type TagPayload,
   type TagQueryFilter,

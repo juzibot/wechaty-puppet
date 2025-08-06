@@ -7,6 +7,7 @@ import type { LocationPayload }     from './location.js'
 import type { UrlLinkPayload }      from './url-link.js'
 import type { MiniProgramPayload }  from './mini-program.js'
 import type { ChannelPayload }      from './channel.js'
+import type { ChannelCardPayload } from './channel-card.js'
 import type {
   PostPayload,
   SayablePayloadPost,
@@ -25,6 +26,7 @@ const payloadMiniProgram = (miniProgramPayload: MiniProgramPayload) => ({ ...min
 const payloadUrlLink     = (urlLinkPayload: UrlLinkPayload)         => ({ ...urlLinkPayload })
 const payloadPost        = (postPayload: PostPayload)               => ({ ...postPayload })
 const payloadChannel     = (channelPayload: ChannelPayload)         => ({ ...channelPayload })
+const payloadChannelCard = (channelCardPayload: ChannelCardPayload) => ({ ...channelCardPayload })
 
 /**
  * using `types` as a static typed string name list for `createAction`
@@ -68,6 +70,7 @@ const miniProgram = createAction(sayableTypes.MiniProgram, payloadMiniProgram)()
 const url         = createAction(sayableTypes.Url,         payloadUrlLink)()
 const post        = createAction(sayableTypes.Post,        payloadPost)()
 const channel     = createAction(sayableTypes.Channel,     payloadChannel)()
+const channelCard = createAction(sayableTypes.ChannelCard, payloadChannelCard)()
 
 /**
  * Huan(202201): Recursive type references
@@ -87,6 +90,7 @@ const sayablePayloadsNoPost = {
   channel,
   system,
   markdown,
+  channelCard,
 } as const
 
 /**
