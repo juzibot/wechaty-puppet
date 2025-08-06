@@ -115,8 +115,8 @@ import {
   ChannelFeedType,
 } from './channel.js'
 
-import {
-  type ChannelCardPayload,
+import type {
+  ChannelCardPayload,
 } from './channel-card.js'
 
 import {
