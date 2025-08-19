@@ -70,7 +70,10 @@ const sayableMixin = <MixinBase extends typeof PuppetSkeleton & MessageMixin & P
           const channelCardPayload = await this.messageChannelCard(sayableId)
           return sayablePayloads.channelCard(channelCardPayload)
         }
-
+        case MessageType.ConsultCard: {
+          const consultCardPayload = await this.messageConsultCard(sayableId)
+          return sayablePayloads.consultCard(consultCardPayload)
+        }
         default:
           log.warn('PuppetSayableMixin',
             'sayablePayload() can not convert not re-sayable type: %s(%s) for %s\n%s',

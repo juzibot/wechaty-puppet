@@ -12,6 +12,7 @@ import type {
   PostPayload,
   SayablePayloadPost,
 }                                     from './post.js'
+import type { ConsultCardPayload } from './consult-card.js'
 
 const payloadContact     = (contactId: string)                      => ({ contactId })
 const payloadFilebox     = (filebox: string | FileBoxInterface)     => ({ filebox })
@@ -27,6 +28,7 @@ const payloadUrlLink     = (urlLinkPayload: UrlLinkPayload)         => ({ ...url
 const payloadPost        = (postPayload: PostPayload)               => ({ ...postPayload })
 const payloadChannel     = (channelPayload: ChannelPayload)         => ({ ...channelPayload })
 const payloadChannelCard = (channelCardPayload: ChannelCardPayload) => ({ ...channelCardPayload })
+const payloadConsultCard = (consultCardPayload: ConsultCardPayload) => ({ ...consultCardPayload })
 
 /**
  * using `types` as a static typed string name list for `createAction`
@@ -71,6 +73,7 @@ const url         = createAction(sayableTypes.Url,         payloadUrlLink)()
 const post        = createAction(sayableTypes.Post,        payloadPost)()
 const channel     = createAction(sayableTypes.Channel,     payloadChannel)()
 const channelCard = createAction(sayableTypes.ChannelCard, payloadChannelCard)()
+const consultCard = createAction(sayableTypes.ConsultCard, payloadConsultCard)()
 
 /**
  * Huan(202201): Recursive type references
@@ -91,6 +94,7 @@ const sayablePayloadsNoPost = {
   system,
   markdown,
   channelCard,
+  consultCard,
 } as const
 
 /**
