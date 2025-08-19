@@ -44,6 +44,7 @@ import type {
   ChannelPayload,
   ChannelCardPayload,
   ConsultCardPayload,
+  ConsultCardAction,
   TagGroupPayload,
   TagPayload,
   EventVerifyCodePayload,
@@ -103,11 +104,12 @@ export type {
   UrlLinkPayload            as UrlLink,
   ChannelPayload            as Channel,
   ChannelCardPayload        as ChannelCard,
-  ConsultCardPayload        as ConsultCard,
   TagGroupPayload           as TagGroup,
   TagPayload                as Tag,
   CallRecordPayload         as CallRecord,
   ChatHistoryPayload        as ChatHistory,
+  ConsultCardPayload        as ConsultCard,
+  ConsultCardAction,
 }
 export {
   sayablePayloads as sayable, // Sayable payload creators
