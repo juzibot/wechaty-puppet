@@ -27,6 +27,7 @@ export enum MessageType {
   AppRaw      = 21,   // Raw Data from App Contact
   WeChatNote  = 22,   // WeChat Note
   ChannelCard = 23,   // Channel Card
+  ConsultCard = 24,   // Consult Card
 }
 
 /**

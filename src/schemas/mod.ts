@@ -119,6 +119,10 @@ import type {
   ChannelCardPayload,
 } from './channel-card.js'
 
+import type {
+  ConsultCardPayload,
+} from './consult-card.js'
+
 import {
   type TagGroupPayload,
   type TagPayload,
@@ -250,6 +254,7 @@ export {
   type UrlLinkPayload,
   type ChannelPayload,
   type ChannelCardPayload,
+  type ConsultCardPayload,
   type TagGroupPayload,
   type TagPayload,
   type TagQueryFilter,
