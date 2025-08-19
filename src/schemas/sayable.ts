@@ -12,7 +12,7 @@ import type {
   PostPayload,
   SayablePayloadPost,
 }                                     from './post.js'
-import { ConsultCardPayload } from './consult-card.js'
+import type { ConsultCardPayload } from './consult-card.js'
 
 const payloadContact     = (contactId: string)                      => ({ contactId })
 const payloadFilebox     = (filebox: string | FileBoxInterface)     => ({ filebox })
