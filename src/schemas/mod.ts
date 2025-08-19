@@ -121,6 +121,7 @@ import type {
 
 import type {
   ConsultCardPayload,
+  ConsultCardAction,
 } from './consult-card.js'
 
 import {
@@ -255,6 +256,7 @@ export {
   type ChannelPayload,
   type ChannelCardPayload,
   type ConsultCardPayload,
+  type ConsultCardAction,
   type TagGroupPayload,
   type TagPayload,
   type TagQueryFilter,
