@@ -12,7 +12,8 @@ import type {
   PostPayload,
   SayablePayloadPost,
 }                                     from './post.js'
-import type { ConsultCardPayload } from './consult-card.js'
+import type { ConsultCardPayload, PremiumOnlineAppointmentCardPayload } from './consult-card.js'
+import { ConsultCardComponentType, ConsultCardMsgType } from './consult-card.js'
 
 const payloadContact     = (contactId: string)                      => ({ contactId })
 const payloadFilebox     = (filebox: string | FileBoxInterface)     => ({ filebox })
@@ -22,13 +23,18 @@ const payloadMarkdown    = (text: string)                           => ({ text }
 /**
  * expand/merge the payload altogether
  */
-const payloadLocation    = (locationPayload: LocationPayload)       => ({ ...locationPayload })
-const payloadMiniProgram = (miniProgramPayload: MiniProgramPayload) => ({ ...miniProgramPayload })
-const payloadUrlLink     = (urlLinkPayload: UrlLinkPayload)         => ({ ...urlLinkPayload })
-const payloadPost        = (postPayload: PostPayload)               => ({ ...postPayload })
-const payloadChannel     = (channelPayload: ChannelPayload)         => ({ ...channelPayload })
-const payloadChannelCard = (channelCardPayload: ChannelCardPayload) => ({ ...channelCardPayload })
-const payloadConsultCard = (consultCardPayload: ConsultCardPayload) => ({ ...consultCardPayload })
+const payloadLocation                     = (locationPayload: LocationPayload)                                         => ({ ...locationPayload })
+const payloadMiniProgram                  = (miniProgramPayload: MiniProgramPayload)                                   => ({ ...miniProgramPayload })
+const payloadUrlLink                      = (urlLinkPayload: UrlLinkPayload)                                           => ({ ...urlLinkPayload })
+const payloadPost                         = (postPayload: PostPayload)                                                 => ({ ...postPayload })
+const payloadChannel                      = (channelPayload: ChannelPayload)                                           => ({ ...channelPayload })
+const payloadChannelCard                  = (channelCardPayload: ChannelCardPayload)                                   => ({ ...channelCardPayload })
+const payloadConsultCard                  = (consultCardPayload: ConsultCardPayload)                                   => ({ ...consultCardPayload })
+const payloadPremiumOnlineAppointmentCard = (premiumOnlineAppointmentCardPayload: PremiumOnlineAppointmentCardPayload) => ({
+  msgType: ConsultCardMsgType.PremiumOnlineAppointmentCard,
+  componentType: ConsultCardComponentType.PremiumOnlineAppointmentCard,
+  componentId: premiumOnlineAppointmentCardPayload.componentId,
+})
 
 /**
  * using `types` as a static typed string name list for `createAction`
@@ -67,13 +73,14 @@ const video       = createAction(sayableTypes.Video,       payloadFilebox)()
 /**
  * Payload data
  */
-const location    = createAction(sayableTypes.Location,    payloadLocation)()
-const miniProgram = createAction(sayableTypes.MiniProgram, payloadMiniProgram)()
-const url         = createAction(sayableTypes.Url,         payloadUrlLink)()
-const post        = createAction(sayableTypes.Post,        payloadPost)()
-const channel     = createAction(sayableTypes.Channel,     payloadChannel)()
-const channelCard = createAction(sayableTypes.ChannelCard, payloadChannelCard)()
-const consultCard = createAction(sayableTypes.ConsultCard, payloadConsultCard)()
+const location                     = createAction(sayableTypes.Location,                     payloadLocation)()
+const miniProgram                  = createAction(sayableTypes.MiniProgram,                  payloadMiniProgram)()
+const url                          = createAction(sayableTypes.Url,                          payloadUrlLink)()
+const post                         = createAction(sayableTypes.Post,                         payloadPost)()
+const channel                      = createAction(sayableTypes.Channel,                      payloadChannel)()
+const channelCard                  = createAction(sayableTypes.ChannelCard,                  payloadChannelCard)()
+const consultCard                  = createAction(sayableTypes.ConsultCard,                  payloadConsultCard)()
+const premiumOnlineAppointmentCard = createAction(sayableTypes.PremiumOnlineAppointmentCard, payloadPremiumOnlineAppointmentCard)()
 
 /**
  * Huan(202201): Recursive type references
@@ -95,6 +102,7 @@ const sayablePayloadsNoPost = {
   markdown,
   channelCard,
   consultCard,
+  premiumOnlineAppointmentCard,
 } as const
 
 /**

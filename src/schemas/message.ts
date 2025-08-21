@@ -2,32 +2,33 @@
  * Wechaty Puppet Unified Schema for Message
  */
 export enum MessageType {
-  Unknown = 0,
+  Unknown                      = 0,
 
-  Attachment  = 1,    // Attach(6),
-  Audio       = 2,    // Audio(1), Voice(34)
-  Contact     = 3,    // ShareCard(42)
-  ChatHistory = 4,    // ChatHistory(19)
-  Emoticon    = 5,    // Sticker: Emoticon(15), Emoticon(47)
-  Image       = 6,    // Img(2), Image(3)
-  Text        = 7,    // Text(1)
-  Location    = 8,    // Location(48)
-  MiniProgram = 9,    // MiniProgram(33)
-  GroupNote   = 10,   // GroupNote(53)
-  Transfer    = 11,   // Transfers(2000)
-  RedEnvelope = 12,   // RedEnvelopes(2001)
-  Recalled    = 13,   // Recalled(10002)
-  Url         = 14,   // Url(5)
-  Video       = 15,   // Video(4), Video(43)
-  Post        = 16,   // Moment, Channel, Tweet, etc
-  Channel     = 17,   // Channel
-  System      = 18,   // System Message
-  Markdown    = 19,   // Markdown Message
-  CallRecord  = 20,   // Call Record (voice and video, maybe group?)
-  AppRaw      = 21,   // Raw Data from App Contact
-  WeChatNote  = 22,   // WeChat Note
-  ChannelCard = 23,   // Channel Card
-  ConsultCard = 24,   // Consult Card
+  Attachment                   = 1,    // Attach(6),
+  Audio                        = 2,    // Audio(1), Voice(34)
+  Contact                      = 3,    // ShareCard(42)
+  ChatHistory                  = 4,    // ChatHistory(19)
+  Emoticon                     = 5,    // Sticker: Emoticon(15), Emoticon(47)
+  Image                        = 6,    // Img(2), Image(3)
+  Text                         = 7,    // Text(1)
+  Location                     = 8,    // Location(48)
+  MiniProgram                  = 9,    // MiniProgram(33)
+  GroupNote                    = 10,   // GroupNote(53)
+  Transfer                     = 11,   // Transfers(2000)
+  RedEnvelope                  = 12,   // RedEnvelopes(2001)
+  Recalled                     = 13,   // Recalled(10002)
+  Url                          = 14,   // Url(5)
+  Video                        = 15,   // Video(4), Video(43)
+  Post                         = 16,   // Moment, Channel, Tweet, etc
+  Channel                      = 17,   // Channel
+  System                       = 18,   // System Message
+  Markdown                     = 19,   // Markdown Message
+  CallRecord                   = 20,   // Call Record (voice and video, maybe group?)
+  AppRaw                       = 21,   // Raw Data from App Contact
+  WeChatNote                   = 22,   // WeChat Note
+  ChannelCard                  = 23,   // Channel Card
+  ConsultCard                  = 24,   // Consult Card
+  PremiumOnlineAppointmentCard = 25,   // Premium Online Appointment Card
 }
 
 /**
