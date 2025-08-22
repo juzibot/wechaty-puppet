@@ -5,7 +5,7 @@ import type { UrlLinkPayload } from './url-link.js'
 import type { MiniProgramPayload } from './mini-program.js'
 import type { ChannelPayload } from './channel.js'
 import type { ChannelCardPayload } from './channel-card.js'
-import type { ConsultCardPayload } from './consult-card.js'
+import type { PremiumOnlineAppointmentCardPayload } from './consult-card.js'
 
 /**
  * Only type is MessageType.ChatHistory, message is typeof MessageTypeToContent<MessageType>[]
@@ -37,7 +37,7 @@ export type ChatHistoryPayload = BaseChatHistoryPayload<MessageType.ChatHistory,
   | BaseChatHistoryPayload<MessageType.Video, FileBoxInterface>
   | BaseChatHistoryPayload<MessageType.Channel, ChannelPayload>
   | BaseChatHistoryPayload<MessageType.ChannelCard, ChannelCardPayload>
-  | BaseChatHistoryPayload<MessageType.ConsultCard, ConsultCardPayload>
+  | BaseChatHistoryPayload<MessageType.PremiumOnlineAppointmentCard, PremiumOnlineAppointmentCardPayload>
   | BaseChatHistoryPayload<MessageType.Transfer, never>
   | BaseChatHistoryPayload<MessageType.RedEnvelope, never>
   | BaseChatHistoryPayload<MessageType.System, never>

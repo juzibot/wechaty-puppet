@@ -122,7 +122,15 @@ import type {
 import type {
   ConsultCardPayload,
   ConsultCardAction,
+  ConsultCardListRequest,
+  ConsultCardListResponse,
+  IMComponent,
+  PremiumOnlineAppointmentCardPayload,
+  PremiumOnlineAppointmentCardSendPayload,
+  PremiumOnlineAppointmentCardListRequest,
+  PremiumOnlineAppointmentCardListResponse,
 } from './consult-card.js'
+import { ConsultCardComponentType, ConsultCardMsgType } from './consult-card.js'
 
 import {
   type TagGroupPayload,
@@ -257,6 +265,13 @@ export {
   type ChannelCardPayload,
   type ConsultCardPayload,
   type ConsultCardAction,
+  type ConsultCardListRequest,
+  type ConsultCardListResponse,
+  type IMComponent,
+  type PremiumOnlineAppointmentCardPayload,
+  type PremiumOnlineAppointmentCardSendPayload,
+  type PremiumOnlineAppointmentCardListRequest,
+  type PremiumOnlineAppointmentCardListResponse,
   type TagGroupPayload,
   type TagPayload,
   type TagQueryFilter,
@@ -271,5 +286,7 @@ export {
   TagGroupEventType,
   TextContentType,
   CorpMessageInterceptionType,
+  ConsultCardComponentType,
+  ConsultCardMsgType,
   YOU,
 }
