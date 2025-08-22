@@ -37,6 +37,8 @@ import {
   CallType,
   ChannelFeedType,
   CorpMessageInterceptionType,
+  ConsultCardComponentType,
+  ConsultCardMsgType,
 
   type ContactIdExternalUserIdPair,
   type RoomAntiSpamStrategy,
@@ -72,6 +74,8 @@ export {
   CallType                as Call,
   TextContentType,
   CorpMessageInterceptionType,
+  ConsultCardComponentType,
+  ConsultCardMsgType,
 }
 
 export {
