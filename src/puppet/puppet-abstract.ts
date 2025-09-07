@@ -47,7 +47,7 @@ import {
   tapMixin,
   momentMixin,
   verifyCodeMixin,
-  wecomMixin,
+  imSpecificMixin,
 }                        from '../mixins/mod.js'
 
 import { PuppetSkeleton } from './puppet-skeleton.js'
@@ -56,6 +56,11 @@ import { PuppetSkeleton } from './puppet-skeleton.js'
  * Mixins with Functional Programming: compose / pipe
  *  related discussion: https://github.com/wechaty/puppet/pull/173
  */
+/**
+ * ignore TS2589
+ * caused by too deep pipe (too many mixins)
+ */
+// @ts-ignore
 const PipedBase = FP.pipe(
   PuppetSkeleton,
   memoryMixin,
@@ -76,7 +81,7 @@ const PipedBase = FP.pipe(
   tapMixin,
   momentMixin,
   verifyCodeMixin,
-  wecomMixin,
+  imSpecificMixin,
   // TODO: validateMixin,
 )
 

@@ -45,12 +45,8 @@ import type { ChannelPayload } from '../schemas/channel.js'
 import type { ChannelCardPayload } from '../schemas/channel-card.js'
 import type {
   ConsultCardPayload,
-  ConsultCardListRequest,
-  ConsultCardListResponse,
   PremiumOnlineAppointmentCardPayload,
   PremiumOnlineAppointmentCardSendPayload,
-  PremiumOnlineAppointmentCardListRequest,
-  PremiumOnlineAppointmentCardListResponse,
 } from '../schemas/consult-card.js'
 import type { CallRecordPayload } from '../schemas/call.js'
 import type { ChatHistoryPayload } from '../schemas/chat-history.js'
@@ -102,9 +98,6 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     abstract messageSendChannel                      (conversationId: string, channelPayload: ChannelPayload)         : Promise<void | string>
     abstract messageSendChannelCard                  (conversationId: string, channelCardPayload: ChannelCardPayload) : Promise<void | string>
     abstract messageSendPremiumOnlineAppointmentCard (conversationId: string, premiumOnlineAppointmentCardSendPayload : PremiumOnlineAppointmentCardSendPayload) : Promise<void | string>
-
-    abstract listConsultCards                  (query: ConsultCardListRequest)                  : Promise<ConsultCardListResponse>
-    abstract listPremiumOnlineAppointmentCards (query: PremiumOnlineAppointmentCardListRequest) : Promise<PremiumOnlineAppointmentCardListResponse>
 
     abstract messageRecall (messageId: string) : Promise<boolean>
 

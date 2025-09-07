@@ -71,9 +71,9 @@ import {
   ProtectedPropertyVerifyCodeMixin,
 }                                     from './verify-code-mixin.js'
 import {
-  wecomMixin,
-  ProtectedPropertyWecomMixin,
-} from './wecom-mixin.js'
+  imSpecificMixin,
+  ProtectedPropertyImSpecificMixin,
+} from './im-specific-mixin.js'
 
 /**
  * Issue #155 - Mixin: Property 'messageRawPayload' of exported class expression
@@ -103,7 +103,7 @@ type MixinProtectedProperty =
   | ProtectedPropertyValidateMixin
   | ProtectedPropertyMomentMixin
   | ProtectedPropertyVerifyCodeMixin
-  | ProtectedPropertyWecomMixin
+  | ProtectedPropertyImSpecificMixin
 
 export {
   type MixinProtectedProperty,
@@ -126,5 +126,5 @@ export {
   validateMixin,
   momentMixin,
   verifyCodeMixin,
-  wecomMixin,
+  imSpecificMixin,
 }
