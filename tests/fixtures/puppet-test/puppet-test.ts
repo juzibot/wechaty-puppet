@@ -10,7 +10,7 @@ import type { MessagePayloadFilterFunction, MessageSendTextOptions } from '../..
 import type { RoomPayloadFilterFunction }     from '../../../src/schemas/room.js'
 import type { ContactPayloadFilterFunction }  from '../../../src/schemas/contact.js'
 import type { FriendshipAddOptions }          from '../../../src/schemas/friendship.js'
-import type { TagGroupPayload, TagPayload } from '../../../src/schemas/mod.js'
+import type { ConsultCardListRequest, ConsultCardListResponse, PremiumOnlineAppointmentCardListRequest, PremiumOnlineAppointmentCardListResponse, TagGroupPayload, TagPayload } from '../../../src/schemas/mod.js'
 import type { TagInfo } from '../../../src/schemas/tag.js'
 
 class PuppetTest extends PUPPET.Puppet {
@@ -339,6 +339,18 @@ class PuppetTest extends PUPPET.Puppet {
 
   override getCorpMessageInterceptionStrategies (): Promise<PUPPET.types.CorpMessageInterceptionStrategy[]> {
     return {} as any
+  }
+
+  override listConsultCards (
+    query: ConsultCardListRequest,
+  ): Promise<ConsultCardListResponse> {
+    return { query } as any
+  }
+
+  override listPremiumOnlineAppointmentCards (
+    query: PremiumOnlineAppointmentCardListRequest,
+  ): Promise<PremiumOnlineAppointmentCardListResponse> {
+    return { query } as any
   }
 
 }
