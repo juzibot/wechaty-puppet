@@ -1,3 +1,16 @@
+export enum ConsultCardType {
+  TextLink = 1,
+  ImageLink = 2,
+  QuestionList = 3,
+  PhoneCall = 4,
+  PhoneCollection = 5,
+}
+
+export enum ConsultCardStatus {
+  PENDING = 0,
+  VALID = 1
+}
+
 export interface IMComponent {
   type: string
   componentId: number
@@ -12,21 +25,21 @@ export interface ConsultCardAction {
 }
 
 export interface ConsultCardPayload {
-  id: number                    // 卡片 ID
-  cardType: number              // 卡片类型：1-文字链接；5-电话收集等
+  id: string                    // 卡片 ID
+  cardType: ConsultCardType     // 卡片类型：1-文字链接；5-电话收集等
   name: string                  // 卡片名称
   content: string               // 卡片内容
-  status: number                // 卡片状态
-  statusMsg: number             // 状态消息
+  status: ConsultCardStatus     // 卡片状态
+  statusMsg: string             // 状态消息
   actions?: ConsultCardAction[] // 卡片操作
 }
 
 export interface ConsultCardListRequest {
-  cardType: number         // 卡片类型：1-文字链接；5-电话收集等
-  status?: number          // 卡片状态
-  ids?: number[]           // 指定查询的卡片ID列表
-  page: number             // 页码（从1开始）
-  pageSize: number         // 每页数量（最多50）
+  cardType: ConsultCardType  // 卡片类型：1-文字链接；5-电话收集等
+  status?: ConsultCardStatus // 卡片状态
+  ids?: string[]             // 指定查询的卡片ID列表
+  page: number               // 页码（从1开始）
+  pageSize: number           // 每页数量（最多50）
 }
 
 export interface ConsultCardListResponse {
@@ -34,20 +47,8 @@ export interface ConsultCardListResponse {
   cards: ConsultCardPayload[]
 }
 
-export abstract class ConsultCard {
-
-  abstract id(): number
-  abstract cardType(): number
-  abstract name(): string
-  abstract content(): string
-  abstract status(): number
-  abstract statusMsg(): number
-  abstract actions(): ConsultCardAction[] | undefined
-
-}
-
 export interface PremiumOnlineAppointmentCardPayload {
-  componentId: number       // 组件ID
+  componentId: string       // 组件ID
   titleImage: string        // 头图
   createTime: number        // 创建时间，单位：秒
   title: string             // 标题
@@ -57,7 +58,7 @@ export interface PremiumOnlineAppointmentCardPayload {
 export interface PremiumOnlineAppointmentCardSendPayload {
   msgType: number           // 消息类型
   componentType: number     // 组件类型
-  componentId: number       // 组件ID
+  componentId: string       // 组件ID
 }
 
 export interface PremiumOnlineAppointmentCardListRequest {
@@ -89,14 +90,4 @@ export enum ConsultCardMsgType {
   InvestmentFranchiseCard         = 23,
   PostSaleOrderCard               = 24,
   PhoneCollectionCard             = 25,
-}
-
-export abstract class PremiumOnlineAppointmentCard {
-
-  abstract componentId(): number
-  abstract titleImage(): string
-  abstract createTime(): number
-  abstract title(): string
-  abstract subTitle(): string
-
 }

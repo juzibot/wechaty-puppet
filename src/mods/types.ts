@@ -39,6 +39,8 @@ import {
   CorpMessageInterceptionType,
   ConsultCardComponentType,
   ConsultCardMsgType,
+  ConsultCardType,
+  ConsultCardStatus,
 
   type ContactIdExternalUserIdPair,
   type RoomAntiSpamStrategy,
@@ -76,6 +78,8 @@ export {
   CorpMessageInterceptionType,
   ConsultCardComponentType,
   ConsultCardMsgType,
+  ConsultCardType,
+  ConsultCardStatus,
 }
 
 export {

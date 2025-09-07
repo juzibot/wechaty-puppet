@@ -130,7 +130,7 @@ import type {
   PremiumOnlineAppointmentCardListRequest,
   PremiumOnlineAppointmentCardListResponse,
 } from './consult-card.js'
-import { ConsultCardComponentType, ConsultCardMsgType } from './consult-card.js'
+import { ConsultCardComponentType, ConsultCardMsgType, ConsultCardType, ConsultCardStatus } from './consult-card.js'
 
 import {
   type TagGroupPayload,
@@ -288,5 +288,7 @@ export {
   CorpMessageInterceptionType,
   ConsultCardComponentType,
   ConsultCardMsgType,
+  ConsultCardType,
+  ConsultCardStatus,
   YOU,
 }
