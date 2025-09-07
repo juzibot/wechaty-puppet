@@ -13,7 +13,7 @@ export enum ConsultCardStatus {
 
 export interface IMComponent {
   type: string
-  componentId: number
+  componentId: string
   componentName: string
   extra: string
 }
