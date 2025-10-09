@@ -43,6 +43,17 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
     abstract roomTopic (roomId: string)                                        : Promise<string>
     abstract roomTopic (roomId: string, topic: string)                         : Promise<void>
     abstract roomRemark (roomId: string, remark: string)                       : Promise<void>
+    abstract roomAddV2 (roomId: string, contactIds: string[], inviteOnly?: boolean, quoteIds?: string[]) : Promise<{
+      successList: string[]
+      failList: string[]
+      failReasonList: string[]
+    }>
+
+    abstract roomDelV2 (roomId: string, contactIds: string[]) : Promise<{
+      successList: string[],
+      failList: string[],
+      failReasonList: string[],
+    }>
 
     abstract roomOwnerTransfer(roomId: string, contactId: string): Promise<void>
     abstract roomDismiss(roomId: string): Promise<void>

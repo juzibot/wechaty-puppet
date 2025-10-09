@@ -232,6 +232,18 @@ class PuppetTest extends PUPPET.Puppet {
   override async roomMemberRawPayload (roomId: string, contactId: string) : Promise<any> { return { contactId, roomId } as any }
   override async roomMemberRawPayloadParser (rawPayload: any)             : Promise<PUPPET.payloads.RoomMember> { return rawPayload }
 
+  override async roomAddV2 (roomId: string, contactIds: string[], inviteOnly?: boolean, quoteIds?: string[]) : Promise<{
+    successList: string[]
+    failList: string[]
+    failReasonList: string[]
+  }> { return { roomId, contactIds, inviteOnly, quoteIds } as any }
+
+  override async roomDelV2 (roomId: string, contactIds: string[]) : Promise<{
+    successList: string[],
+    failList: string[],
+    failReasonList: string[],
+  }> { return { roomId, contactIds } as any }
+
   /**
    * expose to public for internal methods:
    */
