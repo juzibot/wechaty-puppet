@@ -98,6 +98,8 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     abstract messageSendChannel                      (conversationId: string, channelPayload: ChannelPayload)         : Promise<void | string>
     abstract messageSendChannelCard                  (conversationId: string, channelCardPayload: ChannelCardPayload) : Promise<void | string>
     abstract messageSendConsultCard                  (conversationId: string, consultCardPayload: ConsultCardPayload) : Promise<void | string>
+
+    // im-specific
     abstract messageSendPremiumOnlineAppointmentCard (conversationId: string, premiumOnlineAppointmentCardSendPayload : PremiumOnlineAppointmentCardSendPayload) : Promise<void | string>
     abstract messageSendDouyinOneClickPhoneCollection(conversationId: string, douyinOneClickPhoneCollectionSendPayload: {}) : Promise<void | string>
 

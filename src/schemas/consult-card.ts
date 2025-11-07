@@ -53,16 +53,17 @@ export interface PremiumOnlineAppointmentCardPayload {
   createTime: number        // 创建时间，单位：秒
   title: string             // 标题
   subTitle: string          // 子标题
+  cardType: string          //
 }
 
 export interface PremiumOnlineAppointmentCardSendPayload {
-  msgType: number           // 消息类型
-  componentType: number     // 组件类型
+  cardType: string
   componentId: string       // 组件ID
+  componentType: string     // 组件类型
 }
 
 export interface PremiumOnlineAppointmentCardListRequest {
-  linkTypes: number[]      // 组件类型
+  cardType: string
   page: number             // 页码（从1开始）
   pageSize: number         // 每页数量（最多50）
 }
