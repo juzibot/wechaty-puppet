@@ -55,6 +55,7 @@ export interface PremiumOnlineAppointmentCardPayload {
   title: string             // 标题
   subTitle: string          // 子标题
   cardType: string          //
+  url: string                // 跳转链接
 }
 
 export interface PremiumOnlineAppointmentCardSendPayload {
