@@ -13,7 +13,6 @@ import type {
   SayablePayloadPost,
 }                                     from './post.js'
 import type { ConsultCardPayload, PremiumOnlineAppointmentCardPayload } from './consult-card.js'
-import { ConsultCardComponentType, ConsultCardMsgType } from './consult-card.js'
 
 const payloadContact     = (contactId: string)                      => ({ contactId })
 const payloadFilebox     = (filebox: string | FileBoxInterface)     => ({ filebox })
@@ -31,9 +30,7 @@ const payloadChannel                      = (channelPayload: ChannelPayload)    
 const payloadChannelCard                  = (channelCardPayload: ChannelCardPayload)                                   => ({ ...channelCardPayload })
 const payloadConsultCard                  = (consultCardPayload: ConsultCardPayload)                                   => ({ ...consultCardPayload })
 const payloadPremiumOnlineAppointmentCard = (premiumOnlineAppointmentCardPayload: PremiumOnlineAppointmentCardPayload) => ({
-  msgType: ConsultCardMsgType.PremiumOnlineAppointmentCard,
-  componentType: ConsultCardComponentType.PremiumOnlineAppointmentCard,
-  componentId: premiumOnlineAppointmentCardPayload.componentId,
+  ...premiumOnlineAppointmentCardPayload,
 })
 
 /**

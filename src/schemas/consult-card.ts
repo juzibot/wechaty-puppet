@@ -49,6 +49,7 @@ export interface ConsultCardListResponse {
 
 export interface PremiumOnlineAppointmentCardPayload {
   componentId: string       // 组件ID
+  componentType: string     // 组件类型
   titleImage: string        // 头图
   createTime: number        // 创建时间，单位：秒
   title: string             // 标题
