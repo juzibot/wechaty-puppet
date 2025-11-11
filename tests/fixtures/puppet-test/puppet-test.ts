@@ -10,7 +10,7 @@ import type { MessagePayloadFilterFunction, MessageSendTextOptions } from '../..
 import type { RoomPayloadFilterFunction }     from '../../../src/schemas/room.js'
 import type { ContactPayloadFilterFunction }  from '../../../src/schemas/contact.js'
 import type { FriendshipAddOptions }          from '../../../src/schemas/friendship.js'
-import type { ConsultCardListRequest, ConsultCardListResponse, PremiumOnlineAppointmentCardListRequest, PremiumOnlineAppointmentCardListResponse, TagGroupPayload, TagPayload } from '../../../src/schemas/mod.js'
+import type { ConsultCardListRequest, ConsultCardListResponse, IntentCommentPayload, PaginationRequest, PaginationResponse, PremiumOnlineAppointmentCardListRequest, PremiumOnlineAppointmentCardListResponse, TagGroupPayload, TagPayload } from '../../../src/schemas/mod.js'
 import type { TagInfo } from '../../../src/schemas/tag.js'
 
 class PuppetTest extends PUPPET.Puppet {
@@ -363,6 +363,18 @@ class PuppetTest extends PUPPET.Puppet {
     query: PremiumOnlineAppointmentCardListRequest,
   ): Promise<PremiumOnlineAppointmentCardListResponse> {
     return { query } as any
+  }
+
+  override listIntentComments (
+    query: PaginationRequest,
+  ): Promise<PaginationResponse<IntentCommentPayload[]>> {
+    return { query } as any
+  }
+
+  override intentCommentPayload (
+    id: string,
+  ): Promise<IntentCommentPayload> {
+    return { id } as any
   }
 
 }

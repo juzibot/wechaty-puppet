@@ -173,8 +173,8 @@ import {
   CorpMessageInterceptionType,
 } from './wecom.js'
 
-import {
-  type IntentCommentPayload,
+import type {
+  IntentCommentPayload,
 } from './xiaohongshu.js'
 
 export {

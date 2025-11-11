@@ -30,6 +30,7 @@ const imSpecificMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: Mix
 
     // xiaohongshu
     abstract listIntentComments (query: PaginationRequest): Promise<PaginationResponse<IntentCommentPayload[]>>
+    abstract intentCommentPayload (id: string): Promise<IntentCommentPayload>
 
   }
 

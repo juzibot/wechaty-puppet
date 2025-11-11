@@ -53,8 +53,6 @@ export type PuppetVerifyCodeListener   = (payload: EventVerifyCodePayload)  => v
 export type PuppetLoginUrlListener     = (payload: EventLoginUrlPayload)    => void | Promise<void>
 export type PuppetIntentCommentListener     = (payload: EventIntentCommentPayload)    => void | Promise<void>
 
-
-
 export type PuppetStartListener      = () => void | Promise<void>
 export type PuppetStopListener       = () => void | Promise<void>
 
