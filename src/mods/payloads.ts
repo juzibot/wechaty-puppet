@@ -54,6 +54,7 @@ import type {
   CallRecordPayload,
   ChatHistoryPayload,
   IntentCommentPayload,
+  EventIntentCommentPayload,
 }                           from '../schemas/mod.js'
 import {
   sayablePayloads,
@@ -86,6 +87,7 @@ export type {
   EventTagGroupPayload                    as EventTagGroup,
   EventVerifyCodePayload                  as EventVerifyCode,
   EventLoginUrlPayload                    as EventLoginUrl,
+  EventIntentCommentPayload               as EventIntentComment,
   FriendshipPayload                       as Friendship,
   FriendshipPayloadConfirm                as FriendshipConfirm,
   FriendshipPayloadReceive                as FriendshipReceive,

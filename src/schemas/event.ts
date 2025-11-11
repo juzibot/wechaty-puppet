@@ -157,6 +157,10 @@ export interface EventLoginUrlPayload {
   url: string,
 }
 
+export interface EventIntentCommentPayload {
+  intentCommentId: string,
+}
+
 export type EventPayload =
   | EventDirtyPayload
   | EventDongPayload
@@ -181,3 +185,4 @@ export type EventPayload =
   | EventPostTapPayload
   | EventVerifyCodePayload
   | EventLoginUrlPayload
+  | EventIntentCommentPayload
