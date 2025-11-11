@@ -5,6 +5,7 @@ export interface IntentCommentPayload {
   postAuthorId: string,
   text: string,
   timestamp: number,
+  commentAuthorName: string,
   commentAuthorId: string,
   commentId: string,
   commentUniqueId: string,
