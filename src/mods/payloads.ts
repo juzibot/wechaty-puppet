@@ -53,6 +53,7 @@ import type {
   EventLoginUrlPayload,
   CallRecordPayload,
   ChatHistoryPayload,
+  IntentCommentPayload,
 }                           from '../schemas/mod.js'
 import {
   sayablePayloads,
@@ -112,6 +113,7 @@ export type {
   ChatHistoryPayload                      as ChatHistory,
   ConsultCardPayload                      as ConsultCard,
   PremiumOnlineAppointmentCardPayload     as PremiumOnlineAppointmentCard,
+  IntentCommentPayload                    as IntentComment,
   ConsultCardAction,
   IMComponent,
 }

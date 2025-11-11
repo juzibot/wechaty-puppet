@@ -172,6 +172,10 @@ import {
   CorpMessageInterceptionType,
 } from './wecom.js'
 
+import {
+  type IntentCommentPayload,
+} from './xiaohongshu.js'
+
 export {
   CHAT_EVENT_DICT,
   ContactGender,
@@ -282,6 +286,7 @@ export {
   type RoomAntiSpamStrategy,
   type TextContent,
   type CorpMessageInterceptionStrategy,
+  type IntentCommentPayload,
   TagEventType,
   TagGroupEventType,
   TextContentType,

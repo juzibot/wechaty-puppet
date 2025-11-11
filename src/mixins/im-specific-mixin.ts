@@ -3,7 +3,7 @@ import {
 } from '../config.js'
 
 import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
-import type { ConsultCardListRequest, ConsultCardListResponse, ContactIdExternalUserIdPair, PremiumOnlineAppointmentCardListRequest, PremiumOnlineAppointmentCardListResponse } from '../schemas/mod.js'
+import type { ConsultCardListRequest, ConsultCardListResponse, ContactIdExternalUserIdPair, IntentCommentPayload, PaginationRequest, PaginationResponse, PremiumOnlineAppointmentCardListRequest, PremiumOnlineAppointmentCardListResponse } from '../schemas/mod.js'
 import type { CorpMessageInterceptionStrategy, RoomAntiSpamStrategy } from '../schemas/wecom.js'
 
 const imSpecificMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBase) => {
@@ -24,8 +24,12 @@ const imSpecificMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: Mix
 
     abstract getCorpMessageInterceptionStrategies (): Promise<CorpMessageInterceptionStrategy[]>
 
+    // douyin
     abstract listConsultCards                  (query: ConsultCardListRequest)                  : Promise<ConsultCardListResponse>
     abstract listPremiumOnlineAppointmentCards (query: PremiumOnlineAppointmentCardListRequest) : Promise<PremiumOnlineAppointmentCardListResponse>
+
+    // xiaohongshu
+    abstract listIntentComments (query: PaginationRequest): Promise<PaginationResponse<IntentCommentPayload[]>>
 
   }
 
