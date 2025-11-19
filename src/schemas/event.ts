@@ -2,7 +2,7 @@ import type { DirtyType } from './dirty.js'
 import type { TagEventType, TapType } from './mod.js'
 import type { TagGroupEventType } from './tag.js'
 import type { VerifyCodeScene, VerifyCodeStatus } from './verify-code.js'
-import type { VerifySlideStatus, VerifySlideType } from './verify-slide.js'
+import type { VerifySlideStatus, VerifySlideScene } from './verify-slide.js'
 
 /**
  * The event `scan` status number.
@@ -155,7 +155,7 @@ export interface EventVerifyCodePayload {
 }
 
 export interface EventVerifySlidePayload {
-  scene: VerifySlideType,
+  scene: VerifySlideScene,
   status: VerifySlideStatus,
 
   sliderVerifyEncrypt: string,

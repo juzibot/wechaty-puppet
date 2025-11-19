@@ -4,7 +4,7 @@ export enum VerifySlideStatus {
   EXPIRED = 2,
 }
 
-export enum VerifySlideType {
+export enum VerifySlideScene {
   UNKNOWN = 0,
   LOGIN = 1,
 }
