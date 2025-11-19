@@ -34,6 +34,7 @@ export const CHAT_EVENT_DICT = {
   dirty          : 'dirty the cache payload, which means payload info changed',
   'login-url'    : 'an oauth url is required',
   'intent-comment': 'received a new intent comment',
+  'verify-slide' : 'a verify slide is required',
 }
 export type ChatEventName = keyof typeof CHAT_EVENT_DICT
 

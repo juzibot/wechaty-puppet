@@ -161,6 +161,11 @@ import {
 } from './verify-code.js'
 
 import {
+  VerifySlideStatus,
+  VerifySlideScene,
+} from './verify-slide.js'
+
+import {
   CallType,
   CallStatus,
   type CallRecordPayload,
@@ -203,6 +208,8 @@ export {
   ScanType,
   VerifyCodeStatus,
   VerifyCodeScene,
+  VerifySlideStatus,
+  VerifySlideScene,
   CallStatus,
   CallType,
   TapType,
