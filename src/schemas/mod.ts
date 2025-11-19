@@ -79,6 +79,7 @@ import type {
   EventTagPayload,
   EventTagGroupPayload,
   EventVerifyCodePayload,
+  EventVerifySlidePayload,
   EventLoginUrlPayload,
   EventIntentCommentPayload,
 }                             from './event.js'
@@ -232,6 +233,7 @@ export {
   type EventTagPayload,
   type EventTagGroupPayload,
   type EventVerifyCodePayload,
+  type EventVerifySlidePayload,
   type EventLoginUrlPayload,
   type EventIntentCommentPayload,
   type FriendshipAddOptions,
