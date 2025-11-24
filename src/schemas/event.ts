@@ -170,6 +170,21 @@ export interface EventIntentCommentPayload {
   intentCommentId: string,
 }
 
+export interface EventContactEnterConversationPayload {
+  contactId: string,
+}
+
+export interface EventContactLeadFilledPayload {
+  contactId: string,
+  /**
+   * [{name: '微信', value: '案例微信号'}, {name: '手机号', value: '13800000000'}]
+   */
+  leads: {
+    name: string,
+    value: string,
+  }[],
+}
+
 export type EventPayload =
   | EventDirtyPayload
   | EventDongPayload
@@ -196,3 +211,5 @@ export type EventPayload =
   | EventVerifySlidePayload
   | EventLoginUrlPayload
   | EventIntentCommentPayload
+  | EventContactEnterConversationPayload
+  | EventContactLeadFilledPayload

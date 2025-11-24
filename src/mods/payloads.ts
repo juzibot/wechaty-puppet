@@ -56,6 +56,8 @@ import type {
   ChatHistoryPayload,
   IntentCommentPayload,
   EventIntentCommentPayload,
+  EventContactEnterConversationPayload,
+  EventContactLeadFilledPayload,
 }                           from '../schemas/mod.js'
 import {
   sayablePayloads,
@@ -90,6 +92,8 @@ export type {
   EventVerifySlidePayload                 as EventVerifySlide,
   EventLoginUrlPayload                    as EventLoginUrl,
   EventIntentCommentPayload               as EventIntentComment,
+  EventContactEnterConversationPayload    as EventContactEnterConversation,
+  EventContactLeadFilledPayload           as EventContactLeadFilled,
   FriendshipPayload                       as Friendship,
   FriendshipPayloadConfirm                as FriendshipConfirm,
   FriendshipPayloadReceive                as FriendshipReceive,

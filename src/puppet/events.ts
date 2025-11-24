@@ -27,6 +27,8 @@ import type {
   EventVerifySlidePayload,
   EventLoginUrlPayload,
   EventIntentCommentPayload,
+  EventContactEnterConversationPayload,
+  EventContactLeadFilledPayload,
 }                                 from '../schemas/event.js'
 
 export type PuppetDirtyListener        = (payload: EventDirtyPayload)       => void | Promise<void>
@@ -54,6 +56,8 @@ export type PuppetVerifyCodeListener   = (payload: EventVerifyCodePayload)  => v
 export type PuppetVerifySlideListener  = (payload: EventVerifySlidePayload) => void | Promise<void>
 export type PuppetLoginUrlListener     = (payload: EventLoginUrlPayload)    => void | Promise<void>
 export type PuppetIntentCommentListener     = (payload: EventIntentCommentPayload)    => void | Promise<void>
+export type PuppetContactEnterConversationListener     = (payload: EventContactEnterConversationPayload)    => void | Promise<void>
+export type PuppetContactLeadFilledListener     = (payload: EventContactLeadFilledPayload)    => void | Promise<void>
 
 export type PuppetStartListener      = () => void | Promise<void>
 export type PuppetStopListener       = () => void | Promise<void>
@@ -86,6 +90,8 @@ interface PuppetEventListener {
   'login-url'    : PuppetLoginUrlListener,
   'intent-comment'    : PuppetIntentCommentListener,
   'verify-slide'     : PuppetVerifySlideListener,
+  'contact-enter-conversation'     : PuppetContactEnterConversationListener,
+  'contact-lead-filled'     : PuppetContactLeadFilledListener,
 }
 
 const PuppetEventEmitter = EventEmitter as unknown as new () =>

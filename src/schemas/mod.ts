@@ -82,6 +82,8 @@ import type {
   EventVerifySlidePayload,
   EventLoginUrlPayload,
   EventIntentCommentPayload,
+  EventContactEnterConversationPayload,
+  EventContactLeadFilledPayload,
 }                             from './event.js'
 import {
   type RoomPayload,
@@ -243,6 +245,8 @@ export {
   type EventVerifySlidePayload,
   type EventLoginUrlPayload,
   type EventIntentCommentPayload,
+  type EventContactEnterConversationPayload,
+  type EventContactLeadFilledPayload,
   type FriendshipAddOptions,
   type FriendshipPayload,
   type FriendshipPayloadConfirm,

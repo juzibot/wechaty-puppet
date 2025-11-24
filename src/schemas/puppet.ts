@@ -35,6 +35,8 @@ export const CHAT_EVENT_DICT = {
   'login-url'    : 'an oauth url is required',
   'intent-comment': 'received a new intent comment',
   'verify-slide' : 'a verify slide is required',
+  'contact-enter-conversation' : 'a contact enters the conversation',
+  'contact-lead-filled' : 'a contact fills the lead card',
 }
 export type ChatEventName = keyof typeof CHAT_EVENT_DICT
 
