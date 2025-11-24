@@ -172,6 +172,7 @@ export interface EventIntentCommentPayload {
 
 export interface EventContactEnterConversationPayload {
   contactId: string,
+  timestamp: number,
 }
 
 export interface EventContactLeadFilledPayload {
@@ -183,6 +184,7 @@ export interface EventContactLeadFilledPayload {
     name: string,
     value: string,
   }[],
+  timestamp: number,
 }
 
 export type EventPayload =
