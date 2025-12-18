@@ -106,8 +106,8 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     // im-specific
     abstract messageSendPremiumOnlineAppointmentCard (conversationId: string, premiumOnlineAppointmentCardSendPayload : PremiumOnlineAppointmentCardSendPayload) : Promise<void | string>
     abstract messageSendDouyinOneClickPhoneCollection(conversationId: string, douyinOneClickPhoneCollectionSendPayload: {}) : Promise<void | string>
-    abstract messageSendProduct(conversationId: string, productId: string) : Promise<void | string>
-    abstract messageSendOrder(conversationId: string, orderId: string) : Promise<void | string>
+    abstract messageSendWxxdProduct(conversationId: string, productId: string) : Promise<void | string>
+    abstract messageSendWxxdOrder(conversationId: string, orderId: string) : Promise<void | string>
 
     abstract messageRecall (messageId: string) : Promise<boolean>
 
@@ -341,9 +341,9 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
         case sayableTypes.PremiumOnlineAppointmentCard:
           return this.messageSendPremiumOnlineAppointmentCard(conversationId, sayable.payload)
         case sayableTypes.WxxdProduct:
-          return this.messageSendProduct(conversationId, sayable.payload.productId)
+          return this.messageSendWxxdProduct(conversationId, sayable.payload.productId)
         case sayableTypes.WxxdOrder:
-          return this.messageSendOrder(conversationId, sayable.payload.orderId)
+          return this.messageSendWxxdOrder(conversationId, sayable.payload.orderId)
         default:
           throw new Error('unsupported sayable payload: ' + JSON.stringify(sayable))
       }

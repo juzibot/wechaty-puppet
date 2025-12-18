@@ -377,23 +377,23 @@ class PuppetTest extends PUPPET.Puppet {
     return { id } as any
   }
 
-  override shopPayload (): Promise<WxxdShopPayload> {
+  override wxxdShopPayload (): Promise<WxxdShopPayload> {
     return {} as any
   }
 
-  override listProducts (query: PaginationRequest): Promise<PaginationResponse<WxxdProductPayload[]>> {
+  override listWxxdProducts (query: PaginationRequest): Promise<PaginationResponse<WxxdProductPayload[]>> {
     return { query } as any
   }
 
-  override productPayload (productId: string): Promise<WxxdProductPayload> {
+  override wxxdProductPayload (productId: string): Promise<WxxdProductPayload> {
     return { productId } as any
   }
 
-  override listOrders (query: PaginationRequest): Promise<PaginationResponse<WxxdOrderPayload[]>> {
+  override listWxxdOrders (query: PaginationRequest): Promise<PaginationResponse<WxxdOrderPayload[]>> {
     return { query } as any
   }
 
-  override orderPayload (orderId: string): Promise<WxxdOrderPayload> {
+  override wxxdOrderPayload (orderId: string): Promise<WxxdOrderPayload> {
     return { orderId } as any
   }
 

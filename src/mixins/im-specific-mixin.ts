@@ -27,22 +27,22 @@ const imSpecificMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: Mix
 
     abstract getCorpMessageInterceptionStrategies (): Promise<CorpMessageInterceptionStrategy[]>
 
-    // douyin
+    // 抖音
     abstract listConsultCards                  (query: ConsultCardListRequest)                  : Promise<ConsultCardListResponse>
     abstract listPremiumOnlineAppointmentCards (query: PremiumOnlineAppointmentCardListRequest) : Promise<PremiumOnlineAppointmentCardListResponse>
 
-    // xiaohongshu
+    // 小红书
     abstract listIntentComments (query: PaginationRequest): Promise<PaginationResponse<IntentCommentPayload[]>>
     abstract intentCommentPayload (id: string): Promise<IntentCommentPayload>
 
-    // wxxd
-    abstract shopPayload(): Promise<WxxdShopPayload>
+    // 微信小店
+    abstract wxxdShopPayload(): Promise<WxxdShopPayload>
 
-    abstract listProducts(query: PaginationRequest): Promise<PaginationResponse<WxxdProductPayload[]>>
-    abstract productPayload(productId: string): Promise<WxxdProductPayload>
+    abstract listWxxdProducts(query: PaginationRequest): Promise<PaginationResponse<WxxdProductPayload[]>>
+    abstract wxxdProductPayload(productId: string): Promise<WxxdProductPayload>
 
-    abstract listOrders(query: PaginationRequest): Promise<PaginationResponse<WxxdOrderPayload[]>>
-    abstract orderPayload(orderId: string): Promise<WxxdOrderPayload>
+    abstract listWxxdOrders(query: PaginationRequest): Promise<PaginationResponse<WxxdOrderPayload[]>>
+    abstract wxxdOrderPayload(orderId: string): Promise<WxxdOrderPayload>
 
   }
 

@@ -1,4 +1,4 @@
-export enum SkuStatus {
+export enum WxxdSkuStatus {
   /** 初始值 */
   Initial = 0,
   /** 上架中 */
@@ -9,7 +9,7 @@ export enum SkuStatus {
   Deleted = 21,
 }
 
-export enum ProductStatus {
+export enum WxxdProductStatus {
   /** 初始值 */
   Initial = 0,
   /** 编辑中 */
@@ -52,28 +52,28 @@ export enum ProductStatus {
   QualityCheckFailed = 71,
 }
 
-export interface DescInfoPayload {
+export interface WxxdDescInfoPayload {
   desc: string,
   imgs: string[],
 }
 
-export interface SkuPayload {
+export interface WxxdSkuPayload {
   skuId: string,
   outSkuId: string,
   thumbImage: string,
   salePrice: number,
   stockNum: number,
   skuCode: string,
-  status: SkuStatus,
+  status: WxxdSkuStatus,
 }
 
-export interface ExtraServicePayload {
-  sevenDayReturn: number
-  payAfterUse: number
-  freightInsurance: number
-  damageGuarantee: number
-  fakeOnePayThree: number
-  exchangeSupport: number
+export interface WxxdExtraServicePayload {
+  sevenDayReturn: number,
+  payAfterUse: number,
+  freightInsurance: number,
+  damageGuarantee: number,
+  fakeOnePayThree: number,
+  exchangeSupport: number,
 }
 
 export interface WxxdProductPayload {
@@ -81,10 +81,10 @@ export interface WxxdProductPayload {
   title: string,
   shortTitle: string,
   headImgs: string[],
-  descInfo: DescInfoPayload,
-  status: ProductStatus,
+  descInfo: WxxdDescInfoPayload,
+  status: WxxdProductStatus,
   minPrice: number,
   totalSoldNum: number,
-  skus: SkuPayload[],
-  extraService: ExtraServicePayload,
+  skus: WxxdSkuPayload[],
+  extraService: WxxdExtraServicePayload,
 }
