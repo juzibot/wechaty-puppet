@@ -341,9 +341,9 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
         case sayableTypes.PremiumOnlineAppointmentCard:
           return this.messageSendPremiumOnlineAppointmentCard(conversationId, sayable.payload)
         case sayableTypes.WxxdProduct:
-          return this.messageSendProduct(conversationId, sayable.payload)
+          return this.messageSendProduct(conversationId, sayable.payload.productId)
         case sayableTypes.WxxdOrder:
-          return this.messageSendOrder(conversationId, sayable.payload)
+          return this.messageSendOrder(conversationId, sayable.payload.orderId)
         default:
           throw new Error('unsupported sayable payload: ' + JSON.stringify(sayable))
       }
