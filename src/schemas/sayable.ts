@@ -13,6 +13,8 @@ import type {
   SayablePayloadPost,
 }                                     from './post.js'
 import type { ConsultCardPayload, PremiumOnlineAppointmentCardPayload } from './consult-card.js'
+import type { WxxdProductPayload } from './wxxd-product.js'
+import type { WxxdOrderPayload } from './wxxd-order.js'
 
 const payloadContact     = (contactId: string)                      => ({ contactId })
 const payloadFilebox     = (filebox: string | FileBoxInterface)     => ({ filebox })
@@ -32,7 +34,8 @@ const payloadConsultCard                  = (consultCardPayload: ConsultCardPayl
 const payloadPremiumOnlineAppointmentCard = (premiumOnlineAppointmentCardPayload: PremiumOnlineAppointmentCardPayload) => ({
   ...premiumOnlineAppointmentCardPayload,
 })
-
+const payloadWxxdProduct                  = (wxxdProductPayload: WxxdProductPayload)                                   => ({ ...wxxdProductPayload })
+const payloadWxxdOrder                    = (wxxdOrderPayload: WxxdOrderPayload)                                   => ({ ...wxxdOrderPayload })
 /**
  * using `types` as a static typed string name list for `createAction`
  *
@@ -78,7 +81,8 @@ const channel                      = createAction(sayableTypes.Channel,         
 const channelCard                  = createAction(sayableTypes.ChannelCard,                  payloadChannelCard)()
 const consultCard                  = createAction(sayableTypes.ConsultCard,                  payloadConsultCard)()
 const premiumOnlineAppointmentCard = createAction(sayableTypes.PremiumOnlineAppointmentCard, payloadPremiumOnlineAppointmentCard)()
-
+const wxxdProduct                  = createAction(sayableTypes.WxxdProduct,                  payloadWxxdProduct)()
+const wxxdOrder                    = createAction(sayableTypes.WxxdOrder,                    payloadWxxdOrder)()
 /**
  * Huan(202201): Recursive type references
  *  @link https://github.com/microsoft/TypeScript/pull/33050#issuecomment-1002455128
@@ -100,6 +104,8 @@ const sayablePayloadsNoPost = {
   channelCard,
   consultCard,
   premiumOnlineAppointmentCard,
+  wxxdProduct,
+  wxxdOrder,
 } as const
 
 /**

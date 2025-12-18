@@ -84,6 +84,8 @@ import type {
   EventIntentCommentPayload,
   EventContactEnterConversationPayload,
   EventContactLeadFilledPayload,
+  EventWxxdProductPayload,
+  EventWxxdOrderPayload,
 }                             from './event.js'
 import {
   type RoomPayload,
@@ -184,6 +186,10 @@ import {
 import type {
   IntentCommentPayload,
 } from './xiaohongshu.js'
+
+import type { WxxdShopPayload } from './wxxd-shop.js'
+import type { WxxdProductPayload } from './wxxd-product.js'
+import type { WxxdOrderPayload } from './wxxd-order.js'
 
 export {
   CHAT_EVENT_DICT,
@@ -302,6 +308,11 @@ export {
   type TextContent,
   type CorpMessageInterceptionStrategy,
   type IntentCommentPayload,
+  type WxxdShopPayload,
+  type WxxdProductPayload,
+  type WxxdOrderPayload,
+  type EventWxxdProductPayload,
+  type EventWxxdOrderPayload,
   TagEventType,
   TagGroupEventType,
   TextContentType,

@@ -186,6 +186,13 @@ export interface EventContactLeadFilledPayload {
   }[],
   timestamp: number,
 }
+export interface EventWxxdProductPayload {
+  productId: string,
+}
+
+export interface EventWxxdOrderPayload {
+  orderId: string,
+}
 
 export type EventPayload =
   | EventDirtyPayload
@@ -215,3 +222,5 @@ export type EventPayload =
   | EventIntentCommentPayload
   | EventContactEnterConversationPayload
   | EventContactLeadFilledPayload
+  | EventWxxdProductPayload
+  | EventWxxdOrderPayload

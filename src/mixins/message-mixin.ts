@@ -50,6 +50,8 @@ import type {
 } from '../schemas/consult-card.js'
 import type { CallRecordPayload } from '../schemas/call.js'
 import type { ChatHistoryPayload } from '../schemas/chat-history.js'
+import type { WxxdProductPayload } from '../schemas/wxxd-product.js'
+import type { WxxdOrderPayload } from '../schemas/wxxd-order.js'
 
 const filebox = (filebox: string | FileBoxInterface) => typeof filebox === 'string' ? FileBox.fromJSON(filebox) : filebox
 
@@ -84,6 +86,8 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     abstract messageChannelCard                   (messageId: string)                       : Promise<ChannelCardPayload>
     abstract messageConsultCard                   (messageId: string)                       : Promise<ConsultCardPayload>
     abstract messagePremiumOnlineAppointmentCard  (messageId: string)                       : Promise<PremiumOnlineAppointmentCardPayload>
+    abstract messageWxxdProduct                   (messageId: string)                       : Promise<WxxdProductPayload>
+    abstract messageWxxdOrder                     (messageId: string)                       : Promise<WxxdOrderPayload>
     abstract messageCallRecord                    (messageId: string)                       : Promise<CallRecordPayload>
     abstract messageChatHistory                   (messageId: string)                       : Promise<ChatHistoryPayload[]>
 
@@ -102,6 +106,8 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     // im-specific
     abstract messageSendPremiumOnlineAppointmentCard (conversationId: string, premiumOnlineAppointmentCardSendPayload : PremiumOnlineAppointmentCardSendPayload) : Promise<void | string>
     abstract messageSendDouyinOneClickPhoneCollection(conversationId: string, douyinOneClickPhoneCollectionSendPayload: {}) : Promise<void | string>
+    abstract messageSendProduct(conversationId: string, productId: string) : Promise<void | string>
+    abstract messageSendOrder(conversationId: string, orderId: string) : Promise<void | string>
 
     abstract messageRecall (messageId: string) : Promise<boolean>
 
@@ -334,6 +340,10 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
           return this.messageSendChannelCard(conversationId, sayable.payload)
         case sayableTypes.PremiumOnlineAppointmentCard:
           return this.messageSendPremiumOnlineAppointmentCard(conversationId, sayable.payload)
+        case sayableTypes.WxxdProduct:
+          return this.messageSendProduct(conversationId, sayable.payload)
+        case sayableTypes.WxxdOrder:
+          return this.messageSendOrder(conversationId, sayable.payload)
         default:
           throw new Error('unsupported sayable payload: ' + JSON.stringify(sayable))
       }

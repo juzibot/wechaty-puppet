@@ -5,6 +5,9 @@ import {
 import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
 import type { ConsultCardListRequest, ConsultCardListResponse, ContactIdExternalUserIdPair, IntentCommentPayload, PaginationRequest, PaginationResponse, PremiumOnlineAppointmentCardListRequest, PremiumOnlineAppointmentCardListResponse } from '../schemas/mod.js'
 import type { CorpMessageInterceptionStrategy, RoomAntiSpamStrategy } from '../schemas/wecom.js'
+import type { WxxdShopPayload } from '../schemas/wxxd-shop.js'
+import type { WxxdProductPayload } from '../schemas/wxxd-product.js'
+import type { WxxdOrderPayload } from '../schemas/wxxd-order.js'
 
 const imSpecificMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBase) => {
 
@@ -31,6 +34,15 @@ const imSpecificMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: Mix
     // xiaohongshu
     abstract listIntentComments (query: PaginationRequest): Promise<PaginationResponse<IntentCommentPayload[]>>
     abstract intentCommentPayload (id: string): Promise<IntentCommentPayload>
+
+    // wxxd
+    abstract shopPayload(): Promise<WxxdShopPayload>
+
+    abstract listProducts(query: PaginationRequest): Promise<PaginationResponse<WxxdProductPayload[]>>
+    abstract productPayload(productId: string): Promise<WxxdProductPayload>
+
+    abstract listOrders(query: PaginationRequest): Promise<PaginationResponse<WxxdOrderPayload[]>>
+    abstract orderPayload(orderId: string): Promise<WxxdOrderPayload>
 
   }
 
