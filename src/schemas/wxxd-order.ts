@@ -21,14 +21,14 @@ export enum OrderStatus {
   DepositPaid = 250,
 }
 
-export interface WxxdOrderPayload {
-  orderId: string,
-  openId: string,
-  status: OrderStatus,
-  createTime: number,
-  updateTime: number,
-  products: OrderProductPayload[],
-  extInfo: OrderExtInfoPayload,
+export interface SkuAttrPayload {
+  attrKey: string;
+  attrValue: string;
+}
+
+export interface OrderExtInfoPayload {
+  customerNotes: string,
+  merchantNotes: string,
 }
 
 export interface OrderProductPayload {
@@ -45,12 +45,12 @@ export interface OrderProductPayload {
   skuAttrs: SkuAttrPayload[],
 }
 
-export interface OrderExtInfoPayload {
-  customerNotes: string,
-  merchantNotes: string,
-}
-
-export interface SkuAttrPayload {
-  attrKey: string;
-  attrValue: string;
+export interface WxxdOrderPayload {
+  orderId: string,
+  openId: string,
+  status: OrderStatus,
+  createTime: number,
+  updateTime: number,
+  products: OrderProductPayload[],
+  extInfo: OrderExtInfoPayload,
 }

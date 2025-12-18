@@ -52,19 +52,6 @@ export enum ProductStatus {
   QualityCheckFailed = 71,
 }
 
-export interface WxxdProductPayload {
-  productId: string,
-  title: string,
-  shortTitle: string,
-  headImgs: string[],
-  descInfo: DescInfoPayload,
-  status: ProductStatus,
-  minPrice: number,
-  totalSoldNum: number,
-  skus: SkuPayload[],
-  extraService: ExtraServicePayload,
-}
-
 export interface DescInfoPayload {
   desc: string,
   imgs: string[],
@@ -87,4 +74,17 @@ export interface ExtraServicePayload {
   damageGuarantee: number
   fakeOnePayThree: number
   exchangeSupport: number
+}
+
+export interface WxxdProductPayload {
+  productId: string,
+  title: string,
+  shortTitle: string,
+  headImgs: string[],
+  descInfo: DescInfoPayload,
+  status: ProductStatus,
+  minPrice: number,
+  totalSoldNum: number,
+  skus: SkuPayload[],
+  extraService: ExtraServicePayload,
 }
