@@ -29,6 +29,8 @@ export enum MessageType {
   ChannelCard                  = 23,   // Channel Card
   ConsultCard                  = 24,   // Consult Card
   PremiumOnlineAppointmentCard = 25,   // Premium Online Appointment Card
+  WxxdProduct                  = 26,   // Wxxd Product
+  WxxdOrder                    = 27,   // Wxxd Order
 }
 
 /**

@@ -10,7 +10,7 @@ import type { MessagePayloadFilterFunction, MessageSendTextOptions } from '../..
 import type { RoomPayloadFilterFunction }     from '../../../src/schemas/room.js'
 import type { ContactPayloadFilterFunction }  from '../../../src/schemas/contact.js'
 import type { FriendshipAddOptions }          from '../../../src/schemas/friendship.js'
-import type { ConsultCardListRequest, ConsultCardListResponse, IntentCommentPayload, PaginationRequest, PaginationResponse, PremiumOnlineAppointmentCardListRequest, PremiumOnlineAppointmentCardListResponse, TagGroupPayload, TagPayload } from '../../../src/schemas/mod.js'
+import type { ConsultCardListRequest, ConsultCardListResponse, IntentCommentPayload, PaginationRequest, PaginationResponse, PremiumOnlineAppointmentCardListRequest, PremiumOnlineAppointmentCardListResponse, TagGroupPayload, TagPayload, WxxdShopPayload, WxxdProductPayload, WxxdOrderPayload } from '../../../src/schemas/mod.js'
 import type { TagInfo } from '../../../src/schemas/tag.js'
 
 class PuppetTest extends PUPPET.Puppet {
@@ -375,6 +375,26 @@ class PuppetTest extends PUPPET.Puppet {
     id: string,
   ): Promise<IntentCommentPayload> {
     return { id } as any
+  }
+
+  override wxxdShopPayload (): Promise<WxxdShopPayload> {
+    return {} as any
+  }
+
+  override listWxxdProducts (query: PaginationRequest): Promise<PaginationResponse<WxxdProductPayload[]>> {
+    return { query } as any
+  }
+
+  override wxxdProductPayload (productId: string): Promise<WxxdProductPayload> {
+    return { productId } as any
+  }
+
+  override listWxxdOrders (query: PaginationRequest): Promise<PaginationResponse<WxxdOrderPayload[]>> {
+    return { query } as any
+  }
+
+  override wxxdOrderPayload (orderId: string): Promise<WxxdOrderPayload> {
+    return { orderId } as any
   }
 
 }

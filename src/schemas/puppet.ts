@@ -37,6 +37,9 @@ export const CHAT_EVENT_DICT = {
   'verify-slide' : 'a verify slide is required',
   'contact-enter-conversation' : 'a contact enters the conversation',
   'contact-lead-filled' : 'a contact fills the lead card',
+  'wxxd-shop'     : 'received a new wxxd shop',
+  'wxxd-product'     : 'received a new wxxd product',
+  'wxxd-order'     : 'received a new wxxd order',
 }
 export type ChatEventName = keyof typeof CHAT_EVENT_DICT
 

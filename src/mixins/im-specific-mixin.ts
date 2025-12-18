@@ -5,6 +5,9 @@ import {
 import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
 import type { ConsultCardListRequest, ConsultCardListResponse, ContactIdExternalUserIdPair, IntentCommentPayload, PaginationRequest, PaginationResponse, PremiumOnlineAppointmentCardListRequest, PremiumOnlineAppointmentCardListResponse } from '../schemas/mod.js'
 import type { CorpMessageInterceptionStrategy, RoomAntiSpamStrategy } from '../schemas/wecom.js'
+import type { WxxdShopPayload } from '../schemas/wxxd-shop.js'
+import type { WxxdProductPayload } from '../schemas/wxxd-product.js'
+import type { WxxdOrderPayload } from '../schemas/wxxd-order.js'
 
 const imSpecificMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBase) => {
 
@@ -24,13 +27,22 @@ const imSpecificMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: Mix
 
     abstract getCorpMessageInterceptionStrategies (): Promise<CorpMessageInterceptionStrategy[]>
 
-    // douyin
+    // 抖音
     abstract listConsultCards                  (query: ConsultCardListRequest)                  : Promise<ConsultCardListResponse>
     abstract listPremiumOnlineAppointmentCards (query: PremiumOnlineAppointmentCardListRequest) : Promise<PremiumOnlineAppointmentCardListResponse>
 
-    // xiaohongshu
+    // 小红书
     abstract listIntentComments (query: PaginationRequest): Promise<PaginationResponse<IntentCommentPayload[]>>
     abstract intentCommentPayload (id: string): Promise<IntentCommentPayload>
+
+    // 微信小店
+    abstract wxxdShopPayload(): Promise<WxxdShopPayload>
+
+    abstract listWxxdProducts(query: PaginationRequest): Promise<PaginationResponse<WxxdProductPayload[]>>
+    abstract wxxdProductPayload(productId: string): Promise<WxxdProductPayload>
+
+    abstract listWxxdOrders(query: PaginationRequest): Promise<PaginationResponse<WxxdOrderPayload[]>>
+    abstract wxxdOrderPayload(orderId: string): Promise<WxxdOrderPayload>
 
   }
 

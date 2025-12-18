@@ -29,6 +29,8 @@ import type {
   EventIntentCommentPayload,
   EventContactEnterConversationPayload,
   EventContactLeadFilledPayload,
+  EventWxxdProductPayload,
+  EventWxxdOrderPayload,
 }                                 from '../schemas/event.js'
 
 export type PuppetDirtyListener        = (payload: EventDirtyPayload)       => void | Promise<void>
@@ -58,7 +60,9 @@ export type PuppetLoginUrlListener     = (payload: EventLoginUrlPayload)    => v
 export type PuppetIntentCommentListener     = (payload: EventIntentCommentPayload)    => void | Promise<void>
 export type PuppetContactEnterConversationListener     = (payload: EventContactEnterConversationPayload)    => void | Promise<void>
 export type PuppetContactLeadFilledListener     = (payload: EventContactLeadFilledPayload)    => void | Promise<void>
-
+export type PuppetWxxdShopListener     = () => void | Promise<void>
+export type PuppetWxxdProductListener     = (payload: EventWxxdProductPayload)    => void | Promise<void>
+export type PuppetWxxdOrderListener     = (payload: EventWxxdOrderPayload)    => void | Promise<void>
 export type PuppetStartListener      = () => void | Promise<void>
 export type PuppetStopListener       = () => void | Promise<void>
 
@@ -92,6 +96,9 @@ interface PuppetEventListener {
   'verify-slide'     : PuppetVerifySlideListener,
   'contact-enter-conversation'     : PuppetContactEnterConversationListener,
   'contact-lead-filled'     : PuppetContactLeadFilledListener,
+  'wxxd-shop'     : PuppetWxxdShopListener,
+  'wxxd-product'     : PuppetWxxdProductListener,
+  'wxxd-order'     : PuppetWxxdOrderListener,
 }
 
 const PuppetEventEmitter = EventEmitter as unknown as new () =>

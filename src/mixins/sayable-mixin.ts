@@ -78,6 +78,14 @@ const sayableMixin = <MixinBase extends typeof PuppetSkeleton & MessageMixin & P
           const premiumOnlineAppointmentCardPayload = await this.messagePremiumOnlineAppointmentCard(sayableId)
           return sayablePayloads.premiumOnlineAppointmentCard(premiumOnlineAppointmentCardPayload)
         }
+        case MessageType.WxxdProduct: {
+          const productId = await this.messageWxxdProduct(sayableId)
+          return sayablePayloads.wxxdProduct(productId)
+        }
+        case MessageType.WxxdOrder: {
+          const orderId = await this.messageWxxdOrder(sayableId)
+          return sayablePayloads.wxxdOrder(orderId)
+        }
         default:
           log.warn('PuppetSayableMixin',
             'sayablePayload() can not convert not re-sayable type: %s(%s) for %s\n%s',
