@@ -76,6 +76,8 @@ export interface PuppetOptions {
     roomMember?     : number
     tag?            : number
     tagGroup?       : number
+    wxxdProduct?    : number
+    wxxdOrder?      : number
   }
 
   [ puppetOptionKey: string ]: unknown,
