@@ -188,8 +188,21 @@ import type {
 } from './xiaohongshu.js'
 
 import type { WxxdShopPayload } from './wxxd-shop.js'
-import type { WxxdProductPayload } from './wxxd-product.js'
-import type { WxxdOrderPayload } from './wxxd-order.js'
+import { 
+  type WxxdProductPayload, 
+  type WxxdProductExtraServicePayload, 
+  type WxxdProductDescInfoPayload, 
+  type WxxdProductSkuPayload,
+  WxxdProductStatus,
+  WxxdProductSkuStatus,
+} from './wxxd-product.js'
+import { 
+  type WxxdOrderPayload,
+  type WxxdOrderSkuAttrPayload,
+  type WxxdOrderExtInfoPayload,
+  type WxxdOrderProductPayload,
+  WxxdOrderStatus,
+} from './wxxd-order.js'
 
 export {
   CHAT_EVENT_DICT,
@@ -310,9 +323,18 @@ export {
   type IntentCommentPayload,
   type WxxdShopPayload,
   type WxxdProductPayload,
+  type WxxdProductExtraServicePayload,
+  type WxxdProductDescInfoPayload,
+  type WxxdProductSkuPayload,
   type WxxdOrderPayload,
+  type WxxdOrderSkuAttrPayload,
+  type WxxdOrderExtInfoPayload,
+  type WxxdOrderProductPayload,
   type EventWxxdProductPayload,
   type EventWxxdOrderPayload,
+  WxxdProductSkuStatus,
+  WxxdProductStatus,
+  WxxdOrderStatus,
   TagEventType,
   TagGroupEventType,
   TextContentType,
