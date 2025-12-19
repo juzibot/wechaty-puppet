@@ -105,6 +105,8 @@ export type {
   EventIntentCommentPayload               as EventIntentComment,
   EventContactEnterConversationPayload    as EventContactEnterConversation,
   EventContactLeadFilledPayload           as EventContactLeadFilled,
+  EventWxxdProductPayload                 as EventWxxdProduct,
+  EventWxxdOrderPayload                   as EventWxxdOrder,
   FriendshipPayload                       as Friendship,
   FriendshipPayloadConfirm                as FriendshipConfirm,
   FriendshipPayloadReceive                as FriendshipReceive,
