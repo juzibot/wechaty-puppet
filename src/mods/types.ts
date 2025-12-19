@@ -43,6 +43,9 @@ import {
   ConsultCardMsgType,
   ConsultCardType,
   ConsultCardStatus,
+  WxxdOrderStatus,
+  WxxdProductSkuStatus,
+  WxxdProductStatus,
 
   type ContactIdExternalUserIdPair,
   type RoomAntiSpamStrategy,
@@ -82,6 +85,9 @@ export {
   ConsultCardMsgType,
   ConsultCardType,
   ConsultCardStatus,
+  WxxdOrderStatus,
+  WxxdProductSkuStatus,
+  WxxdProductStatus,
 }
 
 export {

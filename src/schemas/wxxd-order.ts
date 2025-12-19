@@ -1,4 +1,4 @@
-import type { WxxdExtraServicePayload } from './wxxd-product.js'
+import type { WxxdProductExtraServicePayload } from './wxxd-product.js'
 
 export enum WxxdOrderStatus {
   /** 待付款 */
@@ -21,7 +21,7 @@ export enum WxxdOrderStatus {
   DepositPaid = 250,
 }
 
-export interface WxxdSkuAttrPayload {
+export interface WxxdOrderSkuAttrPayload {
   attrKey: string;
   attrValue: string;
 }
@@ -40,9 +40,9 @@ export interface WxxdOrderProductPayload {
   title: string,
   marketPrice: number,
   realPrice: number,
-  extraService: WxxdExtraServicePayload,
+  extraService: WxxdProductExtraServicePayload,
   isDiscounted: boolean,
-  skuAttrs: WxxdSkuAttrPayload[],
+  skuAttrs: WxxdOrderSkuAttrPayload[],
 }
 
 export interface WxxdOrderPayload {
