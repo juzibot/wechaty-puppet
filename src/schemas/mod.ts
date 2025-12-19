@@ -188,15 +188,17 @@ import type {
 } from './xiaohongshu.js'
 
 import type { WxxdShopPayload } from './wxxd-shop.js'
-import { 
-  type WxxdProductPayload, 
-  type WxxdProductExtraServicePayload, 
-  type WxxdProductDescInfoPayload, 
+
+import {
+  type WxxdProductPayload,
+  type WxxdProductExtraServicePayload,
+  type WxxdProductDescInfoPayload,
   type WxxdProductSkuPayload,
   WxxdProductStatus,
   WxxdProductSkuStatus,
 } from './wxxd-product.js'
-import { 
+
+import {
   type WxxdOrderPayload,
   type WxxdOrderSkuAttrPayload,
   type WxxdOrderExtInfoPayload,
