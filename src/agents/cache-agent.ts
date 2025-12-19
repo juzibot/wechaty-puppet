@@ -30,6 +30,12 @@ import type {
   PostPayload,
 }                         from '../schemas/post.js'
 import type { TagGroupPayload, TagPayload } from '../schemas/tag.js'
+import type {
+  WxxdProductPayload,
+}                         from '../schemas/wxxd-product.js'
+import type {
+  WxxdOrderPayload,
+}                         from '../schemas/wxxd-order.js'
 import { WECHATY_PUPPET_DISABLE_LRU_CACHE } from '../env-vars.js'
 
 type PayloadCacheOptions = Required<PuppetOptions>['cache']
@@ -49,6 +55,8 @@ class CacheAgent {
   roomMember?     : QuickLru<string, LruRoomMemberPayload>
   tag?            : QuickLru<string, TagPayload>
   tagGroup?       : QuickLru<string, TagGroupPayload>
+  wxxdProduct?   : QuickLru<string, WxxdProductPayload>
+  wxxdOrder?      : QuickLru<string, WxxdOrderPayload>
 
   readonly disabled: boolean
 
@@ -109,6 +117,12 @@ class CacheAgent {
       this.tagGroup = createQuickLru<string, TagGroupPayload>(lruOptions(
         envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_TAG_GROUP(this.options?.tagGroup)),
       )
+      this.wxxdProduct = createQuickLru<string, WxxdProductPayload>(lruOptions(
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_WXXD_PRODUCT(this.options?.wxxdProduct)),
+      )
+      this.wxxdOrder = createQuickLru<string, WxxdOrderPayload>(lruOptions(
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_WXXD_ORDER(this.options?.wxxdOrder)),
+      )
     }
 
   }
@@ -140,6 +154,8 @@ class CacheAgent {
     this.roomMember?.clear()
     this.tag?.clear()
     this.tagGroup?.clear()
+    this.wxxdProduct?.clear()
+    this.wxxdOrder?.clear()
   }
 
 }

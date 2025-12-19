@@ -127,6 +127,8 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
         },
         [DirtyType.Tag]:          (id: string) => this.cache.tag?.delete(id),
         [DirtyType.TagGroup]:     (id: string) => this.cache.tagGroup?.delete(id),
+        [DirtyType.WxxdProduct]: (id: string) => this.cache.wxxdProduct?.delete(id),
+        [DirtyType.WxxdOrder]:    (id: string) => this.cache.wxxdOrder?.delete(id),
         [DirtyType.Unspecified]:  (id: string) => { throw new Error('Unspecified type with id: ' + id) },
       }
 
