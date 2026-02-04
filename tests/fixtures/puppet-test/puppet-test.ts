@@ -389,7 +389,7 @@ class PuppetTest extends PUPPET.Puppet {
     return { productId } as any
   }
 
-  override async listWxxdOrders (query: PaginationRequest): Promise<PaginationResponse<WxxdOrderPayload[]>> {
+  override async listWxxdOrders (_query: PaginationRequest): Promise<PaginationResponse<WxxdOrderPayload[]>> {
     return { response: [] }
   }
 
