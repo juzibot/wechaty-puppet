@@ -69,6 +69,7 @@ import type {
   WxxdOrderExtInfoPayload,
   WxxdOrderProductPayload,
   WxxdOrderPayload,
+  WxxdOrderDeliveryCompanyPayload,
 }                           from '../schemas/mod.js'
 import {
   sayablePayloads,
@@ -144,6 +145,7 @@ export type {
   WxxdOrderExtInfoPayload                  as WxxdOrderExtInfo,
   WxxdOrderProductPayload                  as WxxdOrderProduct,
   WxxdOrderPayload                         as WxxdOrder,
+  WxxdOrderDeliveryCompanyPayload          as WxxdOrderDeliveryCompany,
   ConsultCardAction,
   IMComponent,
 }
