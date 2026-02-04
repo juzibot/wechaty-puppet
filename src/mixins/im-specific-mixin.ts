@@ -7,7 +7,7 @@ import type { ConsultCardListRequest, ConsultCardListResponse, ContactIdExternal
 import type { CorpMessageInterceptionStrategy, RoomAntiSpamStrategy } from '../schemas/wecom.js'
 import type { WxxdShopPayload } from '../schemas/wxxd-shop.js'
 import type { WxxdProductPayload } from '../schemas/wxxd-product.js'
-import type { WxxdOrderPayload } from '../schemas/wxxd-order.js'
+import type { WxxdOrderPayload, WxxdOrderDeliveryCompanyPayload, WxxdOrderDeliverySendRequest, WxxdOrderGenAfterSaleOrderRequest } from '../schemas/wxxd-order.js'
 
 const imSpecificMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBase) => {
 
@@ -44,6 +44,10 @@ const imSpecificMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: Mix
     abstract listWxxdOrders(query: PaginationRequest): Promise<PaginationResponse<WxxdOrderPayload[]>>
     abstract wxxdOrderPayload(orderId: string): Promise<WxxdOrderPayload>
 
+    abstract updateWxxdMerchantnotes(orderId: string, merchantNotes: string): Promise<void>
+    abstract getWxxdOrderDeliveryCompanyList(): Promise<WxxdOrderDeliveryCompanyPayload[]>
+    abstract wxxdOrderDeliverySend(req: WxxdOrderDeliverySendRequest): Promise<void>
+    abstract wxxdOrderGenAfterSaleOrder(req: WxxdOrderGenAfterSaleOrderRequest): Promise<void>
   }
 
   return ImSpecificMixin

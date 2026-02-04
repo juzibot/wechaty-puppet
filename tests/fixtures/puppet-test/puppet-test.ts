@@ -10,7 +10,7 @@ import type { MessagePayloadFilterFunction, MessageSendTextOptions } from '../..
 import type { RoomPayloadFilterFunction }     from '../../../src/schemas/room.js'
 import type { ContactPayloadFilterFunction }  from '../../../src/schemas/contact.js'
 import type { FriendshipAddOptions }          from '../../../src/schemas/friendship.js'
-import type { ConsultCardListRequest, ConsultCardListResponse, IntentCommentPayload, PaginationRequest, PaginationResponse, PremiumOnlineAppointmentCardListRequest, PremiumOnlineAppointmentCardListResponse, TagGroupPayload, TagPayload, WxxdShopPayload, WxxdProductPayload, WxxdOrderPayload } from '../../../src/schemas/mod.js'
+import type { ConsultCardListRequest, ConsultCardListResponse, IntentCommentPayload, PaginationRequest, PaginationResponse, PremiumOnlineAppointmentCardListRequest, PremiumOnlineAppointmentCardListResponse, TagGroupPayload, TagPayload, WxxdOrderDeliveryCompanyPayload, WxxdOrderDeliverySendRequest, WxxdOrderGenAfterSaleOrderRequest, WxxdShopPayload, WxxdProductPayload, WxxdOrderPayload } from '../../../src/schemas/mod.js'
 import type { TagInfo } from '../../../src/schemas/tag.js'
 
 class PuppetTest extends PUPPET.Puppet {
@@ -395,6 +395,22 @@ class PuppetTest extends PUPPET.Puppet {
 
   override wxxdOrderPayload (orderId: string): Promise<WxxdOrderPayload> {
     return { orderId } as any
+  }
+
+  override updateWxxdMerchantnotes (orderId: string, merchantNotes: string): Promise<void> {
+    return { orderId, merchantNotes } as any
+  }
+
+  override getWxxdOrderDeliveryCompanyList (): Promise<WxxdOrderDeliveryCompanyPayload[]> {
+    return [] as any
+  }
+
+  override wxxdOrderDeliverySend (req: WxxdOrderDeliverySendRequest): Promise<void> {
+    return { req } as any
+  }
+
+  override wxxdOrderGenAfterSaleOrder (req: WxxdOrderGenAfterSaleOrderRequest): Promise<void> {
+    return { req } as any
   }
 
 }
