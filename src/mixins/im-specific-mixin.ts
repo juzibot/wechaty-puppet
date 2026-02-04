@@ -48,7 +48,7 @@ const imSpecificMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: Mix
     abstract getWxxdOrderDeliveryCompanyList(): Promise<WxxdOrderDeliveryCompanyPayload[]>
     abstract wxxdOrderDeliverySend(req: WxxdOrderDeliverySendRequest): Promise<void>
     abstract wxxdOrderGenAfterSaleOrder(req: WxxdOrderGenAfterSaleOrderRequest): Promise<void>
-    
+
   }
 
   return ImSpecificMixin
