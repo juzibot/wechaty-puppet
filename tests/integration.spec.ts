@@ -27,7 +27,7 @@ test('PuppetTest wxxd (微信小店) new functions', async t => {
     'wxxdOrderPayload should resolve',
   )
   const orderPayload = await puppet.wxxdOrderPayload('test-order-id')
-  t.ok(orderPayload && typeof orderPayload === 'object', 'wxxdOrderPayload should return object')
+  t.ok(typeof orderPayload === 'object', 'wxxdOrderPayload should return object')
 
   await t.resolves(
     puppet.updateWxxdMerchantnotes('test-order-id', 'test-notes'),
