@@ -389,28 +389,28 @@ class PuppetTest extends PUPPET.Puppet {
     return { productId } as any
   }
 
-  override listWxxdOrders (query: PaginationRequest): Promise<PaginationResponse<WxxdOrderPayload[]>> {
-    return { query } as any
+  override async listWxxdOrders (query: PaginationRequest): Promise<PaginationResponse<WxxdOrderPayload[]>> {
+    return { response: [] }
   }
 
-  override wxxdOrderPayload (orderId: string): Promise<WxxdOrderPayload> {
-    return { orderId } as any
+  override async wxxdOrderPayload (orderId: string): Promise<WxxdOrderPayload> {
+    return { orderId } as WxxdOrderPayload
   }
 
-  override updateWxxdMerchantnotes (orderId: string, merchantNotes: string): Promise<void> {
-    return { orderId, merchantNotes } as any
+  override async updateWxxdMerchantnotes (orderId: string, merchantNotes: string): Promise<void> {
+    void { orderId, merchantNotes }
   }
 
-  override getWxxdOrderDeliveryCompanyList (): Promise<WxxdOrderDeliveryCompanyPayload[]> {
-    return [] as any
+  override async getWxxdOrderDeliveryCompanyList (): Promise<WxxdOrderDeliveryCompanyPayload[]> {
+    return []
   }
 
-  override wxxdOrderDeliverySend (req: WxxdOrderDeliverySendRequest): Promise<void> {
-    return { req } as any
+  override async wxxdOrderDeliverySend (req: WxxdOrderDeliverySendRequest): Promise<void> {
+    void req
   }
 
-  override wxxdOrderGenAfterSaleOrder (req: WxxdOrderGenAfterSaleOrderRequest): Promise<void> {
-    return { req } as any
+  override async wxxdOrderGenAfterSaleOrder (req: WxxdOrderGenAfterSaleOrderRequest): Promise<void> {
+    void req
   }
 
 }
