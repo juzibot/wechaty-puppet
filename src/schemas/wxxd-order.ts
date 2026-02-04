@@ -54,3 +54,19 @@ export interface WxxdOrderPayload {
   products: WxxdOrderProductPayload[],
   extInfo: WxxdOrderExtInfoPayload,
 }
+
+export interface WxxdOrderDeliveryCompanyPayload {
+  deliveryId: string,
+  deliveryName: string,
+}
+
+export interface WxxdOrderDeliverySendRequest {
+  orderId: string,
+  deliveryId: string,
+  waybillId: string,
+}
+
+export interface WxxdOrderGenAfterSaleOrderRequest {
+  orderId: string,
+  reason: string,
+}

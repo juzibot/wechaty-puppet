@@ -203,6 +203,9 @@ import {
   type WxxdOrderSkuAttrPayload,
   type WxxdOrderExtInfoPayload,
   type WxxdOrderProductPayload,
+  type WxxdOrderDeliveryCompanyPayload,
+  type WxxdOrderDeliverySendRequest,
+  type WxxdOrderGenAfterSaleOrderRequest,
   WxxdOrderStatus,
 } from './wxxd-order.js'
 
@@ -332,6 +335,9 @@ export {
   type WxxdOrderSkuAttrPayload,
   type WxxdOrderExtInfoPayload,
   type WxxdOrderProductPayload,
+  type WxxdOrderDeliveryCompanyPayload,
+  type WxxdOrderDeliverySendRequest,
+  type WxxdOrderGenAfterSaleOrderRequest,
   type EventWxxdProductPayload,
   type EventWxxdOrderPayload,
   WxxdProductSkuStatus,

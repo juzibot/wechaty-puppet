@@ -10,7 +10,7 @@ import type { MessagePayloadFilterFunction, MessageSendTextOptions } from '../..
 import type { RoomPayloadFilterFunction }     from '../../../src/schemas/room.js'
 import type { ContactPayloadFilterFunction }  from '../../../src/schemas/contact.js'
 import type { FriendshipAddOptions }          from '../../../src/schemas/friendship.js'
-import type { ConsultCardListRequest, ConsultCardListResponse, IntentCommentPayload, PaginationRequest, PaginationResponse, PremiumOnlineAppointmentCardListRequest, PremiumOnlineAppointmentCardListResponse, TagGroupPayload, TagPayload, WxxdShopPayload, WxxdProductPayload, WxxdOrderPayload } from '../../../src/schemas/mod.js'
+import type { ConsultCardListRequest, ConsultCardListResponse, IntentCommentPayload, PaginationRequest, PaginationResponse, PremiumOnlineAppointmentCardListRequest, PremiumOnlineAppointmentCardListResponse, TagGroupPayload, TagPayload, WxxdOrderDeliveryCompanyPayload, WxxdOrderDeliverySendRequest, WxxdOrderGenAfterSaleOrderRequest, WxxdShopPayload, WxxdProductPayload, WxxdOrderPayload } from '../../../src/schemas/mod.js'
 import type { TagInfo } from '../../../src/schemas/tag.js'
 
 class PuppetTest extends PUPPET.Puppet {
@@ -389,12 +389,28 @@ class PuppetTest extends PUPPET.Puppet {
     return { productId } as any
   }
 
-  override listWxxdOrders (query: PaginationRequest): Promise<PaginationResponse<WxxdOrderPayload[]>> {
-    return { query } as any
+  override async listWxxdOrders (_query: PaginationRequest): Promise<PaginationResponse<WxxdOrderPayload[]>> {
+    return { response: [] }
   }
 
-  override wxxdOrderPayload (orderId: string): Promise<WxxdOrderPayload> {
-    return { orderId } as any
+  override async wxxdOrderPayload (orderId: string): Promise<WxxdOrderPayload> {
+    return { orderId } as WxxdOrderPayload
+  }
+
+  override async updateWxxdMerchantnotes (orderId: string, merchantNotes: string): Promise<void> {
+    void { orderId, merchantNotes }
+  }
+
+  override async getWxxdOrderDeliveryCompanyList (): Promise<WxxdOrderDeliveryCompanyPayload[]> {
+    return []
+  }
+
+  override async wxxdOrderDeliverySend (req: WxxdOrderDeliverySendRequest): Promise<void> {
+    void req
+  }
+
+  override async wxxdOrderGenAfterSaleOrder (req: WxxdOrderGenAfterSaleOrderRequest): Promise<void> {
+    void req
   }
 
 }
