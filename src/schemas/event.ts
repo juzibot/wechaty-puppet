@@ -173,6 +173,7 @@ export interface EventIntentCommentPayload {
 export interface EventContactEnterConversationPayload {
   contactId: string,
   timestamp: number,
+  scene?: string,
 }
 
 export interface EventContactLeadFilledPayload {
