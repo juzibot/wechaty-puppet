@@ -66,9 +66,9 @@ jobs:
           registry-url: https://registry.npmjs.org/
           cache: npm
           cache-dependency-path: package.json
-        
-      - name: Install npm
-        run: npm install npm@latest -g
+
+      - name: Install latest npm
+        run: curl -qL https://www.npmjs.com/install.sh | sh
 
       - name: Install Dependencies
         run: npm install
