@@ -70,6 +70,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
      *
      */
     abstract conversationReadMark (conversationId: string, hasRead?: boolean) : Promise<void | boolean>
+    abstract endConversation(conversationId: string): Promise<void>
 
     /**
     *
