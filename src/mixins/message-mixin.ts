@@ -119,6 +119,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
 
     abstract getMessageBroadcastTarget(): Promise<MessageBroadcastTargets>
     abstract createMessageBroadcast(targets: string[], content: PostPayload): Promise<void | string>
+    abstract createMessageBroadcastWithBatch(targets: string[], content: PostPayload, sendBatchId: string): Promise<void | string>
     abstract getMessageBroadcastStatus(id: string): Promise<{
       status: BroadcastStatus,
       detail: {
