@@ -179,7 +179,7 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
       if (!this.cache.disabled) {
         this.cache.roomMember!.set(roomId, {
           ...cachedPayload,
-          memberId: payload,
+          [memberId]: payload,
         })
         log.silly('PuppetRoomMemberMixin', 'roomMemberPayload(%s) cache SET', roomId)
       }
