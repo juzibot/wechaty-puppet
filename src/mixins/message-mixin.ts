@@ -55,6 +55,14 @@ import type { WxxdOrderPayload } from '../schemas/wxxd-order.js'
 
 const filebox = (filebox: string | FileBoxInterface) => typeof filebox === 'string' ? FileBox.fromJSON(filebox) : filebox
 
+type MessageBatchSendResponse = {
+  results: Array<{
+    conversationId: string,
+    error?: string,
+    id?: string,
+  }>,
+}
+
 const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMixin: MinxinBase) => {
 
   abstract class MessageMixin extends baseMixin {
@@ -102,6 +110,15 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     abstract messageSendChannel                      (conversationId: string, channelPayload: ChannelPayload)         : Promise<void | string>
     abstract messageSendChannelCard                  (conversationId: string, channelCardPayload: ChannelCardPayload) : Promise<void | string>
     abstract messageSendConsultCard                  (conversationId: string, consultCardPayload: ConsultCardPayload) : Promise<void | string>
+    abstract messageBatchSendText                    (conversationIds: string[], text: string, batchTaskId?: string) : Promise<MessageBatchSendResponse>
+    abstract messageBatchSendFile                    (conversationIds: string[], file: FileBoxInterface, batchTaskId?: string) : Promise<MessageBatchSendResponse>
+    abstract messageBatchForward                     (conversationIds: string[], messageId: string | string[], batchTaskId?: string) : Promise<MessageBatchSendResponse>
+    abstract messageBatchSendContact                 (conversationIds: string[], contactId: string, batchTaskId?: string) : Promise<MessageBatchSendResponse>
+    abstract messageBatchSendUrl                     (conversationIds: string[], urlLinkPayload: UrlLinkPayload, batchTaskId?: string) : Promise<MessageBatchSendResponse>
+    abstract messageBatchSendMiniProgram             (conversationIds: string[], miniProgramPayload: MiniProgramPayload, batchTaskId?: string) : Promise<MessageBatchSendResponse>
+    abstract messageBatchSendLocation                (conversationIds: string[], locationPayload: LocationPayload, batchTaskId?: string) : Promise<MessageBatchSendResponse>
+    abstract messageBatchSendChannel                 (conversationIds: string[], channelPayload: ChannelPayload, batchTaskId?: string) : Promise<MessageBatchSendResponse>
+    abstract messageBatchSendChannelCard             (conversationIds: string[], channelCardPayload: ChannelCardPayload, batchTaskId?: string) : Promise<MessageBatchSendResponse>
 
     // im-specific
     abstract messageSendPremiumOnlineAppointmentCard (conversationId: string, premiumOnlineAppointmentCardSendPayload : PremiumOnlineAppointmentCardSendPayload) : Promise<void | string>
