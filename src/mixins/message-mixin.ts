@@ -110,6 +110,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     abstract messageSendChannel                      (conversationId: string, channelPayload: ChannelPayload)         : Promise<void | string>
     abstract messageSendChannelCard                  (conversationId: string, channelCardPayload: ChannelCardPayload) : Promise<void | string>
     abstract messageSendConsultCard                  (conversationId: string, consultCardPayload: ConsultCardPayload) : Promise<void | string>
+    
     abstract messageBatchSendText                    (conversationIds: string[], text: string, batchTaskId?: string) : Promise<MessageBatchSendResponse>
     abstract messageBatchSendFile                    (conversationIds: string[], file: FileBoxInterface, batchTaskId?: string) : Promise<MessageBatchSendResponse>
     abstract messageBatchForward                     (conversationIds: string[], messageId: string | string[], batchTaskId?: string) : Promise<MessageBatchSendResponse>
