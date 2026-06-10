@@ -40,6 +40,7 @@ export const CHAT_EVENT_DICT = {
   'wxxd-shop'     : 'received a new wxxd shop',
   'wxxd-product'     : 'received a new wxxd product',
   'wxxd-order'     : 'received a new wxxd order',
+  call            : 'received a call control signal from the remote side',
 }
 export type ChatEventName = keyof typeof CHAT_EVENT_DICT
 

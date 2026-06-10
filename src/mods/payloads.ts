@@ -1,5 +1,8 @@
 import type {
+  CallControlPayload,
+  CallRecordPayload,
   ContactPayload,
+  EventCallPayload,
   EventDirtyPayload,
   EventDongPayload,
   EventErrorPayload,
@@ -52,7 +55,6 @@ import type {
   EventVerifyCodePayload,
   EventVerifySlidePayload,
   EventLoginUrlPayload,
-  CallRecordPayload,
   ChatHistoryPayload,
   IntentCommentPayload,
   EventIntentCommentPayload,
@@ -78,6 +80,8 @@ import {
 }                           from '../schemas/mod.js'
 
 export type {
+  CallControlPayload                       as CallControl,
+  EventCallPayload                         as EventCall,
   ContactPayload                          as Contact,
   EventDirtyPayload                       as EventDirty,
   EventDongPayload                        as EventDong,

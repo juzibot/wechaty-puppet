@@ -9,6 +9,7 @@ type PuppetProtectedProperty =
   | PuppetSkeletonProtectedProperty
 
 // https://stackoverflow.com/questions/44983560/how-to-exclude-a-key-from-an-interface-in-typescript
+// @ts-ignore TS2589: ignore excessive depth from growing mixin chain
 type PuppetInterface = Omit<
   Puppet,
   PuppetProtectedProperty | `_${string}`

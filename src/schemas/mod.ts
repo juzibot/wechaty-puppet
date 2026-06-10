@@ -57,6 +57,7 @@ import {
 }                         from './post.js'
 
 import type {
+  EventCallPayload,
   EventDirtyPayload,
   EventDongPayload,
   EventErrorPayload,
@@ -173,6 +174,9 @@ import {
   CallType,
   CallStatus,
   type CallRecordPayload,
+  CallMediaType,
+  CallSignal,
+  type CallControlPayload,
 } from './call.js'
 import type { ChatHistoryPayload } from './chat-history.js'
 
@@ -236,6 +240,8 @@ export {
   VerifyCodeScene,
   VerifySlideStatus,
   VerifySlideScene,
+  CallMediaType,
+  CallSignal,
   CallStatus,
   CallType,
   TapType,
@@ -319,7 +325,9 @@ export {
   type TagPayload,
   type TagQueryFilter,
   type TagGroupQueryFilter,
+  type CallControlPayload,
   type CallRecordPayload,
+  type EventCallPayload,
   type ChatHistoryPayload,
   type ContactIdExternalUserIdPair,
   type RoomAntiSpamStrategy,

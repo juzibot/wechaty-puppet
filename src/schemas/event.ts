@@ -3,6 +3,7 @@ import type { TagEventType, TapType } from './mod.js'
 import type { TagGroupEventType } from './tag.js'
 import type { VerifyCodeScene, VerifyCodeStatus } from './verify-code.js'
 import type { VerifySlideStatus, VerifySlideScene } from './verify-slide.js'
+import type { CallSignal, CallMediaType } from './call.js'
 
 /**
  * The event `scan` status number.
@@ -196,6 +197,19 @@ export interface EventWxxdOrderPayload {
   orderId: string,
 }
 
+/**
+ * Uplink event payload: remote side → local side.
+ * signal=Invite indicates an incoming call (from the callee's perspective);
+ * the caller does not receive an echo of its own Invite.
+ */
+export interface EventCallPayload {
+  callId    : string
+  signal    : CallSignal
+  contactId : string        // contactId of the initiating party
+  media?    : CallMediaType
+  reason?   : string
+}
+
 export type EventPayload =
   | EventDirtyPayload
   | EventDongPayload
@@ -226,3 +240,4 @@ export type EventPayload =
   | EventContactLeadFilledPayload
   | EventWxxdProductPayload
   | EventWxxdOrderPayload
+  | EventCallPayload
