@@ -28,6 +28,7 @@ import type {
 }                       from '../schemas/mod.js'
 
 import {
+  callMixin,
   cacheMixin,
   contactMixin,
   friendshipMixin,
@@ -51,8 +52,6 @@ import {
 }                        from '../mixins/mod.js'
 
 import { PuppetSkeleton } from './puppet-skeleton.js'
-import type { CallControlPayload } from '../schemas/call.js'
-import { throwUnsupportedError } from '../throw-unsupported-error.js'
 
 /**
  * Mixins with Functional Programming: compose / pipe
@@ -99,7 +98,7 @@ const PipedBase = FP.pipe(
  * caused by too deep pipe (too many mixins)
  */
 // @ts-ignore
-const MixinBase = validateMixin(PipedBase)
+const MixinBase = validateMixin(callMixin(PipedBase))
 
 /**
  *
@@ -138,19 +137,6 @@ abstract class Puppet extends MixinBase {
    */
   abstract override onStart (): Promise<void>
   abstract override onStop  (): Promise<void>
-
-  /**
-   * Send a call control signal to the remote party.
-   *
-   * The default implementation throws UnsupportedError — whether a puppet
-   * supports call control is decided by the puppet implementation.
-   * Not declared abstract intentionally, so existing puppet implementations
-   * are not forced to implement it when upgrading this package.
-   */
-  callControl (payload: CallControlPayload): Promise<void> {
-    log.verbose('Puppet', 'callControl(%s)', JSON.stringify(payload))
-    return throwUnsupportedError(payload)
-  }
 
 }
 
