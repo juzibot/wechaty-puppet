@@ -206,7 +206,7 @@ export interface EventCallPayload {
   callId    : string
   signal    : CallSignal
   contactId : string        // contactId of the initiating party
-  media?    : CallMediaType
+  media     : CallMediaType // always required: receivers correlate media on every signal of a call
   reason?   : string
 }
 
