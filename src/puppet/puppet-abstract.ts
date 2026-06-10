@@ -149,7 +149,7 @@ abstract class Puppet extends MixinBase {
    */
   callControl (payload: CallControlPayload): Promise<void> {
     log.verbose('Puppet', 'callControl(%s)', JSON.stringify(payload))
-    throw throwUnsupportedError(payload)
+    return throwUnsupportedError(payload)
   }
 
 }

@@ -1,8 +1,4 @@
 import {
-  callMixin,
-  ProtectedPropertyCallMixin,
-}                                     from './call-mixin.js'
-import {
   cacheMixin,
   ProtectedPropertyCacheMixin,
 }                                     from './cache-mixin.js'
@@ -90,7 +86,6 @@ import {
  *    to build a new PuppetInterface
  */
 type MixinProtectedProperty =
-  | ProtectedPropertyCallMixin
   | ProtectedPropertyCacheMixin
   | ProtectedPropertyContactMixin
   | ProtectedPropertyFriendshipMixin
@@ -112,7 +107,6 @@ type MixinProtectedProperty =
 
 export {
   type MixinProtectedProperty,
-  callMixin,
   cacheMixin,
   contactMixin,
   friendshipMixin,
