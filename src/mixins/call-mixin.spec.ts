@@ -7,6 +7,7 @@ import {
 import type {
   CallMediaEndpointPayload,
   CallMediaType,
+  CallPayload,
 }                                   from '../schemas/call.js'
 
 import type {
@@ -52,4 +53,20 @@ test('CallMixin abstract method signatures', async t => {
   type HasCallHangup = Instance extends { callHangup (callId: string, reason?: string): Promise<void> } ? true : false
   const hasCallHangup: HasCallHangup = true
   t.ok(hasCallHangup, 'should declare callHangup(callId, reason?): Promise<void>')
+
+  type HasCallRawPayload = Instance extends { callRawPayload (callId: string): Promise<any> } ? true : false
+  const hasCallRawPayload: HasCallRawPayload = true
+  t.ok(hasCallRawPayload, 'should declare callRawPayload(callId): Promise<any>')
+
+  type HasCallRawPayloadParser = Instance extends { callRawPayloadParser (rawPayload: any): Promise<CallPayload> } ? true : false
+  const hasCallRawPayloadParser: HasCallRawPayloadParser = true
+  t.ok(hasCallRawPayloadParser, 'should declare callRawPayloadParser(rawPayload): Promise<CallPayload>')
+
+  type HasCallPayloadCache = Instance extends { callPayloadCache (callId: string): undefined | CallPayload } ? true : false
+  const hasCallPayloadCache: HasCallPayloadCache = true
+  t.ok(hasCallPayloadCache, 'should declare callPayloadCache(callId): undefined | CallPayload')
+
+  type HasCallPayload = Instance extends { callPayload (callId: string): Promise<CallPayload> } ? true : false
+  const hasCallPayload: HasCallPayload = true
+  t.ok(hasCallPayload, 'should declare callPayload(callId): Promise<CallPayload>')
 })

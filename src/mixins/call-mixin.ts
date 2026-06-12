@@ -3,13 +3,15 @@ import {
 } from '../config.js'
 
 import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
-import type { CallMediaEndpointPayload, CallMediaType } from '../schemas/call.js'
+import type { CallMediaEndpointPayload, CallMediaType, CallPayload } from '../schemas/call.js'
+
+import type { CacheMixin }    from './cache-mixin.js'
 
 /**
  * Explicit return type annotation truncates the TypeScript instantiation depth
  * for the callers (puppet-abstract.ts validateMixin chain) that otherwise trigger TS2589.
  */
-type CallMixinReturn<MixinBase extends typeof PuppetSkeleton> =
+type CallMixinReturn<MixinBase extends CacheMixin & typeof PuppetSkeleton> =
   MixinBase & (abstract new (...args: any[]) => {
     callInvite(contactIds: string[], media: CallMediaType): Promise<string>,
     callAdd(callId: string, contactIds: string[]): Promise<void>,
@@ -18,9 +20,13 @@ type CallMixinReturn<MixinBase extends typeof PuppetSkeleton> =
     callReject(callId: string, reason?: string): Promise<void>,
     callCancel(callId: string): Promise<void>,
     callHangup(callId: string, reason?: string): Promise<void>,
+    callRawPayload(callId: string): Promise<any>,
+    callRawPayloadParser(rawPayload: any): Promise<CallPayload>,
+    callPayloadCache(callId: string): undefined | CallPayload,
+    callPayload(callId: string): Promise<CallPayload>,
   })
 
-const callMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBase): CallMixinReturn<MixinBase> => {
+const callMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBase: MixinBase): CallMixinReturn<MixinBase> => {
 
   abstract class CallMixin extends mixinBase {
 
@@ -52,9 +58,10 @@ const callMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBase
      * has been accepted by the protocol side. The new participants' business
      * responses (ringing / accept / reject) are delivered uplink through the
      * 'call' event — EventCallPayload.contactId is the new participant (the
-     * actor of that signal), and EventCallPayload.participants may carry the
-     * updated roster. Add-specific failures (call not found / already ended,
-     * participant cap exceeded) are expressed via Promise rejection.
+     * actor of that signal); the updated roster is observed via
+     * dirty(DirtyType.Call) → callPayload(). Add-specific failures (call not
+     * found / already ended, participant cap exceeded) are expressed via
+     * Promise rejection.
      *
      * Implementations that do not support call signaling should
      * `throw throwUnsupportedError()` (see other puppet implementations' convention).
@@ -126,13 +133,83 @@ const callMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBase
      */
     abstract callHangup (callId: string, reason?: string): Promise<void>
 
+    /**
+     * @protected Issue #155 - https://github.com/wechaty/puppet/issues/155
+     */
+    abstract callRawPayload (callId: string): Promise<any>
+    /**
+     * @protected Issue #155 - https://github.com/wechaty/puppet/issues/155
+     */
+    abstract callRawPayloadParser (rawPayload: any): Promise<CallPayload>
+
+    /**
+     * Issue #155 - https://github.com/wechaty/puppet/issues/155
+     *
+     * @protected
+     */
+    callPayloadCache (callId: string): undefined | CallPayload {
+      // log.silly('PuppetCallMixin', 'callPayloadCache(id=%s) @ %s', callId, this)
+      if (!callId) {
+        throw new Error('no id')
+      }
+      const cachedPayload = this.cache.call?.get(callId)
+
+      if (cachedPayload) {
+        // log.silly('PuppetCallMixin', 'callPayload(%s) cache HIT', callId)
+      } else {
+        log.silly('PuppetCallMixin', 'callPayload(%s) cache MISS', callId)
+      }
+
+      return cachedPayload
+    }
+
+    /**
+     * Snapshot of the call session's current state (media, roster).
+     * Kept fresh via the dirty mechanism: the protocol side emits
+     * dirty(DirtyType.Call, callId) on any state change, which evicts the
+     * cache here so the next pull fetches the updated payload.
+     */
+    async callPayload (
+      callId: string,
+    ): Promise<CallPayload> {
+      // log.silly('PuppetCallMixin', 'callPayload(id=%s) @ %s', callId, this)
+
+      if (!callId) {
+        throw new Error('no id')
+      }
+
+      /**
+       * 1. Try to get from cache first
+       */
+      const cachedPayload = this.callPayloadCache(callId)
+      if (cachedPayload) {
+        return cachedPayload
+      }
+
+      /**
+       * 2. Cache not found
+       */
+      const rawPayload = await this.callRawPayload(callId)
+      const payload    = await this.callRawPayloadParser(rawPayload)
+
+      if (!this.cache.disabled) {
+        this.cache.call!.set(callId, payload)
+        log.silly('PuppetCallMixin', 'callPayload(%s) cache SET', callId)
+      }
+
+      return payload
+    }
+
   }
 
   return CallMixin as unknown as CallMixinReturn<MixinBase>
 }
 
 type CallMixin = ReturnType<typeof callMixin>
-type ProtectedPropertyCallMixin = never
+type ProtectedPropertyCallMixin =
+  | 'callRawPayload'
+  | 'callRawPayloadParser'
+  | 'callPayloadCache'
 
 export type {
   CallMixin,

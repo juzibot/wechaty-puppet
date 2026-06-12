@@ -176,6 +176,7 @@ import {
   type CallRecordPayload,
   CallMediaType,
   CallSignal,
+  type CallPayload,
   type CallMediaEndpointPayload,
 } from './call.js'
 import type { ChatHistoryPayload } from './chat-history.js'
@@ -326,6 +327,7 @@ export {
   type TagQueryFilter,
   type TagGroupQueryFilter,
   type CallMediaEndpointPayload,
+  type CallPayload,
   type CallRecordPayload,
   type EventCallPayload,
   type ChatHistoryPayload,

@@ -79,6 +79,7 @@ export interface PuppetOptions {
     tagGroup?       : number
     wxxdProduct?    : number
     wxxdOrder?      : number
+    call?           : number
   }
 
   [ puppetOptionKey: string ]: unknown,

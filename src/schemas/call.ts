@@ -48,6 +48,20 @@ export enum CallSignal {
 }
 
 /**
+ * Snapshot of a call session's state. Actions (invite/accept/...) flow
+ * through the 'call' event stream; state (media, roster) lives here and
+ * is maintained via the dirty mechanism: protocol side emits
+ * dirty(DirtyType.Call, callId) on any state change (media switch,
+ * participant join/leave), consumers re-pull callPayload().
+ */
+export interface CallPayload {
+  id           : string
+  starter      : string          // contactId of the initiator
+  participants : string[]        // current full roster (incl. starter); changes via dirty
+  media        : CallMediaType   // current media type; voice<->video switch via dirty
+}
+
+/**
  * Admission ticket for the direct-to-gateway media path.
  * The bot link only hands out this ticket; SDP/ICE negotiation and media
  * transport happen on the holder ↔ gateway direct channel, outside the

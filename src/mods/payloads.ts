@@ -1,5 +1,6 @@
 import type {
   CallMediaEndpointPayload,
+  CallPayload,
   CallRecordPayload,
   ContactPayload,
   EventCallPayload,
@@ -134,6 +135,7 @@ export type {
   ChannelCardPayload                      as ChannelCard,
   TagGroupPayload                         as TagGroup,
   TagPayload                              as Tag,
+  CallPayload                             as Call,
   CallRecordPayload                       as CallRecord,
   CallMediaEndpointPayload                as CallMediaEndpoint,
   ChatHistoryPayload                      as ChatHistory,
