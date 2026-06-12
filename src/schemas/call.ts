@@ -55,10 +55,23 @@ export enum CallSignal {
  * participant join/leave), consumers re-pull callPayload().
  */
 export interface CallPayload {
-  id           : string
-  starter      : string          // contactId of the initiator
-  participants : string[]        // current full roster (incl. starter); changes via dirty
-  media        : CallMediaType   // current media type; voice<->video switch via dirty
+  id             : string
+  starter        : string          // contactId of the initiator
+  participants   : string[]        // current full roster (incl. starter); changes via dirty
+  media          : CallMediaType   // current media type; voice<->video switch via dirty
+  /**
+   * Lifecycle timestamps (epoch ms, protocol-side clock — same clock as
+   * EventCallPayload.timestamp). Renderers derive everything from these:
+   * the live-call timer starts at connectedTime (NOT startTime, which would
+   * include the ringing phase), duration = endTime - connectedTime, and the
+   * combination encodes the phase implicitly: only startTime = dialing or
+   * ringing; +connectedTime = in call; +endTime without connectedTime =
+   * terminated unanswered (rejected / cancelled / timed out).
+   * connectedTime / endTime appear via dirty as the call progresses.
+   */
+  startTime      : number
+  connectedTime? : number
+  endTime?       : number
 }
 
 /**
@@ -66,6 +79,9 @@ export interface CallPayload {
  * The bot link only hands out this ticket; SDP/ICE negotiation and media
  * transport happen on the holder ↔ gateway direct channel, outside the
  * puppet contract.
+ *
+ * Intentionally NOT cached: a short-lived credential, and issuing one may
+ * pre-allocate a gateway media session — so it must be pulled fresh on demand.
  */
 export interface CallMediaEndpointPayload {
   url        : string  // negotiation entry of the media gateway (wss:// or https://) — NOT a media address; the media path is selected by ICE during negotiation
