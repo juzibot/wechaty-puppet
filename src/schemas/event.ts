@@ -201,13 +201,17 @@ export interface EventWxxdOrderPayload {
  * Uplink event payload: remote side → local side.
  * signal=Invite indicates an incoming call (from the callee's perspective);
  * the caller does not receive an echo of its own Invite.
+ * Multi-party calls share the same signal set — accept means joining, hangup
+ * means leaving; whether a single hangup ends the whole call is the consumer's
+ * state machine concern, the puppet layer only relays actor + signal faithfully.
  */
 export interface EventCallPayload {
-  callId    : string
-  signal    : CallSignal
-  contactId : string        // contactId of the initiating party
-  media     : CallMediaType // always required: receivers correlate media on every signal of a call
-  reason?   : string
+  callId        : string
+  signal        : CallSignal
+  contactId     : string         // the actor of this signal: Invite = the initiator; Accept/Reject/Hangup = the participant who performed the action
+  participants? : string[]       // full roster of the call (incl. the initiator and the local side); MUST be carried on Invite events, MAY be omitted on other signals (consumers correlate the roster from the Invite via callId)
+  media         : CallMediaType  // always required: receivers correlate media on every signal of a call
+  reason?       : string
 }
 
 export type EventPayload =

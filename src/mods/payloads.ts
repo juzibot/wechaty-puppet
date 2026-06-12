@@ -1,5 +1,4 @@
 import type {
-  CallControlPayload,
   CallRecordPayload,
   ContactPayload,
   EventCallPayload,
@@ -80,7 +79,6 @@ import {
 }                           from '../schemas/mod.js'
 
 export type {
-  CallControlPayload                       as CallControl,
   EventCallPayload                         as EventCall,
   ContactPayload                          as Contact,
   EventDirtyPayload                       as EventDirty,
