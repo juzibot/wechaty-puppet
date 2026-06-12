@@ -69,4 +69,8 @@ test('CallMixin abstract method signatures', async t => {
   type HasCallPayload = Instance extends { callPayload (callId: string): Promise<CallPayload> } ? true : false
   const hasCallPayload: HasCallPayload = true
   t.ok(hasCallPayload, 'should declare callPayload(callId): Promise<CallPayload>')
+
+  type HasCallPayloadDirty = Instance extends { callPayloadDirty (id: string): Promise<void> } ? true : false
+  const hasCallPayloadDirty: HasCallPayloadDirty = true
+  t.ok(hasCallPayloadDirty, 'should declare callPayloadDirty(id): Promise<void>')
 })

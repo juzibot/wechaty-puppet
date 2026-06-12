@@ -207,12 +207,23 @@ export interface EventWxxdOrderPayload {
  *
  * This event stream carries actions only; call state (media, roster) lives
  * in callPayload(), kept fresh via dirty (DirtyType.Call).
+ *
+ * Per-direction legal signals (which side legitimately receives each signal):
+ * - Invite:        callee side only (incoming call); the caller never receives
+ *                  an echo of its own invite.
+ * - Ringing:       caller side only (the callee protocol side's automatic
+ *                  acknowledgement).
+ * - Accept/Reject: caller side (the callee's answer); in a group call the actor
+ *                  is the participant who answered.
+ * - Cancel:        callee side (the caller withdraws before the call connects).
+ * - Hangup:        either side (the peer hangs up / leaves).
  */
 export interface EventCallPayload {
   callId    : string
   signal    : CallSignal
   contactId : string   // the actor of this signal: Invite = the initiator; Accept/Reject/Hangup = the participant who performed the action
   reason?   : string   // action attribute (Reject/Hangup)
+  timestamp : number   // protocol-side milliseconds timestamp of the action; the action stream is not transport-ordered — consumers linearize by this
 }
 
 export type EventPayload =

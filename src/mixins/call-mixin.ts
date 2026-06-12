@@ -4,6 +4,7 @@ import {
 
 import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
 import type { CallMediaEndpointPayload, CallMediaType, CallPayload } from '../schemas/call.js'
+import { DirtyType } from '../schemas/dirty.js'
 
 import type { CacheMixin }    from './cache-mixin.js'
 
@@ -24,6 +25,7 @@ type CallMixinReturn<MixinBase extends CacheMixin & typeof PuppetSkeleton> =
     callRawPayloadParser(rawPayload: any): Promise<CallPayload>,
     callPayloadCache(callId: string): undefined | CallPayload,
     callPayload(callId: string): Promise<CallPayload>,
+    callPayloadDirty(id: string): Promise<void>,
   })
 
 const callMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBase: MixinBase): CallMixinReturn<MixinBase> => {
@@ -44,6 +46,15 @@ const callMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBa
      * caller. The remote parties' responses — including events that may arrive
      * before this Promise resolves — are delivered uplink through the 'call'
      * event.
+     *
+     * Errors-only semantics: a resolved Promise carries the minted callId and
+     * only means the protocol side has accepted the invite — it does NOT mean
+     * any callee has answered. The callees' business responses (ringing /
+     * accept / reject) are delivered uplink through the 'call' event.
+     *
+     * The `media` argument sets the call's INITIAL media type only. A later
+     * voice<->video switch is observed via dirty(DirtyType.Call) → callPayload()
+     * and does not produce a new invite.
      *
      * Implementations that do not support call signaling should
      * `throw throwUnsupportedError()` (see other puppet implementations' convention).
@@ -198,6 +209,17 @@ const callMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBa
       }
 
       return payload
+    }
+
+    async callPayloadDirty (
+      id: string,
+    ): Promise<void> {
+      log.verbose('PuppetCallMixin', 'callPayloadDirty(%s)', id)
+
+      await this.__dirtyPayloadAwait(
+        DirtyType.Call,
+        id,
+      )
     }
 
   }
