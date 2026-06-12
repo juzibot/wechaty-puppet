@@ -28,6 +28,7 @@ import type {
 }                       from '../schemas/mod.js'
 
 import {
+  callMixin,
   cacheMixin,
   contactMixin,
   friendshipMixin,
@@ -97,7 +98,7 @@ const PipedBase = FP.pipe(
  * caused by too deep pipe (too many mixins)
  */
 // @ts-ignore
-const MixinBase = validateMixin(PipedBase)
+const MixinBase = validateMixin(callMixin(PipedBase))
 
 /**
  *

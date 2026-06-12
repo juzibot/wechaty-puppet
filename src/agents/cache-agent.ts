@@ -36,6 +36,9 @@ import type {
 import type {
   WxxdOrderPayload,
 }                         from '../schemas/wxxd-order.js'
+import type {
+  CallPayload,
+}                         from '../schemas/call.js'
 import { WECHATY_PUPPET_DISABLE_LRU_CACHE } from '../env-vars.js'
 
 type PayloadCacheOptions = Required<PuppetOptions>['cache']
@@ -57,6 +60,7 @@ class CacheAgent {
   tagGroup?       : QuickLru<string, TagGroupPayload>
   wxxdProduct?   : QuickLru<string, WxxdProductPayload>
   wxxdOrder?      : QuickLru<string, WxxdOrderPayload>
+  call?           : QuickLru<string, CallPayload>
 
   readonly disabled: boolean
 
@@ -123,6 +127,9 @@ class CacheAgent {
       this.wxxdOrder = createQuickLru<string, WxxdOrderPayload>(lruOptions(
         envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_WXXD_ORDER(this.options?.wxxdOrder)),
       )
+      this.call = createQuickLru<string, CallPayload>(lruOptions(
+        envVars.WECHATY_PUPPET_LRU_CACHE_SIZE_CALL(this.options?.call)),
+      )
     }
 
   }
@@ -156,6 +163,7 @@ class CacheAgent {
     this.tagGroup?.clear()
     this.wxxdProduct?.clear()
     this.wxxdOrder?.clear()
+    this.call?.clear()
   }
 
 }

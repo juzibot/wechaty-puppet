@@ -3,6 +3,7 @@ import type { TagEventType, TapType } from './mod.js'
 import type { TagGroupEventType } from './tag.js'
 import type { VerifyCodeScene, VerifyCodeStatus } from './verify-code.js'
 import type { VerifySlideStatus, VerifySlideScene } from './verify-slide.js'
+import type { CallSignal } from './call.js'
 
 /**
  * The event `scan` status number.
@@ -196,6 +197,35 @@ export interface EventWxxdOrderPayload {
   orderId: string,
 }
 
+/**
+ * Uplink event payload: remote side → local side.
+ * signal=Invite indicates an incoming call (from the callee's perspective);
+ * the caller does not receive an echo of its own Invite.
+ * Multi-party calls share the same signal set — accept means joining, hangup
+ * means leaving; whether a single hangup ends the whole call is the consumer's
+ * state machine concern, the puppet layer only relays actor + signal faithfully.
+ *
+ * This event stream carries actions only; call state (media, roster) lives
+ * in callPayload(), kept fresh via dirty (DirtyType.Call).
+ *
+ * Per-direction legal signals (which side legitimately receives each signal):
+ * - Invite:        callee side only (incoming call); the caller never receives
+ *                  an echo of its own invite.
+ * - Ringing:       caller side only (the callee protocol side's automatic
+ *                  acknowledgement).
+ * - Accept/Reject: caller side (the callee's answer); in a group call the actor
+ *                  is the participant who answered.
+ * - Cancel:        callee side (the caller withdraws before the call connects).
+ * - Hangup:        either side (the peer hangs up / leaves).
+ */
+export interface EventCallPayload {
+  callId    : string
+  signal    : CallSignal
+  contactId : string   // the actor of this signal: Invite = the initiator; Accept/Reject/Hangup = the participant who performed the action
+  reason?   : string   // action attribute (Reject/Hangup)
+  timestamp : number   // protocol-side milliseconds timestamp of the action; the action stream is not transport-ordered — consumers linearize by this
+}
+
 export type EventPayload =
   | EventDirtyPayload
   | EventDongPayload
@@ -226,3 +256,4 @@ export type EventPayload =
   | EventContactLeadFilledPayload
   | EventWxxdProductPayload
   | EventWxxdOrderPayload
+  | EventCallPayload
