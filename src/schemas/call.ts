@@ -55,23 +55,20 @@ export enum CallSignal {
  * participant join/leave), consumers re-pull callPayload().
  */
 export interface CallPayload {
-  id             : string
-  starter        : string          // contactId of the initiator
-  participants   : string[]        // current full roster (incl. starter); changes via dirty
-  media          : CallMediaType   // current media type; voice<->video switch via dirty
+  id           : string
+  starter?     : string          // contactId of the initiator, when known to the protocol side
+  participants : string[]        // current full roster; changes via dirty
+  media        : CallMediaType   // current media type; voice<->video switch via dirty
   /**
    * Lifecycle timestamps (epoch ms, protocol-side clock — same clock as
-   * EventCallPayload.timestamp). Renderers derive everything from these:
-   * the live-call timer starts at connectedTime (NOT startTime, which would
-   * include the ringing phase), duration = endTime - connectedTime, and the
-   * combination encodes the phase implicitly: only startTime = dialing or
-   * ringing; +connectedTime = in call; +endTime without connectedTime =
-   * terminated unanswered (rejected / cancelled / timed out).
-   * connectedTime / endTime appear via dirty as the call progresses.
+   * EventCallPayload.timestamp). startTime is the moment the call was
+   * initiated; endTime appears via dirty once the call terminates.
+   * The connected moment is intentionally NOT carried here: it equals the
+   * timestamp of the uplink Accept event, so live-call timers are kept by
+   * the consumer from that event.
    */
-  startTime      : number
-  connectedTime? : number
-  endTime?       : number
+  startTime    : number
+  endTime?     : number
 }
 
 /**
