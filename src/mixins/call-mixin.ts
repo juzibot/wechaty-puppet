@@ -3,7 +3,7 @@ import {
 } from '../config.js'
 
 import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
-import type { CallMediaType } from '../schemas/call.js'
+import type { CallMediaEndpointPayload, CallMediaType } from '../schemas/call.js'
 
 /**
  * Explicit return type annotation truncates the TypeScript instantiation depth
@@ -13,6 +13,7 @@ type CallMixinReturn<MixinBase extends typeof PuppetSkeleton> =
   MixinBase & (abstract new (...args: any[]) => {
     callInvite(contactIds: string[], media: CallMediaType): Promise<string>,
     callAdd(callId: string, contactIds: string[]): Promise<void>,
+    callMediaEndpoint(callId: string): Promise<CallMediaEndpointPayload>,
     callAccept(callId: string): Promise<void>,
     callReject(callId: string, reason?: string): Promise<void>,
     callCancel(callId: string): Promise<void>,
@@ -59,6 +60,27 @@ const callMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBase
      * `throw throwUnsupportedError()` (see other puppet implementations' convention).
      */
     abstract callAdd (callId: string, contactIds: string[]): Promise<void>
+
+    /**
+     * Pull the admission ticket of this call for the direct-to-gateway
+     * media mode.
+     *
+     * The bot link only hands out this ticket: the holder (frontend / media
+     * service) connects directly to the protocol side's media gateway with
+     * it, and SDP/ICE negotiation plus media transport happen on that direct
+     * channel — neither goes through the puppet contract.
+     *
+     * Pull on demand: typically called after callAccept(), when the media is
+     * about to be attached — whoever consumes the media pulls its own ticket
+     * (both sides symmetric, each on its own timing). The credential is
+     * short-lived; once expired, call again to obtain a fresh ticket.
+     * Issuing a ticket may pre-allocate a media session on the gateway, so
+     * pure signaling consumers are never forced to trigger it.
+     *
+     * Implementations that do not support call signaling should
+     * `throw throwUnsupportedError()` (see other puppet implementations' convention).
+     */
+    abstract callMediaEndpoint (callId: string): Promise<CallMediaEndpointPayload>
 
     /**
      * Accept an incoming call.

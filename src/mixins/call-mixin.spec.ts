@@ -5,6 +5,7 @@ import {
 }           from 'tstest'
 
 import type {
+  CallMediaEndpointPayload,
   CallMediaType,
 }                                   from '../schemas/call.js'
 
@@ -31,6 +32,10 @@ test('CallMixin abstract method signatures', async t => {
   type HasCallAdd = Instance extends { callAdd (callId: string, contactIds: string[]): Promise<void> } ? true : false
   const hasCallAdd: HasCallAdd = true
   t.ok(hasCallAdd, 'should declare callAdd(callId, contactIds): Promise<void>')
+
+  type HasCallMediaEndpoint = Instance extends { callMediaEndpoint (callId: string): Promise<CallMediaEndpointPayload> } ? true : false
+  const hasCallMediaEndpoint: HasCallMediaEndpoint = true
+  t.ok(hasCallMediaEndpoint, 'should declare callMediaEndpoint(callId): Promise<CallMediaEndpointPayload>')
 
   type HasCallAccept = Instance extends { callAccept (callId: string): Promise<void> } ? true : false
   const hasCallAccept: HasCallAccept = true

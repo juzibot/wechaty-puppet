@@ -46,3 +46,16 @@ export enum CallSignal {
   Cancel  = 'cancel',   // caller cancels before the call is connected
   Hangup  = 'hangup',   // either side hangs up after connected
 }
+
+/**
+ * Admission ticket for the direct-to-gateway media path.
+ * The bot link only hands out this ticket; SDP/ICE negotiation and media
+ * transport happen on the holder ↔ gateway direct channel, outside the
+ * puppet contract.
+ */
+export interface CallMediaEndpointPayload {
+  url        : string  // negotiation entry of the media gateway (wss:// or https://) — NOT a media address; the media path is selected by ICE during negotiation
+  token      : string  // short-lived admission credential, bound to callId + the local identity: one ticket admits exactly one call
+  expiresAt? : number  // epoch ms when the token expires; pull again after expiry
+  protocol?  : string  // dialect of the entry, e.g. 'whip' | 'livekit' | custom — consumed by the media SDK to pick the handshake, opaque to this contract
+}
