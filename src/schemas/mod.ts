@@ -119,6 +119,7 @@ import type {
 
 import {
   type ChannelPayload,
+  type ChannelMedia,
   ChannelFeedType,
 } from './channel.js'
 
@@ -312,6 +313,7 @@ export {
   type TagInfo,
   type UrlLinkPayload,
   type ChannelPayload,
+  type ChannelMedia,
   type ChannelCardPayload,
   type ConsultCardPayload,
   type ConsultCardAction,
