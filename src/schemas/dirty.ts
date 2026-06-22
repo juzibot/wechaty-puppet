@@ -16,4 +16,5 @@ export enum DirtyType {
   TagGroup    = 8,
   WxxdProduct = 9,
   WxxdOrder   = 10,
+  Call        = 11,
 }

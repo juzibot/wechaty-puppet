@@ -2,6 +2,7 @@ import { EventEmitter }         from 'events'
 import type TypedEventEmitter   from 'typed-emitter'
 
 import type {
+  EventCallPayload,
   EventDirtyPayload,
   EventDongPayload,
   EventErrorPayload,
@@ -33,6 +34,7 @@ import type {
   EventWxxdOrderPayload,
 }                                 from '../schemas/event.js'
 
+export type PuppetCallListener         = (payload: EventCallPayload)        => void | Promise<void>
 export type PuppetDirtyListener        = (payload: EventDirtyPayload)       => void | Promise<void>
 export type PuppetDongListener         = (payload: EventDongPayload)        => void | Promise<void>
 export type PuppetErrorListener        = (payload: EventErrorPayload)       => void | Promise<void>
@@ -67,6 +69,7 @@ export type PuppetStartListener      = () => void | Promise<void>
 export type PuppetStopListener       = () => void | Promise<void>
 
 interface PuppetEventListener {
+  call           : PuppetCallListener
   dirty          : PuppetDirtyListener
   dong           : PuppetDongListener
   error          : PuppetErrorListener
