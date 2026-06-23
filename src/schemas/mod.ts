@@ -110,6 +110,9 @@ import type {
 import type {
   LocationPayload,
 }                             from './location.js'
+import type {
+  VoiceTextPayload,
+}                             from './voice.js'
 
 import type {
   PuppetOptions,
@@ -331,6 +334,7 @@ export {
   type CallMediaEndpointPayload,
   type CallPayload,
   type CallRecordPayload,
+  type VoiceTextPayload,
   type EventCallPayload,
   type ChatHistoryPayload,
   type ContactIdExternalUserIdPair,

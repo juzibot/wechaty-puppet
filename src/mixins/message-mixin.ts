@@ -30,6 +30,9 @@ import type {
   LocationPayload,
 }                                 from '../schemas/location.js'
 import type {
+  VoiceTextPayload,
+}                                 from '../schemas/voice.js'
+import type {
   PostPayload,
 }                                 from '../schemas/post.js'
 
@@ -88,6 +91,28 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     abstract messageContact                       (messageId: string)                       : Promise<string>
     abstract messageFile                          (messageId: string)                       : Promise<FileBoxInterface>
     abstract messageImage                         (messageId: string, imageType: ImageType) : Promise<FileBoxInterface>
+    /**
+     * Second-request accessor for a voice message's audio file.
+     *
+     * Sibling of messageImage/messageFile: the message is synced first, the
+     * voice file (e.g. a `.silk` FileBox) is fetched on demand here.
+     *
+     * Implementations that do not support voice second-request should
+     * `throw throwUnsupportedError()` (see other puppet implementations' convention).
+     */
+    abstract messageVoice                         (messageId: string)                       : Promise<FileBoxInterface>
+    /**
+     * Second-request accessor for a voice message's ASR (voice-to-text) result.
+     *
+     * Returns a discriminated payload `{ text, noSpeech }` rather than a bare
+     * string: `noSpeech = true` means the puppet ASR confirmed the voice has no
+     * valid speech (e.g. WeCom EMPTY_VOICE_TEXT_2070), so the bot can skip its
+     * own paid ASR; otherwise `text` carries the transcription.
+     *
+     * Implementations that do not support voice second-request should
+     * `throw throwUnsupportedError()` (see other puppet implementations' convention).
+     */
+    abstract messageVoiceText                     (messageId: string)                       : Promise<VoiceTextPayload>
     abstract messageMiniProgram                   (messageId: string)                       : Promise<MiniProgramPayload>
     abstract messageUrl                           (messageId: string)                       : Promise<UrlLinkPayload>
     abstract messageLocation                      (messageId: string)                       : Promise<LocationPayload>
