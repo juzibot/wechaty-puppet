@@ -74,6 +74,7 @@ import type {
   WxxdOrderProductPayload,
   WxxdOrderPayload,
   WxxdOrderDeliveryCompanyPayload,
+  VoiceTextPayload,
 }                           from '../schemas/mod.js'
 import {
   sayablePayloads,
@@ -154,6 +155,7 @@ export type {
   WxxdOrderProductPayload                  as WxxdOrderProduct,
   WxxdOrderPayload                         as WxxdOrder,
   WxxdOrderDeliveryCompanyPayload          as WxxdOrderDeliveryCompany,
+  VoiceTextPayload                         as VoiceText,
   ConsultCardAction,
   IMComponent,
 }
