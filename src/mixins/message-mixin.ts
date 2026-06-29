@@ -239,10 +239,16 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
 
     messageList (): string[] {
       log.verbose('PuppetMessageMixin', 'messageList()')
-      if (this.cache.disabled) {
+      /**
+       * cache.disabled is set synchronously in the CacheAgent constructor,
+       * but the LRU instances are only created in the async cache.start().
+       * Between construction and start we must not blindly assume the
+       * LRU exists -- fall through to [] when it does not.
+       */
+      if (this.cache.disabled || !this.cache.message) {
         return []
       }
-      return [ ...this.cache.message!.keys() ]
+      return [ ...this.cache.message.keys() ]
     }
 
     async messageSearch (
