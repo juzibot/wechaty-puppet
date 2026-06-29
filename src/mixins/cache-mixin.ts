@@ -188,8 +188,24 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
 
       /**
        * 1. call for sending the `dirty` event
+       *
+       * The base implementation of `dirtyPayload` is synchronous (void),
+       * but subclasses (e.g. wechaty-puppet-service) override it as
+       * `async` so the call may actually return a Promise that can
+       * reject (e.g. transient gRPC failures). We must capture that
+       * rejection here -- otherwise it surfaces as an
+       * `unhandledRejection`, and the local cache stays stale until
+       * its LRU TTL expires.
        */
-      this.dirtyPayload(type, id)
+      const dirtyResult = this.dirtyPayload(type, id) as void | Promise<void>
+      if (dirtyResult && typeof (dirtyResult as Promise<void>).then === 'function') {
+        ;(dirtyResult as Promise<void>).catch(e => {
+          log.warn('PuppetCacheMixin',
+            '__dirtyPayloadAwait() dirtyPayload(%s<%s>, %s) rejected: %s',
+            DirtyType[type], type, id, (e as Error).message,
+          )
+        })
+      }
 
       /**
        * 2. wait for the `dirty` event arrive, with a 5 seconds timeout
