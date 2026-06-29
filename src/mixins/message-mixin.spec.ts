@@ -60,3 +60,12 @@ test('messageList() must not throw before cache.start() resolves', async t => {
   )
   t.same(result, [], 'messageList() should return [] when the LRU is not yet built')
 })
+
+test('messageList() must not throw while cache.start() is pending', async t => {
+  const puppet = new TestPuppet() as any
+  const startPromise = puppet.start()   // fire, do not await
+  t.doesNotThrow(() => puppet.messageList(), 'pending-start call must not throw')
+  await startPromise
+  t.same(puppet.messageList(), [], 'still empty after start resolves')
+  await puppet.stop()
+})

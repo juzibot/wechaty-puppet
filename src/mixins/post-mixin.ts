@@ -69,7 +69,7 @@ const postMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMi
       const payload    = await this.postRawPayloadParser(rawPayload)
 
       if (!this.cache.disabled) {
-        this.cache.post!.set(postId, payload)
+        this.cache.post?.set(postId, payload)
         log.silly('PuppetPostMixin', 'postPayload(%s) cache SET', postId)
       }
 
@@ -102,10 +102,16 @@ const postMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMi
      */
     postList (): string[] {
       log.verbose('PuppetPostMixin', 'postList()')
-      if (this.cache.disabled) {
+      /**
+       * cache.disabled is set synchronously in the CacheAgent constructor,
+       * but the LRU instances are only created in the async cache.start().
+       * Between construction and start we must not blindly assume the
+       * LRU exists -- fall through to [] when it does not.
+       */
+      if (this.cache.disabled || !this.cache.post) {
         return []
       }
-      return [ ...this.cache.post!.keys() ]
+      return [ ...this.cache.post.keys() ]
     }
 
     async postPayloadDirty (
