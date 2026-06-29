@@ -61,8 +61,26 @@ test('concurrent roomMemberPayload writes must not lose entries', async t => {
   t.equal(bobRet.id,   'bob',   'sanity: bob payload returned')
 
   const cached = puppet.cache.roomMember!.get(roomId)
-  t.ok(cached?.['alice'], 'alice should remain in the room-member cache')
-  t.ok(cached?.['bob'],   'bob should remain in the room-member cache')
+  t.equal(cached?.['alice']?.id, 'alice', 'alice cached entry must point at alice')
+  t.equal(cached?.['bob']?.id,   'bob',   'bob cached entry must point at bob')
 
   await puppet.stop()
+})
+
+test('roomMemberPayload() must not throw before cache.start() resolves', async t => {
+  const puppet = new TestPuppet() as any
+  // intentionally do NOT await start()
+  puppet.roomMemberRawPayload       = async () => ({ id: 'm', name: 'm' })
+  puppet.roomMemberRawPayloadParser = async (raw: any) => raw
+
+  // The call should not throw "Cannot read properties of undefined";
+  // it may legitimately return undefined or skip caching on pre-start.
+  let returned: any
+  try {
+    returned = await puppet.roomMemberPayload('room-pre-start', 'm')
+  } catch (e) {
+    t.fail(`roomMemberPayload threw pre-start: ${(e as Error).message}`)
+    return
+  }
+  t.ok(returned, 'roomMemberPayload returned a payload pre-start')
 })

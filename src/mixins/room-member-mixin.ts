@@ -176,16 +176,22 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
       }
       const payload = await this.roomMemberRawPayloadParser(rawPayload)
 
-      if (!this.cache.disabled) {
+      if (!this.cache.disabled && this.cache.roomMember) {
         /**
          * Merge against the LATEST snapshot rather than the one captured
          * at the start of the call. Two concurrent requests for distinct
          * members of the same room both saw an empty snapshot at step 1
          * and, without this re-read, the second write blindly overwrites
          * the first member entry.
+         *
+         * Also guard against `cache.roomMember` being undefined: `disabled`
+         * is set synchronously in the CacheAgent constructor but the LRU
+         * instances are created in the async `cache.start()`. A pre-start
+         * caller would otherwise hit "Cannot read properties of undefined
+         * (reading 'get')".
          */
-        const latest = this.cache.roomMember!.get(roomId)
-        this.cache.roomMember!.set(roomId, {
+        const latest = this.cache.roomMember.get(roomId)
+        this.cache.roomMember.set(roomId, {
           ...latest,
           [memberId]: payload,
         })
