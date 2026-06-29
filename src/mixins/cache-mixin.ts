@@ -99,6 +99,12 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
     /**
      * OnDirty will be registered as a `dirty` event listener,
      *  and it will invalidate the cache.
+     *
+     * Implementation note: the dirty event is emitted via setImmediate
+     * (see `dirtyPayload`), so any throw from this listener becomes an
+     * uncaughtException. Defensive coding around bad payloadType values
+     * (notably `Unspecified`) must therefore not throw -- we log and
+     * skip instead.
      */
     onDirty (
       {
@@ -110,12 +116,12 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       if (this.cache.disabled) {
         return
       }
-      const dirtyFuncMap = {
-        [DirtyType.Contact]:      (id: string) => this.cache.contact?.delete(id),
-        [DirtyType.Friendship]:   (id: string) => this.cache.friendship?.delete(id),
-        [DirtyType.Message]:      (id: string) => this.cache.message?.delete(id),
-        [DirtyType.Post]:         (id: string) => this.cache.post?.delete(id),
-        [DirtyType.Room]:         (id: string) => this.cache.room?.delete(id),
+      const dirtyFuncMap: Partial<Record<DirtyType, (id: string) => void>> = {
+        [DirtyType.Contact]:      (id: string) => { this.cache.contact?.delete(id) },
+        [DirtyType.Friendship]:   (id: string) => { this.cache.friendship?.delete(id) },
+        [DirtyType.Message]:      (id: string) => { this.cache.message?.delete(id) },
+        [DirtyType.Post]:         (id: string) => { this.cache.post?.delete(id) },
+        [DirtyType.Room]:         (id: string) => { this.cache.room?.delete(id) },
         [DirtyType.RoomMember]:   (id: string) => {
           const frags = id.split(STRING_SPLITTER)
           if (frags.length > 1) {
@@ -125,16 +131,25 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
             this.cache.roomMember?.delete(id)
           }
         },
-        [DirtyType.Tag]:          (id: string) => this.cache.tag?.delete(id),
-        [DirtyType.TagGroup]:     (id: string) => this.cache.tagGroup?.delete(id),
-        [DirtyType.WxxdProduct]: (id: string) => this.cache.wxxdProduct?.delete(id),
-        [DirtyType.WxxdOrder]:    (id: string) => this.cache.wxxdOrder?.delete(id),
-        [DirtyType.Call]:         (id: string) => this.cache.call?.delete(id),
-        [DirtyType.Unspecified]:  (id: string) => { throw new Error('Unspecified type with id: ' + id) },
+        [DirtyType.Tag]:          (id: string) => { this.cache.tag?.delete(id) },
+        [DirtyType.TagGroup]:     (id: string) => { this.cache.tagGroup?.delete(id) },
+        [DirtyType.WxxdProduct]:  (id: string) => { this.cache.wxxdProduct?.delete(id) },
+        [DirtyType.WxxdOrder]:    (id: string) => { this.cache.wxxdOrder?.delete(id) },
+        [DirtyType.Call]:         (id: string) => { this.cache.call?.delete(id) },
       }
 
       const dirtyFunc = dirtyFuncMap[payloadType]
-      dirtyFunc(payloadId)
+      if (!dirtyFunc) {
+        log.warn('PuppetCacheMixin', 'onDirty() unsupported payloadType=%s(%s), id=%s; ignored',
+          DirtyType[payloadType], payloadType, payloadId)
+        return
+      }
+      try {
+        dirtyFunc(payloadId)
+      } catch (e) {
+        log.warn('PuppetCacheMixin', 'onDirty() handler threw for payloadType=%s, id=%s: %s',
+          DirtyType[payloadType], payloadId, (e as Error).message)
+      }
     }
 
     /**
@@ -173,8 +188,24 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
 
       /**
        * 1. call for sending the `dirty` event
+       *
+       * The base implementation of `dirtyPayload` is synchronous (void),
+       * but subclasses (e.g. wechaty-puppet-service) override it as
+       * `async` so the call may actually return a Promise that can
+       * reject (e.g. transient gRPC failures). We must capture that
+       * rejection here -- otherwise it surfaces as an
+       * `unhandledRejection`, and the local cache stays stale until
+       * its LRU TTL expires.
        */
-      this.dirtyPayload(type, id)
+      const dirtyResult = this.dirtyPayload(type, id) as void | Promise<void>
+      if (dirtyResult && typeof (dirtyResult as Promise<void>).then === 'function') {
+        ;(dirtyResult as Promise<void>).catch(e => {
+          log.warn('PuppetCacheMixin',
+            '__dirtyPayloadAwait() dirtyPayload(%s<%s>, %s) rejected: %s',
+            DirtyType[type], type, id, (e as Error).message,
+          )
+        })
+      }
 
       /**
        * 2. wait for the `dirty` event arrive, with a 5 seconds timeout

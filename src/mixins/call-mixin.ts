@@ -204,7 +204,7 @@ const callMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBa
       const payload    = await this.callRawPayloadParser(rawPayload)
 
       if (!this.cache.disabled) {
-        this.cache.call!.set(callId, payload)
+        this.cache.call?.set(callId, payload)
         log.silly('PuppetCallMixin', 'callPayload(%s) cache SET', callId)
       }
 
