@@ -50,9 +50,9 @@ test('onDirty(Unspecified) must NOT crash the process via uncaughtException', as
   puppet.dirtyPayload(DirtyType.Unspecified, 'no-such-id')
 
   // Allow the setImmediate scheduled by dirtyPayload to fire.
-  await new Promise(r => setImmediate(r))
-  await new Promise(r => setImmediate(r))
-  await new Promise(r => setTimeout(r, 20))
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setTimeout(resolve, 20))
 
   process.off('uncaughtException', onUncaught)
 
@@ -94,8 +94,8 @@ test('__dirtyPayloadAwait must handle rejection from an overridden async dirtyPa
   await puppet.__dirtyPayloadAwait(DirtyType.Contact, 'contact-id-x')
 
   // Give Node a tick to surface any pending unhandled rejection.
-  await new Promise(r => setImmediate(r))
-  await new Promise(r => setImmediate(r))
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setImmediate(resolve))
 
   process.off('unhandledRejection', onUnhandled)
 

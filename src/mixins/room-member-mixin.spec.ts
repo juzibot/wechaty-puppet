@@ -47,12 +47,12 @@ test('concurrent roomMemberPayload writes must not lose entries', async t => {
   const roomId = 'room-merge-race'
 
   puppet.roomMemberRawPayload = async (_: string, memberId: string) => {
-    await new Promise(r => setTimeout(r, 50))
+    await new Promise(resolve => setTimeout(resolve, 50))
     return { id: memberId, name: memberId }
   }
   puppet.roomMemberRawPayloadParser = async (raw: any) => raw
 
-  const [aliceRet, bobRet] = await Promise.all([
+  const [ aliceRet, bobRet ] = await Promise.all([
     puppet.roomMemberPayload(roomId, 'alice'),
     puppet.roomMemberPayload(roomId, 'bob'),
   ])
