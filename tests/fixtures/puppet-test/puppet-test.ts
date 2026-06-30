@@ -229,6 +229,8 @@ class PuppetTest extends PUPPET.Puppet {
   override async roomRawPayload (id: string)            : Promise<any> { return { id } as any }
   override async roomRawPayloadParser (rawPayload: any) : Promise<PUPPET.payloads.Room> { return { rawPayload } as any }
 
+  override async batchRoomRawPayload (roomIds: string[]) : Promise<Map<string, any>> { return new Map(roomIds.map(id => [ id, { id } ])) }
+
   override async roomMemberRawPayload (roomId: string, contactId: string) : Promise<any> { return { contactId, roomId } as any }
   override async roomMemberRawPayloadParser (rawPayload: any)             : Promise<PUPPET.payloads.RoomMember> { return rawPayload }
 

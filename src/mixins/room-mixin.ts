@@ -76,6 +76,35 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
     abstract roomRawPayloadParser (rawPayload: any) : Promise<RoomPayload>
 
     /**
+     * @protected
+     */
+    abstract batchRoomRawPayload (roomIds: string[]): Promise<Map<string, any>>
+
+    /**
+     * Batch fetch room payloads.
+     *
+     * NOTE: bypasses `roomPayloadCache` and does not populate `this.cache.room`.
+     * Callers needing cache must call `roomPayload(id)` individually.
+     * (Same behavior as `batchContactPayload` in contact-mixin.)
+     */
+    async batchRoomPayload (roomIds: string[]): Promise<Map<string, RoomPayload>> {
+      let rawPayloadMap: Map<string, any>
+      if (typeof this.batchRoomRawPayload === 'function') {
+        rawPayloadMap = await this.batchRoomRawPayload(roomIds)
+      } else {
+        rawPayloadMap = new Map<string, any>()
+        for (const roomId of roomIds) {
+          rawPayloadMap.set(roomId, await this.roomRawPayload(roomId))
+        }
+      }
+      const payloadMap = new Map<string, RoomPayload>()
+      for (const [ roomId, rawPayload ] of rawPayloadMap.entries()) {
+        payloadMap.set(roomId, await this.roomRawPayloadParser(rawPayload))
+      }
+      return payloadMap
+    }
+
+    /**
       *
       * RoomMember
       *
@@ -295,6 +324,7 @@ type ProtectedPropertyRoomMixin =
   | 'roomQueryFilterFactory'
   | 'roomRawPayload'
   | 'roomRawPayloadParser'
+  | 'batchRoomRawPayload'
 
 export type {
   RoomMixin,
