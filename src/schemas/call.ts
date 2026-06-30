@@ -19,6 +19,7 @@ export interface CallRecordPayload {
   length: number, // in seconds
   type: CallType,
   status: CallStatus,
+  callId?: string, // links the record back to the originating CallPayload.id when available
 }
 
 /**
