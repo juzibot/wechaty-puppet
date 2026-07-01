@@ -328,17 +328,34 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
       }
 
       /**
-       * 2. Cache not found
+       * 2. Dedup concurrent callers -- share a single raw fetch.
+       *    Also snapshot the (type, id) generation BEFORE the fetch,
+       *    so a dirty landing mid-fetch will skip the LRU set.
        */
-      const rawPayload = await this.contactRawPayload(contactId)
-      const payload    = await this.contactRawPayloadParser(rawPayload)
-
-      if (!this.cache.disabled) {
-        this.cache.contact?.set(contactId, payload)
-        log.silly('PuppetContactMixin', 'contactPayload(%s) cache SET', contactId)
+      const inflightKey = `contact:${contactId}`
+      const inflight = this.cache.__inflightGet<ContactPayload>(inflightKey)
+      if (inflight) {
+        return inflight
       }
 
-      return payload
+      const gen = this.cache.snapshotGen(DirtyType.Contact, contactId)
+      const fetch = (async () => {
+        const rawPayload = await this.contactRawPayload(contactId)
+        const payload    = await this.contactRawPayloadParser(rawPayload)
+
+        if (!this.cache.disabled && this.cache.isFreshWrite(DirtyType.Contact, contactId, gen)) {
+          this.cache.contact?.set(contactId, payload)
+          log.silly('PuppetContactMixin', 'contactPayload(%s) cache SET', contactId)
+        } else if (!this.cache.disabled) {
+          log.silly('PuppetContactMixin',
+            'contactPayload(%s) cache SET skipped: dirty landed during raw fetch', contactId)
+        }
+
+        return payload
+      })().finally(() => this.cache.__inflightDelete(inflightKey))
+
+      this.cache.__inflightSet(inflightKey, fetch)
+      return fetch
     }
 
     async contactPayloadDirty (

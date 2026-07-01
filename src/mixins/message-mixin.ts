@@ -224,17 +224,33 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
       }
 
       /**
-      * 2. Cache not found
-      */
-      const rawPayload = await this.messageRawPayload(messageId)
-      const payload    = await this.messageRawPayloadParser(rawPayload)
-
-      if (!this.cache.disabled) {
-        this.cache.message?.set(messageId, payload)
-        log.silly('PuppetMessageMixin', 'messagePayload(%s) cache SET', messageId)
+       * 2. Dedup concurrent callers and guard the LRU set against a
+       *    dirty that lands during the raw fetch. See CacheAgent.
+       */
+      const inflightKey = `message:${messageId}`
+      const inflight = this.cache.__inflightGet<MessagePayload>(inflightKey)
+      if (inflight) {
+        return inflight
       }
 
-      return payload
+      const gen = this.cache.snapshotGen(DirtyType.Message, messageId)
+      const fetch = (async () => {
+        const rawPayload = await this.messageRawPayload(messageId)
+        const payload    = await this.messageRawPayloadParser(rawPayload)
+
+        if (!this.cache.disabled && this.cache.isFreshWrite(DirtyType.Message, messageId, gen)) {
+          this.cache.message?.set(messageId, payload)
+          log.silly('PuppetMessageMixin', 'messagePayload(%s) cache SET', messageId)
+        } else if (!this.cache.disabled) {
+          log.silly('PuppetMessageMixin',
+            'messagePayload(%s) cache SET skipped: dirty landed during raw fetch', messageId)
+        }
+
+        return payload
+      })().finally(() => this.cache.__inflightDelete(inflightKey))
+
+      this.cache.__inflightSet(inflightKey, fetch)
+      return fetch
     }
 
     messageList (): string[] {

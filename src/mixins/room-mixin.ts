@@ -288,17 +288,33 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
       }
 
       /**
-        * 2. Cache not found
-        */
-      const rawPayload = await this.roomRawPayload(roomId)
-      const payload    = await this.roomRawPayloadParser(rawPayload)
-
-      if (!this.cache.disabled) {
-        this.cache.room?.set(roomId, payload)
-        log.silly('PuppetRoomMixin', 'roomPayload(%s) cache SET', roomId)
+       * 2. Dedup concurrent callers and guard the LRU set against a
+       *    dirty that lands during the raw fetch. See CacheAgent.
+       */
+      const inflightKey = `room:${roomId}`
+      const inflight = this.cache.__inflightGet<RoomPayload>(inflightKey)
+      if (inflight) {
+        return inflight
       }
 
-      return payload
+      const gen = this.cache.snapshotGen(DirtyType.Room, roomId)
+      const fetch = (async () => {
+        const rawPayload = await this.roomRawPayload(roomId)
+        const payload    = await this.roomRawPayloadParser(rawPayload)
+
+        if (!this.cache.disabled && this.cache.isFreshWrite(DirtyType.Room, roomId, gen)) {
+          this.cache.room?.set(roomId, payload)
+          log.silly('PuppetRoomMixin', 'roomPayload(%s) cache SET', roomId)
+        } else if (!this.cache.disabled) {
+          log.silly('PuppetRoomMixin',
+            'roomPayload(%s) cache SET skipped: dirty landed during raw fetch', roomId)
+        }
+
+        return payload
+      })().finally(() => this.cache.__inflightDelete(inflightKey))
+
+      this.cache.__inflightSet(inflightKey, fetch)
+      return fetch
     }
 
     async roomPayloadDirty (

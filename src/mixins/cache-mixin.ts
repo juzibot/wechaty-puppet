@@ -88,6 +88,14 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       log.verbose('PuppetCacheMixin', 'dirtyPayload(%s<%s>, %s)', DirtyType[type], type, id)
 
       /**
+       * Bump the (type, id) generation counter BEFORE scheduling the
+       * emit so that any payload getter whose raw fetch is currently
+       * in-flight will see a stale snapshot and skip its LRU set.
+       * See CacheAgent.bumpGen for the full contract.
+       */
+      this.cache.bumpGen(type, id)
+
+      /**
        * Huan(202111): we return first before emit the `dirty` event?
        */
       setImmediate(() => this.emit('dirty', {
