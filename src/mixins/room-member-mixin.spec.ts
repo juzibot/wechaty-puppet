@@ -265,6 +265,37 @@ test('dirty(RoomMember) no-ops when the roomId is not cached', async t => {
   await puppet.stop()
 })
 
+/**
+ * `batchRoomMemberPayload` used to bypass `cache.roomMember`. The
+ * nested cache shape `{[memberId]: payload}` requires merging fetched
+ * members into the existing `roomMember[roomId]` entry, not replacing
+ * it -- otherwise a concurrent single-member fetch is clobbered.
+ */
+test('batchRoomMemberPayload: merges fetched members into cache.roomMember[roomId]', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  // Seed one member from a prior call.
+  puppet.cache.roomMember?.set('rb1', { m0: { id: 'm0' } as any })
+
+  const raw = new Map<string, any>([
+    [ 'm1', { id: 'm1' } ],
+    [ 'm2', { id: 'm2' } ],
+  ])
+  puppet.batchRoomMemberRawPayload  = async (_r: string, _ids: string[]) => raw
+  puppet.roomMemberRawPayloadParser = async (rawPayload: any) => rawPayload
+
+  await puppet.batchRoomMemberPayload('rb1', [ 'm1', 'm2' ])
+
+  const cached = puppet.cache.roomMember?.get('rb1')
+  t.ok(cached,          'roomId entry preserved')
+  t.equal(cached?.m0?.id, 'm0', 'existing member preserved')
+  t.equal(cached?.m1?.id, 'm1', 'batch-fetched m1 written')
+  t.equal(cached?.m2?.id, 'm2', 'batch-fetched m2 written')
+
+  await puppet.stop()
+})
+
 test('dirty(RoomMember) no-ops when member is not present in the cached room', async t => {
   const puppet = new TestPuppet() as any
   await puppet.start()

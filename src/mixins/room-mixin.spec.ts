@@ -149,3 +149,31 @@ test('roomPayload: dirty during in-flight fetch must not repopulate cache', asyn
 
   await puppet.stop()
 })
+
+/**
+ * `batchRoomPayload` used to bypass `cache.room`. That meant a caller
+ * batch-fetching 100 rooms would fetch every one again on the next
+ * per-id `roomPayload(id)` call, defeating the whole point of the LRU.
+ * The batch API must populate the same cache slot the per-id getter
+ * reads.
+ */
+test('batchRoomPayload: writes fetched entries into cache.room', async t => {
+  const puppet = new PuppetTest()
+  await puppet.start()
+
+  const raw = new Map<string, any>([
+    [ 'rb-a', { id: 'rb-a', topic: 'A' } ],
+    [ 'rb-b', { id: 'rb-b', topic: 'B' } ],
+  ])
+  puppet.batchRoomRawPayload  = async (_ids: string[]) => raw
+  puppet.roomRawPayloadParser = async (rawPayload: any) => rawPayload
+
+  await puppet.batchRoomPayload([ 'rb-a', 'rb-b' ])
+
+  t.equal(puppet.cache.room?.get('rb-a')?.topic, 'A',
+    'rb-a populated in cache.room by the batch call')
+  t.equal(puppet.cache.room?.get('rb-b')?.topic, 'B',
+    'rb-b populated in cache.room by the batch call')
+
+  await puppet.stop()
+})

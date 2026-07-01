@@ -89,3 +89,30 @@ test('contactPayload: dirty during in-flight fetch must not repopulate cache', a
   await puppet.stop()
 })
 
+/**
+ * `batchContactPayload` used to bypass `cache.contact`. That meant a
+ * caller batch-fetching 100 contacts would re-fetch every one on the
+ * next per-id `contactPayload(id)` call, defeating the LRU. The batch
+ * API must populate the same cache slot the per-id getter reads.
+ */
+test('batchContactPayload: writes fetched entries into cache.contact', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  const raw = new Map<string, any>([
+    [ 'cb-a', { id: 'cb-a', name: 'A' } ],
+    [ 'cb-b', { id: 'cb-b', name: 'B' } ],
+  ])
+  puppet.batchContactRawPayload  = async (_ids: string[]) => raw
+  puppet.contactRawPayloadParser = async (rawPayload: any) => rawPayload
+
+  await puppet.batchContactPayload([ 'cb-a', 'cb-b' ])
+
+  t.equal(puppet.cache.contact?.get('cb-a')?.name, 'A',
+    'cb-a populated in cache.contact by the batch call')
+  t.equal(puppet.cache.contact?.get('cb-b')?.name, 'B',
+    'cb-b populated in cache.contact by the batch call')
+
+  await puppet.stop()
+})
+
