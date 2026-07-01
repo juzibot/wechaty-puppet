@@ -73,6 +73,40 @@ test('onDirty(Unspecified) must NOT crash the process via uncaughtException', as
  * The fix must surface the rejection through logging without leaking
  * it to the process-level unhandledRejection handler.
  */
+/**
+ * Regression: `__dirtyPayloadAwait` waits up to 5s for a `dirty` event
+ * that echoes back from the server. When the server never delivers (or
+ * an override no-ops the emit path), the previous implementation just
+ * logged a warning and returned -- the local LRU stayed populated with
+ * whatever stale value it held, poisoning the next `xxxPayload(id)`
+ * call for up to the LRU maxAge (15m).
+ *
+ * The fix: on timeout, invoke the same local-cache invalidator that
+ * `onDirty` runs -- so the local LRU at least gets cleaned even when
+ * the remote round-trip fails.
+ */
+test('__dirtyPayloadAwait: 5s timeout falls back to local LRU delete', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+  puppet.__currentUserId = 'me'
+
+  // Seed the local LRU with a stale value.
+  puppet.cache.contact?.set('c-stale', { id: 'c-stale' } as any)
+  t.ok(puppet.cache.contact?.get('c-stale'), 'sanity: stale entry seeded')
+
+  // No-op dirtyPayload -- simulates a puppet-service whose emit-path
+  // is disabled or a server that never echoes back.
+  puppet.dirtyPayload = () => {}
+
+  // Await the full 5s timeout window; must resolve, not throw.
+  await puppet.__dirtyPayloadAwait(DirtyType.Contact, 'c-stale')
+
+  t.equal(puppet.cache.contact?.get('c-stale'), undefined,
+    'local LRU entry removed by timeout fallback')
+
+  await puppet.stop()
+})
+
 test('__dirtyPayloadAwait must handle rejection from an overridden async dirtyPayload', async t => {
   const puppet = new TestPuppet() as any
   await puppet.start()
