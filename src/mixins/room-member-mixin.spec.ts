@@ -178,6 +178,111 @@ test('dirtyPayload(RoomMember, malformed id with extra SEP) surfaces error', asy
   await puppet.stop()
 })
 
+/**
+ * The old RoomMember dirty handler unconditionally deleted the whole
+ * `roomMember[roomId]` LRU entry, even when the id was
+ * `${roomId}${SEP}${memberId}` (single member). That threw away every
+ * other member's cached payload just to invalidate one.
+ *
+ * The precise handler must:
+ * - id === roomId              -> drop the whole room entry
+ * - id === roomId+SEP+memberId -> drop only that memberId from the
+ *                                 nested map; if it was the last
+ *                                 entry, drop the whole roomId key.
+ */
+test('dirty(RoomMember, roomId+SEP+memberId) drops only that memberId', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  puppet.cache.roomMember?.set('r1', {
+    m1: { id: 'm1' } as any,
+    m2: { id: 'm2' } as any,
+  })
+
+  puppet.dirtyPayload(DirtyType.RoomMember, `r1${STRING_SPLITTER}m1`)
+
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setImmediate(resolve))
+
+  const remaining = puppet.cache.roomMember?.get('r1')
+  t.ok(remaining, 'roomId entry survives when only one member was dirtied')
+  t.equal(remaining?.m1, undefined, 'm1 was removed')
+  t.ok(remaining?.m2,               'm2 was preserved')
+
+  await puppet.stop()
+})
+
+test('dirty(RoomMember, roomId+SEP+lastMemberId) drops the whole room entry', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  puppet.cache.roomMember?.set('r1', { m1: { id: 'm1' } as any })
+
+  puppet.dirtyPayload(DirtyType.RoomMember, `r1${STRING_SPLITTER}m1`)
+
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setImmediate(resolve))
+
+  t.equal(puppet.cache.roomMember?.get('r1'), undefined,
+    'dirtying the only remaining member drops the roomId key')
+
+  await puppet.stop()
+})
+
+test('dirty(RoomMember, bare roomId) drops the whole room entry', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  puppet.cache.roomMember?.set('r1', {
+    m1: { id: 'm1' } as any,
+    m2: { id: 'm2' } as any,
+  })
+
+  puppet.dirtyPayload(DirtyType.RoomMember, 'r1')
+
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setImmediate(resolve))
+
+  t.equal(puppet.cache.roomMember?.get('r1'), undefined,
+    'bare roomId drops all members of that room')
+
+  await puppet.stop()
+})
+
+test('dirty(RoomMember) no-ops when the roomId is not cached', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  // Nothing cached for r-ghost.
+  puppet.dirtyPayload(DirtyType.RoomMember, `r-ghost${STRING_SPLITTER}m1`)
+
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setImmediate(resolve))
+
+  t.equal(puppet.cache.roomMember?.get('r-ghost'), undefined,
+    'no entry, no change -- must not throw')
+
+  await puppet.stop()
+})
+
+test('dirty(RoomMember) no-ops when member is not present in the cached room', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  puppet.cache.roomMember?.set('r1', { m1: { id: 'm1' } as any })
+
+  puppet.dirtyPayload(DirtyType.RoomMember, `r1${STRING_SPLITTER}m-absent`)
+
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setImmediate(resolve))
+
+  const remaining = puppet.cache.roomMember?.get('r1')
+  t.ok(remaining,           'roomId entry preserved when member is absent')
+  t.ok(remaining?.m1,       'm1 preserved')
+
+  await puppet.stop()
+})
+
 test('dirtyPayload(RoomMember, "SEPmemberId" with empty roomId) surfaces error', async t => {
   const puppet = new TestPuppet() as any
   await puppet.start()
