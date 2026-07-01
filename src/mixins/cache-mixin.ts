@@ -148,15 +148,13 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       if (this.cache.disabled) {
         return
       }
+      /**
+       * __dirtyFuncMap is a complete `Record<DirtyType, ...>`, so
+       * TypeScript rejects the map at compile time if a new DirtyType
+       * lands without a handler. That makes the runtime miss check the
+       * previous `Partial` version needed unnecessary.
+       */
       const dirtyFunc = this.__dirtyFuncMap[payloadType]
-      if (!dirtyFunc) {
-        // Should not happen -- __dirtyFuncMap is a complete Record.
-        // Keeping the guard for a future enum addition that lands
-        // before its handler.
-        log.warn('PuppetCacheMixin', 'onDirty() unmapped payloadType=%s(%s), id=%s; ignored',
-          DirtyType[payloadType], payloadType, payloadId)
-        return
-      }
       try {
         dirtyFunc(payloadId)
       } catch (e) {
@@ -182,7 +180,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
      * but do NOT throw -- `dirty` is scheduled via setImmediate, and a
      * throw here would become an uncaughtException.
      */
-    protected get __dirtyFuncMap (): Record<DirtyType, (id: string) => void> {
+    get __dirtyFuncMap (): Record<DirtyType, (id: string) => void> {
       return {
         [DirtyType.Unspecified]: (id: string) => {
           const err = new Error(

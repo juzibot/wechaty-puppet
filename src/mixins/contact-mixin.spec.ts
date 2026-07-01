@@ -115,4 +115,3 @@ test('batchContactPayload: writes fetched entries into cache.contact', async t =
 
   await puppet.stop()
 })
-
