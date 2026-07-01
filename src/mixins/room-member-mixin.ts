@@ -1,5 +1,6 @@
 import {
   log,
+  STRING_SPLITTER,
 }                       from '../config.js'
 
 import type {
@@ -37,20 +38,109 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
     abstract batchRoomMemberRawPayload (roomId: string, contactIds: string[]): Promise<Map<string, any>>
 
     async batchRoomMemberPayload (roomId: string, contactIds: string[]): Promise<Map<string, RoomMemberPayload>> {
-      let rawPayloadMap: Map<string, any>
-      if (typeof this.batchRoomMemberRawPayload === 'function') {
-        rawPayloadMap = await this.batchRoomMemberRawPayload(roomId, contactIds)
-      } else {
-        rawPayloadMap = new Map<string, any>()
-        for (const contactId of contactIds) {
-          rawPayloadMap.set(contactId, await this.roomMemberRawPayload(roomId, contactId))
+      /**
+       * Batch payload writes need the same three guards the per-id
+       * paths already carry (see `contact-mixin.batchContactPayload`):
+       *
+       *   1. per-member in-flight dedup so a concurrent
+       *      `roomMemberPayload(roomId, memberId)` shares the raw fetch
+       *      instead of firing a second one.
+       *   2. per-member gen snapshot BEFORE the raw fetch, so a
+       *      `dirtyPayload(RoomMember, roomId+SEP+memberId)` landing
+       *      mid-fetch skips the write for that member -- otherwise the
+       *      batch would overwrite the invalidation with the stale
+       *      payload.
+       *   3. re-read the LATEST `cache.roomMember[roomId]` snapshot
+      *       immediately before merging, so a whole-room dirty (or a
+      *       parallel single-member write) that landed during the raw
+      *       fetch is not blown away by the batch write.
+       *
+       * RoomMember dirties are keyed by the raw dirtyPayload id -- so
+       * the per-member snapshot uses `${roomId}${SEP}${memberId}`,
+       * matching what `dirtyRoomMemberPayload(roomId, memberId)` bumps.
+       */
+      const result = new Map<string, RoomMemberPayload>()
+      const toFetch: string[] = []
+      const genSnap = new Map<string, number>()
+      const inflightWaits: Array<{ id: string, promise: Promise<RoomMemberPayload> }> = []
+
+      /**
+       * MEDIUM-A (round-3): snap the WHOLE-ROOM gen too. Per-member
+       * snapshots use `${roomId}${SEP}${memberId}` keys and cannot
+       * observe a bare-roomId dirty (`dirtyPayload(RoomMember, roomId)`),
+       * which bumps the bare `roomId` key. Without this snapshot the
+       * batch write would partially resurrect the room with data older
+       * than the whole-room invalidation.
+       */
+      const roomSnap = this.cache.snapshotGen(DirtyType.RoomMember, roomId)
+
+      for (const memberId of contactIds) {
+        const inflightKey = `roommember:${roomId}${STRING_SPLITTER}${memberId}`
+        const flying = this.cache.__inflightGet<RoomMemberPayload>(inflightKey)
+        if (flying) {
+          inflightWaits.push({ id: memberId, promise: flying })
+          continue
+        }
+        genSnap.set(
+          memberId,
+          this.cache.snapshotGen(DirtyType.RoomMember, `${roomId}${STRING_SPLITTER}${memberId}`),
+        )
+        toFetch.push(memberId)
+      }
+
+      if (toFetch.length > 0) {
+        let rawPayloadMap: Map<string, any>
+        if (typeof this.batchRoomMemberRawPayload === 'function') {
+          rawPayloadMap = await this.batchRoomMemberRawPayload(roomId, toFetch)
+        } else {
+          rawPayloadMap = new Map<string, any>()
+          for (const memberId of toFetch) {
+            rawPayloadMap.set(memberId, await this.roomMemberRawPayload(roomId, memberId))
+          }
+        }
+        for (const [ memberId, rawPayload ] of rawPayloadMap.entries()) {
+          const payload = await this.roomMemberRawPayloadParser(rawPayload)
+          result.set(memberId, payload)
+        }
+
+        if (
+          !this.cache.disabled
+          && this.cache.roomMember
+          && result.size > 0
+          /**
+           * MEDIUM-A gate: whole-room dirty landed during the fetch --
+           * writing the merged map would partially resurrect the room
+           * with pre-dirty data. Per-member `isFreshWrite` below cannot
+           * see this because it snapshots `roomId${SEP}memberId`,
+           * whereas whole-room bumps happen on the bare `roomId` key.
+           */
+          && this.cache.isFreshWrite(DirtyType.RoomMember, roomId, roomSnap)
+        ) {
+          const latest = this.cache.roomMember.get(roomId)
+          const merged: { [memberContactId: string]: RoomMemberPayload } = { ...latest }
+          let touched = false
+          for (const [ memberId, payload ] of result.entries()) {
+            const snap = genSnap.get(memberId) ?? 0
+            if (this.cache.isFreshWrite(
+              DirtyType.RoomMember,
+              `${roomId}${STRING_SPLITTER}${memberId}`,
+              snap,
+            )) {
+              merged[memberId] = payload
+              touched = true
+            }
+          }
+          if (touched) {
+            this.cache.roomMember.set(roomId, merged)
+          }
         }
       }
-      const payloadMap = new Map<string, RoomMemberPayload>()
-      for (const [ contactId, rawPayload ] of rawPayloadMap.entries()) {
-        payloadMap.set(contactId, await this.roomMemberRawPayloadParser(rawPayload))
+
+      for (const { id, promise } of inflightWaits) {
+        result.set(id, await promise)
       }
-      return payloadMap
+
+      return result
     }
 
     async roomMemberSearch (
@@ -205,6 +295,35 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
       id: string,
     ): Promise<void> {
       log.verbose('PuppetRoomMemberMixin', 'roomMemberPayloadDirty(%s)', id)
+
+      await this.__dirtyPayloadAwait(
+        DirtyType.RoomMember,
+        id,
+      )
+    }
+
+    /**
+     * Ergonomic dirty API for room members.
+     *
+     * Preferred over `roomMemberPayloadDirty(id)`: callers pass the
+     * roomId/memberId pair directly instead of hand-assembling the
+     * `${roomId}${STRING_SPLITTER}${memberId}` encoding. When memberId
+     * is omitted, the whole room is dirtied (matches the legacy bare-id
+     * form).
+     */
+    async dirtyRoomMemberPayload (
+      roomId    : string,
+      memberId? : string,
+    ): Promise<void> {
+      log.verbose('PuppetRoomMemberMixin', 'dirtyRoomMemberPayload(%s, %s)', roomId, memberId)
+
+      if (!roomId) {
+        throw new Error('dirtyRoomMemberPayload: roomId is required')
+      }
+
+      const id = memberId === undefined
+        ? roomId
+        : `${roomId}${STRING_SPLITTER}${memberId}`
 
       await this.__dirtyPayloadAwait(
         DirtyType.RoomMember,

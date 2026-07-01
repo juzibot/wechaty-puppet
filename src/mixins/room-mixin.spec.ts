@@ -10,6 +10,7 @@ import type {
 }                                         from './room-mixin.js'
 
 import { PuppetTest } from '../../tests/fixtures/puppet-test/puppet-test.js'
+import { DirtyType } from '../schemas/dirty.js'
 
 test('ProtectedPropertyRoomMixin', async t => {
   type NotExistInMixin = Exclude<ProtectedPropertyRoomMixin, keyof InstanceType<RoomMixin>>
@@ -64,10 +65,17 @@ test('batchRoomPayload: falls back to roomRawPayload when batchRoomRawPayload no
   await puppet.stop()
 })
 
-test('batchRoomPayload: empty input returns empty Map', async t => {
+test('batchRoomPayload: empty input skips the raw fetch and returns empty Map', async t => {
   const puppet = new PuppetTest()
   await puppet.start()
 
+  /**
+   * After the round-2 inflight-dedup rework, `batchRoomPayload` only
+   * invokes the raw batch fetcher for the ids that were neither
+   * inflight nor cached. An empty input therefore triggers zero raw
+   * calls -- a nicer semantics than the previous "always fire with
+   * an empty list" behavior (which was already a no-op RPC).
+   */
   let batchCalled = false
   puppet.batchRoomRawPayload  = async (_ids: string[]) => {
     batchCalled = true
@@ -77,7 +85,7 @@ test('batchRoomPayload: empty input returns empty Map', async t => {
 
   const result = await puppet.batchRoomPayload([])
 
-  t.ok(batchCalled, 'batchRoomRawPayload is still invoked with the empty list')
+  t.notOk(batchCalled, 'batchRoomRawPayload is NOT invoked when nothing needs fetching')
   t.equal(result.size, 0, 'should return an empty Map for empty input')
 
   await puppet.stop()
@@ -97,6 +105,82 @@ test('batchRoomPayload: rejects if underlying raw fetcher throws', async t => {
     /boom/,
     'should propagate errors from batchRoomRawPayload',
   )
+
+  await puppet.stop()
+})
+
+test('roomPayload: concurrent callers dedup to a single raw fetch', async t => {
+  const puppet = new PuppetTest()
+  await puppet.start()
+
+  let rawCalls = 0
+  puppet.roomRawPayload = async (id: string) => {
+    rawCalls++
+    await new Promise(resolve => setTimeout(resolve, 40))
+    return { id, topic: `t-${id}` }
+  }
+  puppet.roomRawPayloadParser = async (raw: any) => raw
+
+  const [ a, b ] = await Promise.all([
+    puppet.roomPayload('r1'),
+    puppet.roomPayload('r1'),
+  ])
+
+  t.equal(rawCalls, 1, 'raw fetcher fires exactly once for 2 concurrent callers')
+  t.equal(a.id, 'r1')
+  t.equal(b.id, 'r1')
+
+  await puppet.stop()
+})
+
+test('roomPayload: dirty during in-flight fetch must not repopulate cache', async t => {
+  const puppet = new PuppetTest()
+  await puppet.start()
+
+  let releaseRaw: () => void = () => {}
+  const rawGate = new Promise<void>(resolve => { releaseRaw = resolve })
+
+  puppet.roomRawPayload = async (id: string) => {
+    await rawGate
+    return { id, topic: 'stale' }
+  }
+  puppet.roomRawPayloadParser = async (raw: any) => raw
+
+  const inflight = puppet.roomPayload('r2')
+  puppet.cache.bumpGen(DirtyType.Room, 'r2')
+  releaseRaw()
+  await inflight
+
+  t.equal(puppet.cache.room?.get('r2'), undefined,
+    'LRU must NOT hold the stale payload after dirty-during-fetch')
+
+  await puppet.stop()
+})
+
+/**
+ * `batchRoomPayload` used to bypass `cache.room`. That meant a caller
+ * batch-fetching 100 rooms would fetch every one again on the next
+ * per-id `roomPayload(id)` call, defeating the whole point of the LRU.
+ * The batch API must populate the same cache slot the per-id getter
+ * reads.
+ */
+test('batchRoomPayload: writes fetched entries into cache.room', async t => {
+  const puppet = new PuppetTest()
+  await puppet.start()
+
+  const raw = new Map<string, any>([
+    [ 'rb-a', { id: 'rb-a', topic: 'A' } ],
+    [ 'rb-b', { id: 'rb-b', topic: 'B' } ],
+  ])
+  puppet.batchRoomRawPayload  = async (_ids: string[]) => raw
+  puppet.roomRawPayloadParser = async (rawPayload: any) => rawPayload
+
+  await puppet.batchRoomPayload([ 'rb-a', 'rb-b' ])
+
+  t.equal(puppet.cache.room?.get('rb-a')?.topic, 'A',
+    'rb-a populated in cache.room by the batch call')
+  t.equal(puppet.cache.room?.get('rb-b')?.topic, 'B',
+    'rb-b populated in cache.room by the batch call')
 
   await puppet.stop()
 })
