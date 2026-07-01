@@ -171,17 +171,25 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       } catch (e) {
         log.warn('PuppetCacheMixin', 'onDirty() handler threw for payloadType=%s, id=%s: %s',
           DirtyType[payloadType], payloadId, (e as Error).message)
-      } finally {
-        /**
-         * Prune the `__gen` slot for this (type, id) so the map cannot
-         * grow without bound on a long-lived puppet. `snapshotGen`
-         * treats a missing key as 0, and after `bumpGen + onDirty` no
-         * in-flight fetch cares about the pre-bump snapshot anymore --
-         * deleting the slot is semantically identical to leaving the
-         * post-bump number in place. See CacheAgent.genDelete.
-         */
-        this.cache.genDelete(payloadType, payloadId)
       }
+      /**
+       * Round-3 note: an earlier revision pruned the `__gen` slot for
+       * this (type, id) here (a `finally { this.cache.genDelete(...) }`
+       * block) so the map could not grow without bound on a long-lived
+       * puppet. That prune reopened the dirty-during-fetch race for the
+       * FIRST dirty a given (type, id) ever sees:
+       *
+       *   Getter:  snap = snapshotGen(...) = 0     (X not yet in map)
+       *   Server:  bumpGen(...) -> map[X] = 1
+       *   onDirty: ...LRU delete... finally genDelete -> map[X] removed
+       *   Getter:  fetch resolves; snapshotGen(...) reads 0 (missing);
+       *            isFreshWrite(0 === 0) -> true -> stale write.
+       *
+       * We now accept bounded `__gen` growth (worst case: one entry per
+       * distinct contact/room ever dirtied -- CRM-scale, not unbounded)
+       * to keep the race closed. See the "no-prune invariant" spec in
+       * cache-mixin.spec.ts and the HIGH-A pin in contact-mixin.spec.ts.
+       */
     }
 
     /**

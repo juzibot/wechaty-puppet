@@ -218,20 +218,10 @@ class CacheAgent {
   }
 
   /**
-   * Drop the generation slot for a (type, id). Called from
-   * `CacheMixin.onDirty` after the LRU handler runs so the map cannot
-   * grow without bound on a long-lived puppet. `snapshotGen` for a
-   * missing key returns 0 -- semantically identical to "never bumped",
-   * so this prune is safe: any inflight snapshot compares against a
-   * post-bump value already, and any *new* snapshot starts fresh at 0.
-   */
-  genDelete (type: DirtyType, id: string): void {
-    this.__gen.delete(this.__genKey(type, id))
-  }
-
-  /**
    * @internal test hook -- exposes the internal gen map size so specs
-   * can assert the pruning behavior without reaching into private state.
+   * can pin the round-3 no-prune invariant (an earlier revision drained
+   * this map from `CacheMixin.onDirty`'s `finally`, reopening the
+   * first-dirty race; see the "no-prune invariant" spec).
    */
   __genSize (): number {
     return this.__gen.size
