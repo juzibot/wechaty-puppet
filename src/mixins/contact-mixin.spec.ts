@@ -115,3 +115,51 @@ test('batchContactPayload: writes fetched entries into cache.contact', async t =
 
   await puppet.stop()
 })
+
+/**
+ * Regression: HIGH-1 -- the per-id `contactPayload` getter carries a
+ * gen snapshot + isFreshWrite guard so a `dirtyPayload(Contact, id)`
+ * that lands mid-fetch skips the LRU write. The `batchContactPayload`
+ * write path used to blindly `cache.contact.set(id, fetched)` for
+ * every id, silently clobbering that invalidation.
+ *
+ * The batch write must observe the same gen snapshot the per-id path
+ * would have observed.
+ */
+test('batchContactPayload: dirty during batch fetch must NOT clobber cache', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  let releaseRaw: () => void = () => {}
+  const rawGate = new Promise<void>(resolve => { releaseRaw = resolve })
+
+  puppet.batchContactRawPayload = async (ids: string[]) => {
+    await rawGate
+    const raw = new Map<string, any>()
+    for (const id of ids) {
+      raw.set(id, { id, name: 'stale' })
+    }
+    return raw
+  }
+  puppet.contactRawPayloadParser = async (rawPayload: any) => rawPayload
+
+  const inflight = puppet.batchContactPayload([ 'cbd-1', 'cbd-2' ])
+
+  // Dirty lands while the raw batch fetch is awaiting.
+  puppet.cache.bumpGen(DirtyType.Contact, 'cbd-1')
+
+  releaseRaw()
+  const result = await inflight
+
+  // Batch still returns the fetched payloads to the caller (they
+  // asked for them; the guard only governs the LRU write).
+  t.equal(result.get('cbd-1')?.name, 'stale', 'caller receives the fetched payload')
+  t.equal(result.get('cbd-2')?.name, 'stale', 'caller receives the fetched payload')
+
+  t.equal(puppet.cache.contact?.get('cbd-1'), undefined,
+    'LRU must NOT hold the payload for the dirtied id')
+  t.equal(puppet.cache.contact?.get('cbd-2')?.name, 'stale',
+    'other ids in the same batch are unaffected -- gen guard is per-id')
+
+  await puppet.stop()
+})
