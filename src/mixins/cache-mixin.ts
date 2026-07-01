@@ -88,6 +88,29 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       log.verbose('PuppetCacheMixin', 'dirtyPayload(%s<%s>, %s)', DirtyType[type], type, id)
 
       /**
+       * Contract check for RoomMember ids.
+       *
+       * A legitimate RoomMember id is either a bare roomId (whole-room
+       * dirty) OR `${roomId}${SEP}${memberId}` (single-member dirty).
+       * Anything containing SEP that does not split into exactly two
+       * non-empty segments is a caller bug: surface it via `error`
+       * (never throw -- the setImmediate below would turn a throw into
+       * uncaughtException) and abort emission.
+       */
+      if (type === DirtyType.RoomMember && id.includes(STRING_SPLITTER)) {
+        const segments = id.split(STRING_SPLITTER)
+        if (segments.length !== 2 || !segments[0] || !segments[1]) {
+          const err = new Error(
+            `dirtyPayload: malformed RoomMember id "${id}" -- `
+            + 'expected bare roomId or roomId+SEP+memberId',
+          )
+          log.error('PuppetCacheMixin', err.message)
+          this.emit('error', err)
+          return
+        }
+      }
+
+      /**
        * Bump the (type, id) generation counter BEFORE scheduling the
        * emit so that any payload getter whose raw fetch is currently
        * in-flight will see a stale snapshot and skip its LRU set.

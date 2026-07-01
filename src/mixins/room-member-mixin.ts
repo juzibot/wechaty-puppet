@@ -1,5 +1,6 @@
 import {
   log,
+  STRING_SPLITTER,
 }                       from '../config.js'
 
 import type {
@@ -205,6 +206,35 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
       id: string,
     ): Promise<void> {
       log.verbose('PuppetRoomMemberMixin', 'roomMemberPayloadDirty(%s)', id)
+
+      await this.__dirtyPayloadAwait(
+        DirtyType.RoomMember,
+        id,
+      )
+    }
+
+    /**
+     * Ergonomic dirty API for room members.
+     *
+     * Preferred over `roomMemberPayloadDirty(id)`: callers pass the
+     * roomId/memberId pair directly instead of hand-assembling the
+     * `${roomId}${STRING_SPLITTER}${memberId}` encoding. When memberId
+     * is omitted, the whole room is dirtied (matches the legacy bare-id
+     * form).
+     */
+    async dirtyRoomMemberPayload (
+      roomId    : string,
+      memberId? : string,
+    ): Promise<void> {
+      log.verbose('PuppetRoomMemberMixin', 'dirtyRoomMemberPayload(%s, %s)', roomId, memberId)
+
+      if (!roomId) {
+        throw new Error('dirtyRoomMemberPayload: roomId is required')
+      }
+
+      const id = memberId === undefined
+        ? roomId
+        : `${roomId}${STRING_SPLITTER}${memberId}`
 
       await this.__dirtyPayloadAwait(
         DirtyType.RoomMember,
