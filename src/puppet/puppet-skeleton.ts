@@ -96,7 +96,10 @@ abstract class PuppetSkeleton extends PuppetEventEmitter {
 
     this.log.verbose('PuppetSkeleton', 'constructor(%s)',
       args.length
-        ? JSON.stringify(args[0])
+        // Strip `logger` before stringifying: an injected logger is an object
+        // with methods (and potentially circular refs), which would either
+        // serialize as `{}` noise or throw at construction time.
+        ? JSON.stringify(args[0], (key, value) => (key === 'logger' ? undefined : value))
         : '',
     )
 
