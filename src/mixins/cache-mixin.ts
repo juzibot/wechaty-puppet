@@ -135,7 +135,8 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
      * (see `dirtyPayload`), so any throw from this listener becomes an
      * uncaughtException. Defensive coding around bad payloadType values
      * (notably `Unspecified`) must therefore not throw -- we log and
-     * skip instead.
+     * emit an `error` event instead. The outer try/catch below is a
+     * belt-and-braces safety net for future per-cache bugs.
      */
     onDirty (
       {
@@ -147,7 +148,49 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       if (this.cache.disabled) {
         return
       }
-      const dirtyFuncMap: Partial<Record<DirtyType, (id: string) => void>> = {
+      const dirtyFunc = this.__dirtyFuncMap[payloadType]
+      if (!dirtyFunc) {
+        // Should not happen -- __dirtyFuncMap is a complete Record.
+        // Keeping the guard for a future enum addition that lands
+        // before its handler.
+        log.warn('PuppetCacheMixin', 'onDirty() unmapped payloadType=%s(%s), id=%s; ignored',
+          DirtyType[payloadType], payloadType, payloadId)
+        return
+      }
+      try {
+        dirtyFunc(payloadId)
+      } catch (e) {
+        log.warn('PuppetCacheMixin', 'onDirty() handler threw for payloadType=%s, id=%s: %s',
+          DirtyType[payloadType], payloadId, (e as Error).message)
+      }
+    }
+
+    /**
+     * Exhaustive map from every DirtyType to its cache invalidator.
+     *
+     * Modeled as a complete `Record<DirtyType, ...>` (mirrors PR #94
+     * on puppet-service): adding a new DirtyType now forces a compile
+     * error until a handler lands, closing the class of "new enum
+     * silently unmapped" bugs the prior Partial hid.
+     *
+     * Getter (not a field) so the closure captures `this` and can be
+     * regenerated per-call if a subclass overrides -- and so the
+     * structural test (`__dirtyFuncMap`) can read it without needing an
+     * instantiation-order dance.
+     *
+     * Unspecified is a caller bug: emit an `error` event (log.error too)
+     * but do NOT throw -- `dirty` is scheduled via setImmediate, and a
+     * throw here would become an uncaughtException.
+     */
+    protected get __dirtyFuncMap (): Record<DirtyType, (id: string) => void> {
+      return {
+        [DirtyType.Unspecified]: (id: string) => {
+          const err = new Error(
+            `dirtyPayload emitted DirtyType.Unspecified<0> (id=${id}); refusing to invalidate`,
+          )
+          log.error('PuppetCacheMixin', err.message)
+          this.emit('error', err)
+        },
         [DirtyType.Contact]:      (id: string) => { this.cache.contact?.delete(id) },
         [DirtyType.Friendship]:   (id: string) => { this.cache.friendship?.delete(id) },
         [DirtyType.Message]:      (id: string) => { this.cache.message?.delete(id) },
@@ -185,19 +228,6 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
         [DirtyType.WxxdProduct]:  (id: string) => { this.cache.wxxdProduct?.delete(id) },
         [DirtyType.WxxdOrder]:    (id: string) => { this.cache.wxxdOrder?.delete(id) },
         [DirtyType.Call]:         (id: string) => { this.cache.call?.delete(id) },
-      }
-
-      const dirtyFunc = dirtyFuncMap[payloadType]
-      if (!dirtyFunc) {
-        log.warn('PuppetCacheMixin', 'onDirty() unsupported payloadType=%s(%s), id=%s; ignored',
-          DirtyType[payloadType], payloadType, payloadId)
-        return
-      }
-      try {
-        dirtyFunc(payloadId)
-      } catch (e) {
-        log.warn('PuppetCacheMixin', 'onDirty() handler threw for payloadType=%s, id=%s: %s',
-          DirtyType[payloadType], payloadId, (e as Error).message)
       }
     }
 
@@ -309,6 +339,7 @@ type ProtectedPropertyCacheMixin =
   | 'cache'
   | 'onDirty'
   | '__cacheMixinCleanCallbackList'
+  | '__dirtyFuncMap'
   | '__dirtyPayloadAwait'
 
 export type {
