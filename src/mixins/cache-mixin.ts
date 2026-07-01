@@ -154,12 +154,30 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
         [DirtyType.Post]:         (id: string) => { this.cache.post?.delete(id) },
         [DirtyType.Room]:         (id: string) => { this.cache.room?.delete(id) },
         [DirtyType.RoomMember]:   (id: string) => {
-          const frags = id.split(STRING_SPLITTER)
-          if (frags.length > 1) {
-            const roomId = frags[0]
-            this.cache.roomMember?.delete(roomId!)
-          } else {
+          /**
+           * Precision dirty: an id of `${roomId}${SEP}${memberId}`
+           * must drop only that member from the nested map, not the
+           * whole room. Only a bare roomId means "drop the whole room".
+           * (Id shape has already been validated in dirtyPayload above,
+           * so a SEP here means exactly two non-empty segments.)
+           */
+          if (!id.includes(STRING_SPLITTER)) {
             this.cache.roomMember?.delete(id)
+            return
+          }
+
+          const [ roomId, memberId ] = id.split(STRING_SPLITTER) as [ string, string ]
+          const current = this.cache.roomMember?.get(roomId)
+          if (!current || !(memberId in current)) {
+            return
+          }
+
+          const { [memberId]: _drop, ...rest } = current
+          void _drop
+          if (Object.keys(rest).length === 0) {
+            this.cache.roomMember?.delete(roomId)
+          } else {
+            this.cache.roomMember?.set(roomId, rest)
           }
         },
         [DirtyType.Tag]:          (id: string) => { this.cache.tag?.delete(id) },
