@@ -197,3 +197,50 @@ test('onDirty prunes the __gen slot after handling', async t => {
 
   await puppet.stop()
 })
+
+/**
+ * Regression: MEDIUM-2 -- when RoomMember dirty is called with a
+ * malformed id shape (e.g. bare `${SEP}memberId` or trailing SEP),
+ * the pre-round-2 code path used to unconditionally delete the whole
+ * `roomMember[first-segment]` entry. The contract-check we added
+ * emits `error` and returns early, which is safer BUT drops the
+ * old fallback delete -- any stale LRU entry linked to that room
+ * then survives for the full 15-minute maxAge.
+ *
+ * The fix: emit `error` (contract violation is still surfaced) AND
+ * best-effort delete `roomMember[segments[0] || id]` first so a buggy
+ * caller does not accidentally poison the cache for 15 minutes.
+ */
+test('dirtyPayload(RoomMember, malformed id) still triggers a fallback LRU delete', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  const errors: any[] = []
+  puppet.on('error', (payload: any) => errors.push(payload))
+
+  puppet.cache.roomMember?.set('rm-fb-1', { m1: { id: 'm1' } as any })
+  puppet.cache.roomMember?.set('', { m0: { id: 'm0' } as any })
+
+  // Trailing SEP: segments=[roomId,''] -> non-empty first segment.
+  puppet.dirtyPayload(DirtyType.RoomMember, `rm-fb-1${STRING_SPLITTER}`)
+
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setImmediate(resolve))
+
+  t.equal(errors.length, 1, 'malformed id still surfaces the error event')
+  t.equal(puppet.cache.roomMember?.get('rm-fb-1'), undefined,
+    'best-effort fallback still evicts `roomMember[segments[0]]` for a trailing-SEP shape')
+
+  // Leading SEP: segments=['', memberId] -> first segment falsy, so we
+  // fall back to `id` (the whole malformed string). No cache entry
+  // exists at that key -- but we must not throw.
+  const errsBefore = errors.length
+  puppet.dirtyPayload(DirtyType.RoomMember, `${STRING_SPLITTER}orphan`)
+
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setImmediate(resolve))
+
+  t.equal(errors.length, errsBefore + 1, 'leading-SEP shape also surfaces error')
+
+  await puppet.stop()
+})

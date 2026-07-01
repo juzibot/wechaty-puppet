@@ -105,6 +105,17 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
             + 'expected bare roomId or roomId+SEP+memberId',
           )
           log.error('PuppetCacheMixin', err.message)
+          /**
+           * Best-effort local fallback: the old (pre-contract-check)
+           * code path unconditionally dropped `roomMember[id.split(SEP)[0]]`
+           * even on shape violations. Keep the fallback delete BEFORE
+           * emitting `error` so a buggy caller still frees its stale
+           * entry -- otherwise a malformed id (e.g. `roomId${SEP}` or
+           * accidentally embedded SEP) would poison the LRU until the
+           * 15-minute maxAge.
+           */
+          const fallbackRoomId = segments[0] || id
+          this.cache.roomMember?.delete(fallbackRoomId)
           this.emit('error', err)
           return
         }
