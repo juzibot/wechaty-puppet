@@ -314,6 +314,69 @@ test('dirty(RoomMember) no-ops when member is not present in the cached room', a
   await puppet.stop()
 })
 
+/**
+ * Regression: MEDIUM-A (round-3) -- `batchRoomMemberPayload` guards
+ * against per-member dirties that land during the raw fetch by
+ * snapshotting `${roomId}${SEP}${memberId}` gens up front. But a
+ * whole-room dirty (`dirtyPayload(RoomMember, roomId)`) bumps the
+ * BARE `roomId` gen key -- a completely different __gen slot from any
+ * of the per-member snapshots. Every per-member `isFreshWrite` still
+ * reports fresh, and the batch then partially "resurrects" the room
+ * with just the freshly-fetched members while the caller believed the
+ * whole room was invalidated.
+ *
+ * Scenario:
+ *   1. Pre-seed cache.roomMember[r] = { m0: p_old }.
+ *   2. batchRoomMemberPayload(r, [m1, m2]) starts; per-member snaps
+ *      captured for r+SEP+m1, r+SEP+m2 (both = 0), then raw fetch
+ *      awaits.
+ *   3. dirtyPayload(RoomMember, r)  -- bumps gen for bare "r" only;
+ *      onDirty drops cache.roomMember[r] entirely.
+ *   4. Raw resolves. Pre-fix code re-reads latest = undefined,
+ *      per-member isFreshWrite returns true for both, merges {m1, m2}
+ *      and writes cache.roomMember[r] = {m1, m2}. m0 is gone (correct
+ *      -- the whole room was dirtied) BUT the room is now partially
+ *      re-populated with data that predates the dirty.
+ *
+ * Fix (in room-member-mixin): snapshot the WHOLE-ROOM gen too and
+ * skip the entire cache write when it moved. This test pins the
+ * observable outcome.
+ */
+test('batchRoomMemberPayload: whole-room dirty during fetch must not partially resurrect', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  puppet.cache.roomMember?.set('r-wr', { m0: { id: 'm0' } as any })
+
+  let releaseRaw: () => void = () => {}
+  const rawGate = new Promise<void>(resolve => { releaseRaw = resolve })
+
+  puppet.batchRoomMemberRawPayload = async (_r: string, ids: string[]) => {
+    await rawGate
+    const raw = new Map<string, any>()
+    for (const id of ids) raw.set(id, { id, name: `${id}-stale` })
+    return raw
+  }
+  puppet.roomMemberRawPayloadParser = async (raw: any) => raw
+
+  const inflight = puppet.batchRoomMemberPayload('r-wr', [ 'm1', 'm2' ])
+
+  // Whole-room dirty lands while the batch fetch is awaiting. Use the
+  // real dirtyPayload path so onDirty (setImmediate) drains before the
+  // raw fetch resolves -- this is exactly the pre-fix race window.
+  puppet.dirtyPayload(DirtyType.RoomMember, 'r-wr')
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setImmediate(resolve))
+
+  releaseRaw()
+  await inflight
+
+  t.equal(puppet.cache.roomMember?.get('r-wr'), undefined,
+    'whole-room dirty during batch fetch must not partially resurrect the room')
+
+  await puppet.stop()
+})
+
 test('dirtyPayload(RoomMember, "SEPmemberId" with empty roomId) surfaces error', async t => {
   const puppet = new TestPuppet() as any
   await puppet.start()
