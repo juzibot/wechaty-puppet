@@ -98,31 +98,64 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
     abstract batchContactRawPayload (contactIds: string[]): Promise<Map<string, any>>
 
     async batchContactPayload (contactIds: string[]): Promise<Map<string, ContactPayload>> {
-      let rawPayloadMap: Map<string, any>
-      if (typeof this.batchContactRawPayload === 'function') {
-        rawPayloadMap = await this.batchContactRawPayload(contactIds)
-      } else {
-        rawPayloadMap = new Map<string, any>()
-        for (const contactId of contactIds) {
-          rawPayloadMap.set(contactId, await this.contactRawPayload(contactId))
-        }
-      }
-      const payloadMap = new Map<string, ContactPayload>()
-      for (const [ contactId, rawPayload ] of rawPayloadMap.entries()) {
-        payloadMap.set(contactId, await this.contactRawPayloadParser(rawPayload))
-      }
       /**
-       * Populate the LRU with everything we just fetched, so the next
-       * per-id `contactPayload(id)` hits the cache instead of firing a
-       * fresh raw fetch. The `disabled` guard mirrors the per-id
-       * getter.
+       * Thread Fix#1's dedup+gen-guard through the batch path.
+       *
+       *   1. per-id in-flight check: if `contactPayload(id)` is already
+       *      awaiting a raw fetch, do NOT redundantly re-fetch under
+       *      the batch call. Await the same Promise and let the per-id
+       *      path own the cache write. Otherwise a batch + per-id race
+       *      fires two raw fetches for the same id, both writing the
+       *      LRU (and defeating dedup).
+       *   2. snapshot the (type, id) generation BEFORE the raw fetch so
+       *      a `dirtyPayload(Contact, id)` landing mid-fetch will make
+       *      us skip the LRU set for that id. Without this, batch's
+       *      unconditional post-fetch `cache.contact.set(id, stale)`
+       *      overwrites the dirty invalidation.
        */
-      if (!this.cache.disabled) {
-        for (const [ contactId, payload ] of payloadMap.entries()) {
-          this.cache.contact?.set(contactId, payload)
+      const result = new Map<string, ContactPayload>()
+      const toFetch: string[] = []
+      const genSnap = new Map<string, number>()
+      const inflightWaits: Array<{ id: string, promise: Promise<ContactPayload> }> = []
+
+      for (const contactId of contactIds) {
+        const inflightKey = `contact:${contactId}`
+        const flying = this.cache.__inflightGet<ContactPayload>(inflightKey)
+        if (flying) {
+          inflightWaits.push({ id: contactId, promise: flying })
+          continue
+        }
+        genSnap.set(contactId, this.cache.snapshotGen(DirtyType.Contact, contactId))
+        toFetch.push(contactId)
+      }
+
+      if (toFetch.length > 0) {
+        let rawPayloadMap: Map<string, any>
+        if (typeof this.batchContactRawPayload === 'function') {
+          rawPayloadMap = await this.batchContactRawPayload(toFetch)
+        } else {
+          rawPayloadMap = new Map<string, any>()
+          for (const contactId of toFetch) {
+            rawPayloadMap.set(contactId, await this.contactRawPayload(contactId))
+          }
+        }
+        for (const [ contactId, rawPayload ] of rawPayloadMap.entries()) {
+          const payload = await this.contactRawPayloadParser(rawPayload)
+          result.set(contactId, payload)
+          if (
+            !this.cache.disabled
+            && this.cache.isFreshWrite(DirtyType.Contact, contactId, genSnap.get(contactId) ?? 0)
+          ) {
+            this.cache.contact?.set(contactId, payload)
+          }
         }
       }
-      return payloadMap
+
+      for (const { id, promise } of inflightWaits) {
+        result.set(id, await promise)
+      }
+
+      return result
     }
 
     /**

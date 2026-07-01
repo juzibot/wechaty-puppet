@@ -65,10 +65,17 @@ test('batchRoomPayload: falls back to roomRawPayload when batchRoomRawPayload no
   await puppet.stop()
 })
 
-test('batchRoomPayload: empty input returns empty Map', async t => {
+test('batchRoomPayload: empty input skips the raw fetch and returns empty Map', async t => {
   const puppet = new PuppetTest()
   await puppet.start()
 
+  /**
+   * After the round-2 inflight-dedup rework, `batchRoomPayload` only
+   * invokes the raw batch fetcher for the ids that were neither
+   * inflight nor cached. An empty input therefore triggers zero raw
+   * calls -- a nicer semantics than the previous "always fire with
+   * an empty list" behavior (which was already a no-op RPC).
+   */
   let batchCalled = false
   puppet.batchRoomRawPayload  = async (_ids: string[]) => {
     batchCalled = true
@@ -78,7 +85,7 @@ test('batchRoomPayload: empty input returns empty Map', async t => {
 
   const result = await puppet.batchRoomPayload([])
 
-  t.ok(batchCalled, 'batchRoomRawPayload is still invoked with the empty list')
+  t.notOk(batchCalled, 'batchRoomRawPayload is NOT invoked when nothing needs fetching')
   t.equal(result.size, 0, 'should return an empty Map for empty input')
 
   await puppet.stop()

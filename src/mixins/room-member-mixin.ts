@@ -38,35 +38,87 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
     abstract batchRoomMemberRawPayload (roomId: string, contactIds: string[]): Promise<Map<string, any>>
 
     async batchRoomMemberPayload (roomId: string, contactIds: string[]): Promise<Map<string, RoomMemberPayload>> {
-      let rawPayloadMap: Map<string, any>
-      if (typeof this.batchRoomMemberRawPayload === 'function') {
-        rawPayloadMap = await this.batchRoomMemberRawPayload(roomId, contactIds)
-      } else {
-        rawPayloadMap = new Map<string, any>()
-        for (const contactId of contactIds) {
-          rawPayloadMap.set(contactId, await this.roomMemberRawPayload(roomId, contactId))
-        }
-      }
-      const payloadMap = new Map<string, RoomMemberPayload>()
-      for (const [ contactId, rawPayload ] of rawPayloadMap.entries()) {
-        payloadMap.set(contactId, await this.roomMemberRawPayloadParser(rawPayload))
-      }
       /**
-       * Merge the fetched members into `cache.roomMember[roomId]`
-       * against the LATEST snapshot -- same shape rule as the per-id
-       * `roomMemberPayload` fix from PR #99: concurrent writers must
-       * not clobber each other, and we must not blow away a member the
-       * batch call didn't fetch.
+       * Batch payload writes need the same three guards the per-id
+       * paths already carry (see `contact-mixin.batchContactPayload`):
+       *
+       *   1. per-member in-flight dedup so a concurrent
+       *      `roomMemberPayload(roomId, memberId)` shares the raw fetch
+       *      instead of firing a second one.
+       *   2. per-member gen snapshot BEFORE the raw fetch, so a
+       *      `dirtyPayload(RoomMember, roomId+SEP+memberId)` landing
+       *      mid-fetch skips the write for that member -- otherwise the
+       *      batch would overwrite the invalidation with the stale
+       *      payload.
+       *   3. re-read the LATEST `cache.roomMember[roomId]` snapshot
+      *       immediately before merging, so a whole-room dirty (or a
+      *       parallel single-member write) that landed during the raw
+      *       fetch is not blown away by the batch write.
+       *
+       * RoomMember dirties are keyed by the raw dirtyPayload id -- so
+       * the per-member snapshot uses `${roomId}${SEP}${memberId}`,
+       * matching what `dirtyRoomMemberPayload(roomId, memberId)` bumps.
        */
-      if (!this.cache.disabled && this.cache.roomMember && payloadMap.size > 0) {
-        const latest = this.cache.roomMember.get(roomId)
-        const merged: { [memberContactId: string]: RoomMemberPayload } = { ...latest }
-        for (const [ contactId, payload ] of payloadMap.entries()) {
-          merged[contactId] = payload
+      const result = new Map<string, RoomMemberPayload>()
+      const toFetch: string[] = []
+      const genSnap = new Map<string, number>()
+      const inflightWaits: Array<{ id: string, promise: Promise<RoomMemberPayload> }> = []
+
+      for (const memberId of contactIds) {
+        const inflightKey = `roommember:${roomId}${STRING_SPLITTER}${memberId}`
+        const flying = this.cache.__inflightGet<RoomMemberPayload>(inflightKey)
+        if (flying) {
+          inflightWaits.push({ id: memberId, promise: flying })
+          continue
         }
-        this.cache.roomMember.set(roomId, merged)
+        genSnap.set(
+          memberId,
+          this.cache.snapshotGen(DirtyType.RoomMember, `${roomId}${STRING_SPLITTER}${memberId}`),
+        )
+        toFetch.push(memberId)
       }
-      return payloadMap
+
+      if (toFetch.length > 0) {
+        let rawPayloadMap: Map<string, any>
+        if (typeof this.batchRoomMemberRawPayload === 'function') {
+          rawPayloadMap = await this.batchRoomMemberRawPayload(roomId, toFetch)
+        } else {
+          rawPayloadMap = new Map<string, any>()
+          for (const memberId of toFetch) {
+            rawPayloadMap.set(memberId, await this.roomMemberRawPayload(roomId, memberId))
+          }
+        }
+        for (const [ memberId, rawPayload ] of rawPayloadMap.entries()) {
+          const payload = await this.roomMemberRawPayloadParser(rawPayload)
+          result.set(memberId, payload)
+        }
+
+        if (!this.cache.disabled && this.cache.roomMember && result.size > 0) {
+          const latest = this.cache.roomMember.get(roomId)
+          const merged: { [memberContactId: string]: RoomMemberPayload } = { ...latest }
+          let touched = false
+          for (const [ memberId, payload ] of result.entries()) {
+            const snap = genSnap.get(memberId) ?? 0
+            if (this.cache.isFreshWrite(
+              DirtyType.RoomMember,
+              `${roomId}${STRING_SPLITTER}${memberId}`,
+              snap,
+            )) {
+              merged[memberId] = payload
+              touched = true
+            }
+          }
+          if (touched) {
+            this.cache.roomMember.set(roomId, merged)
+          }
+        }
+      }
+
+      for (const { id, promise } of inflightWaits) {
+        result.set(id, await promise)
+      }
+
+      return result
     }
 
     async roomMemberSearch (
