@@ -179,10 +179,6 @@ test('__dirtyPayloadAwait must handle rejection from an overridden async dirtyPa
  * Once `onDirty` has run for a given (type, id), no in-flight snapshot
  * still cares about the pre-bump counter, so the slot can be pruned.
  * Verify the mixin plumbs `cache.genDelete` from the finally block.
- *
- * NB: reads the private `__gen` map via `as any` for the same reason
- * as the CacheAgent spec -- the observer helper lands in the fix
- * commit, but the assertion still describes the target behavior.
  */
 test('onDirty prunes the __gen slot after handling', async t => {
   const puppet = new TestPuppet() as any
@@ -196,7 +192,7 @@ test('onDirty prunes the __gen slot after handling', async t => {
   await new Promise(resolve => setImmediate(resolve))
   await new Promise(resolve => setImmediate(resolve))
 
-  t.equal((puppet.cache as any).__gen.size, 0,
+  t.equal(puppet.cache.__genSize(), 0,
     '__gen must be pruned to 0 after onDirty processes both dirtied ids')
 
   await puppet.stop()

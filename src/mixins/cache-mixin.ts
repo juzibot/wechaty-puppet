@@ -160,6 +160,16 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       } catch (e) {
         log.warn('PuppetCacheMixin', 'onDirty() handler threw for payloadType=%s, id=%s: %s',
           DirtyType[payloadType], payloadId, (e as Error).message)
+      } finally {
+        /**
+         * Prune the `__gen` slot for this (type, id) so the map cannot
+         * grow without bound on a long-lived puppet. `snapshotGen`
+         * treats a missing key as 0, and after `bumpGen + onDirty` no
+         * in-flight fetch cares about the pre-bump snapshot anymore --
+         * deleting the slot is semantically identical to leaving the
+         * post-bump number in place. See CacheAgent.genDelete.
+         */
+        this.cache.genDelete(payloadType, payloadId)
       }
     }
 
