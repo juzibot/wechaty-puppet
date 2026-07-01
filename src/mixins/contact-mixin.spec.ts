@@ -163,3 +163,61 @@ test('batchContactPayload: dirty during batch fetch must NOT clobber cache', asy
 
   await puppet.stop()
 })
+
+/**
+ * Regression: HIGH-1 -- when a per-id `contactPayload(X)` is already
+ * awaiting a raw fetch, a `batchContactPayload([..., X, ...])` used
+ * to fire a second raw fetch for X and race the two LRU writes. The
+ * batch path must observe `cache.__inflightGet(...)` and share the
+ * inflight Promise instead.
+ */
+test('batchContactPayload: dedups against an in-flight per-id fetch', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  let rawCalls = 0
+  const batchIds: string[][] = []
+
+  let releaseRaw: () => void = () => {}
+  const rawGate = new Promise<void>(resolve => { releaseRaw = resolve })
+
+  puppet.contactRawPayload = async (id: string) => {
+    rawCalls++
+    await rawGate
+    return { id, name: `n-${id}` }
+  }
+  puppet.batchContactRawPayload = async (ids: string[]) => {
+    batchIds.push([ ...ids ])
+    const raw = new Map<string, any>()
+    for (const id of ids) {
+      raw.set(id, { id, name: `n-${id}` })
+    }
+    return raw
+  }
+  puppet.contactRawPayloadParser = async (rawPayload: any) => rawPayload
+
+  // Kick off the per-id fetch first; it will register an inflight.
+  const perId = puppet.contactPayload('cbi-x')
+
+  // Yield so the inflight registers before the batch begins.
+  await new Promise(resolve => setImmediate(resolve))
+
+  const batch = puppet.batchContactPayload([ 'cbi-x', 'cbi-y' ])
+
+  releaseRaw()
+
+  const [ perIdRes, batchRes ] = await Promise.all([ perId, batch ])
+
+  t.equal(perIdRes.id, 'cbi-x', 'per-id call returns cbi-x')
+  t.equal(batchRes.get('cbi-x')?.id, 'cbi-x',
+    'batch call also returns cbi-x -- via the shared inflight')
+  t.equal(batchRes.get('cbi-y')?.id, 'cbi-y',
+    'batch call still fetches the non-inflight ids')
+
+  t.equal(rawCalls, 1, 'per-id raw fetch fires exactly once for cbi-x')
+  t.equal(batchIds.length, 1, 'batchContactRawPayload is invoked at most once')
+  t.same(batchIds[0], [ 'cbi-y' ],
+    'batch raw fetch only asks for the ids that were not already inflight')
+
+  await puppet.stop()
+})
