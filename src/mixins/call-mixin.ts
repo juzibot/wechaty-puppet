@@ -1,7 +1,3 @@
-import {
-  log,
-} from '../config.js'
-
 import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
 import type { CallMediaEndpointPayload, CallMediaType, CallPayload } from '../schemas/call.js'
 import { DirtyType } from '../schemas/dirty.js'
@@ -34,7 +30,7 @@ const callMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBa
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('PuppetCallMixin', 'constructor()')
+      this.log.verbose('PuppetCallMixin', 'constructor()')
     }
 
     /**
@@ -159,16 +155,16 @@ const callMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBa
      * @protected
      */
     callPayloadCache (callId: string): undefined | CallPayload {
-      // log.silly('PuppetCallMixin', 'callPayloadCache(id=%s) @ %s', callId, this)
+      // this.log.silly('PuppetCallMixin', 'callPayloadCache(id=%s) @ %s', callId, this)
       if (!callId) {
         throw new Error('no id')
       }
       const cachedPayload = this.cache.call?.get(callId)
 
       if (cachedPayload) {
-        // log.silly('PuppetCallMixin', 'callPayload(%s) cache HIT', callId)
+        // this.log.silly('PuppetCallMixin', 'callPayload(%s) cache HIT', callId)
       } else {
-        log.silly('PuppetCallMixin', 'callPayload(%s) cache MISS', callId)
+        this.log.silly('PuppetCallMixin', 'callPayload(%s) cache MISS', callId)
       }
 
       return cachedPayload
@@ -183,7 +179,7 @@ const callMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBa
     async callPayload (
       callId: string,
     ): Promise<CallPayload> {
-      // log.silly('PuppetCallMixin', 'callPayload(id=%s) @ %s', callId, this)
+      // this.log.silly('PuppetCallMixin', 'callPayload(id=%s) @ %s', callId, this)
 
       if (!callId) {
         throw new Error('no id')
@@ -205,7 +201,7 @@ const callMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBa
 
       if (!this.cache.disabled) {
         this.cache.call?.set(callId, payload)
-        log.silly('PuppetCallMixin', 'callPayload(%s) cache SET', callId)
+        this.log.silly('PuppetCallMixin', 'callPayload(%s) cache SET', callId)
       }
 
       return payload
@@ -214,7 +210,7 @@ const callMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBa
     async callPayloadDirty (
       id: string,
     ): Promise<void> {
-      log.verbose('PuppetCallMixin', 'callPayloadDirty(%s)', id)
+      this.log.verbose('PuppetCallMixin', 'callPayloadDirty(%s)', id)
 
       await this.__dirtyPayloadAwait(
         DirtyType.Call,

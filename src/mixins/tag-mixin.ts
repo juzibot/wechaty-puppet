@@ -1,4 +1,3 @@
-import { log } from '../config.js'
 import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
 import { DirtyType } from '../schemas/mod.js'
 import type { TagGroupPayload, TagInfo, TagPayload } from '../schemas/tag.js'
@@ -10,7 +9,7 @@ const tagMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBas
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('PuppetTagMixin', 'constructor()')
+      this.log.verbose('PuppetTagMixin', 'constructor()')
     }
 
     /**
@@ -51,7 +50,7 @@ const tagMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBas
     tagPayloadCache (id: string): undefined | TagPayload {
       const cachedPayload = this.cache.tag?.get(id)
       if (!cachedPayload) {
-        log.silly('PuppetTagMixin', 'tagPayloadCache(%s) cache MISS', id)
+        this.log.silly('PuppetTagMixin', 'tagPayloadCache(%s) cache MISS', id)
       }
 
       return cachedPayload
@@ -66,7 +65,7 @@ const tagMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBas
       const payload = await this.tagPayloadPuppet(id)
       if (!this.cache.disabled) {
         this.cache.tag?.set(id, payload)
-        log.silly('PuppetTagMixin', 'tagPayload(%s) cache SET', id)
+        this.log.silly('PuppetTagMixin', 'tagPayload(%s) cache SET', id)
       }
       return payload
     }
@@ -75,7 +74,7 @@ const tagMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBas
 
       const cachedPayload = this.cache.tagGroup?.get(id)
       if (!cachedPayload) {
-        log.silly('PuppetTagMixin', 'tagGroupPayloadCache(%s) cache MISS', id)
+        this.log.silly('PuppetTagMixin', 'tagGroupPayloadCache(%s) cache MISS', id)
       }
 
       return cachedPayload
@@ -90,7 +89,7 @@ const tagMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBas
       const payload = await this.tagGroupPayloadPuppet(id)
       if (!this.cache.disabled) {
         this.cache.tagGroup?.set(id, payload)
-        log.silly('PuppetTagMixin', 'tagGroupPayload(%s) cache SET', id)
+        this.log.silly('PuppetTagMixin', 'tagGroupPayload(%s) cache SET', id)
       }
       return payload
     }
@@ -98,7 +97,7 @@ const tagMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBas
     async tagPayloadDirty (
       id: string,
     ): Promise<void> {
-      log.verbose('PuppetTagMixin', 'tagPayloadDirty(%s)', id)
+      this.log.verbose('PuppetTagMixin', 'tagPayloadDirty(%s)', id)
       await this.__dirtyPayloadAwait(
         DirtyType.Tag,
         id,
@@ -108,7 +107,7 @@ const tagMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBas
     async tagGroupPayloadDirty (
       id: string,
     ): Promise<void> {
-      log.verbose('PuppetTagMixin', 'tagGroupPayloadDirty(%s)', id)
+      this.log.verbose('PuppetTagMixin', 'tagGroupPayloadDirty(%s)', id)
       await this.__dirtyPayloadAwait(
         DirtyType.TagGroup,
         id,

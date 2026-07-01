@@ -1,7 +1,3 @@
-import {
-  log,
-}                       from '../config.js'
-
 import type {
   TapPayload,
   TapQueryFilter,
@@ -22,7 +18,7 @@ const tapMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMix
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('TapMixin', 'constructor()')
+      this.log.verbose('TapMixin', 'constructor()')
     }
 
     /**

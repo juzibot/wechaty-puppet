@@ -1,7 +1,3 @@
-import {
-  log,
-}           from '../config.js'
-
 import type { PuppetScanListener }  from '../puppet/events.js'
 import type { PuppetSkeleton }      from '../puppet/puppet-skeleton.js'
 import { ScanStatus }               from '../schemas/event.js'
@@ -19,7 +15,7 @@ const loginMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
      * The current logged in user id.
      */
     get currentUserId (): string {
-      log.silly('PuppetLoginMixin', 'get currentUserId()')
+      this.log.silly('PuppetLoginMixin', 'get currentUserId()')
 
       if (!this.__currentUserId) {
         throw new Error('not logged in, no this.__currentUserId yet.')
@@ -42,11 +38,11 @@ const loginMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('PuppetLoginMixin', 'constructor()')
+      this.log.verbose('PuppetLoginMixin', 'constructor()')
     }
 
     override async start (): Promise<void> {
-      log.verbose('PuppetLoginMixin', 'start()')
+      this.log.verbose('PuppetLoginMixin', 'start()')
 
       const cleanAuthQrCode = () => {
         this.__authQrCode = undefined
@@ -82,14 +78,14 @@ const loginMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
      * ref: https://github.com/wechaty/puppet/issues/184
      */
     override async stop (): Promise<void> {
-      log.info('PuppetLoginMixin', 'stop()')
+      this.log.info('PuppetLoginMixin', 'stop()')
       // await this.logout()
       if (this.isLoggedIn) {
         this.emit('logout', {
           contactId: this.currentUserId,
           data: 'puppet stop()',
         })
-        log.info('PuppetLoginMixin', 'logout event emitted')
+        this.log.info('PuppetLoginMixin', 'logout event emitted')
       }
 
       await new Promise<void>(resolve => setImmediate(() => {
@@ -106,7 +102,7 @@ const loginMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
      * @internal for puppet internal usage
      */
     login (userId: string): void {
-      log.info('PuppetLoginMixin', 'login(%s)', userId)
+      this.log.info('PuppetLoginMixin', 'login(%s)', userId)
 
       if (this.__currentUserId) {
         throw new Error('must logout first before login again!')
@@ -123,10 +119,10 @@ const loginMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
      * Note: must set `this.currentUserId = undefined` in this function.
      */
     async logout (reason = 'logout()'): Promise<void> {
-      log.info('PuppetLoginMixin', 'logout(%s)', reason)
+      this.log.info('PuppetLoginMixin', 'logout(%s)', reason)
 
       if (!this.isLoggedIn) {
-        log.info('PuppetLoginMixin', 'logout() isLoggedIn === false, do nothing')
+        this.log.info('PuppetLoginMixin', 'logout() isLoggedIn === false, do nothing')
         return
       }
 
@@ -149,7 +145,7 @@ const loginMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
      * @deprecated use `currentUserId` instead. (will be removed in v2.0)
      */
     selfId (): string {
-      log.warn('PuppetLoginMixin',
+      this.log.warn('PuppetLoginMixin',
         'selfId() is deprecated, use `currentUserId` instead:\n%s',
         new Error().stack,
       )
@@ -160,7 +156,7 @@ const loginMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
      * @deprecated use isLoggedIn instead. will be removed in v2.0
      */
     logonoff (): boolean {
-      log.warn('PuppetLoginMixin',
+      this.log.warn('PuppetLoginMixin',
         'logonoff() is deprecated, use `isLoggedIn` instead:\n%s',
         new Error().stack,
       )

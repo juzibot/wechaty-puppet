@@ -1,8 +1,4 @@
 import type { FileBoxInterface } from 'file-box'
-import {
-  log,
-} from '../config.js'
-
 import type { PuppetSkeleton } from '../puppet/mod.js'
 import type { PostPayload } from '../schemas/mod.js'
 import type { PostMixin } from './post-mixin.js'
@@ -13,7 +9,7 @@ const momentMixin = <MixinBase extends typeof PuppetSkeleton & PostMixin>(mixinB
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('PuppetMomentMixin', 'constructor()')
+      this.log.verbose('PuppetMomentMixin', 'constructor()')
     }
 
     // alias for postPublish (feel like it should be part of moment mixin)

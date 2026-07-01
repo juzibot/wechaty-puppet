@@ -2,9 +2,6 @@ import type {
   FileBoxInterface,
 }                       from 'file-box'
 
-import {
-  log,
-}                       from '../config.js'
 import type {
   RoomPayload,
   RoomPayloadFilterFunction,
@@ -24,7 +21,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('PuppetRoomMixin', 'constructor()')
+      this.log.verbose('PuppetRoomMixin', 'constructor()')
     }
 
     /**
@@ -115,7 +112,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
     async roomSearch (
       query?: RoomQueryFilter,
     ): Promise<string[] /* Room Id List */> {
-      log.verbose('PuppetRoomMixin', 'roomSearch(%s)', query ? JSON.stringify(query) : '')
+      this.log.verbose('PuppetRoomMixin', 'roomSearch(%s)', query ? JSON.stringify(query) : '')
 
       /**
        * Huan(202110): optimize for search id
@@ -126,7 +123,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
           await this.roomPayload(query.id)
           return [ query.id ]
         } catch (e) {
-          log.verbose('PuppetRoomMixin', 'roomSearch() payload not found for id "%s"', query.id)
+          this.log.verbose('PuppetRoomMixin', 'roomSearch() payload not found for id "%s"', query.id)
           await this.roomPayloadDirty(query.id)
           return []
         }
@@ -136,7 +133,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
        * Deal with non-id queries
        */
       const allRoomIdList: string[] = await this.roomList()
-      log.silly('PuppetRoomMixin', 'roomSearch() allRoomIdList.length=%d', allRoomIdList.length)
+      this.log.silly('PuppetRoomMixin', 'roomSearch() allRoomIdList.length=%d', allRoomIdList.length)
 
       if (!query || Object.keys(query).length <= 0) {
         return allRoomIdList
@@ -164,7 +161,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
               try {
                 return await this.roomPayload(id)
               } catch (e) {
-                // log.silly('PuppetRoomMixin', 'roomSearch() roomPayload exception: %s', (e as Error).message)
+                // this.log.silly('PuppetRoomMixin', 'roomSearch() roomPayload exception: %s', (e as Error).message)
                 this.emit('error', e)
 
                 // Remove invalid room id from cache to avoid getting invalid room payload again
@@ -190,7 +187,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
         .filter(filterFunction)
         .map(payload => payload.id)
 
-      log.silly('PuppetRoomMixin', 'roomSearch() roomIdList filtered. result length=%d', roomIdList.length)
+      this.log.silly('PuppetRoomMixin', 'roomSearch() roomIdList filtered. result length=%d', roomIdList.length)
 
       return roomIdList
     }
@@ -203,7 +200,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
     roomQueryFilterFactory (
       query: RoomQueryFilter,
     ): RoomPayloadFilterFunction {
-      log.verbose('PuppetRoomMixin', 'roomQueryFilterFactory(%s)',
+      this.log.verbose('PuppetRoomMixin', 'roomQueryFilterFactory(%s)',
         JSON.stringify(query),
       )
 
@@ -246,7 +243,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
       *  For example: talk to the server, and see if it should be deleted in the local cache.
       */
     async roomValidate (roomId: string): Promise<boolean> {
-      log.silly('PuppetRoomMixin', 'roomValidate(%s) base class just return `true`', roomId)
+      this.log.silly('PuppetRoomMixin', 'roomValidate(%s) base class just return `true`', roomId)
       return true
     }
 
@@ -256,15 +253,15 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
      * @protected
      */
     roomPayloadCache (roomId: string): undefined | RoomPayload {
-      // log.silly('PuppetRoomMixin', 'roomPayloadCache(id=%s) @ %s', roomId, this)
+      // this.log.silly('PuppetRoomMixin', 'roomPayloadCache(id=%s) @ %s', roomId, this)
       if (!roomId) {
         throw new Error('no id')
       }
       const cachedPayload = this.cache.room?.get(roomId)
       if (cachedPayload) {
-        // log.silly('PuppetRoomMixin', 'roomPayloadCache(%s) cache HIT', roomId)
+        // this.log.silly('PuppetRoomMixin', 'roomPayloadCache(%s) cache HIT', roomId)
       } else {
-        log.silly('PuppetRoomMixin', 'roomPayloadCache(%s) cache MISS', roomId)
+        this.log.silly('PuppetRoomMixin', 'roomPayloadCache(%s) cache MISS', roomId)
       }
 
       return cachedPayload
@@ -273,7 +270,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
     async roomPayload (
       roomId: string,
     ): Promise<RoomPayload> {
-      log.verbose('PuppetRoomMixin', 'roomPayload(%s)', roomId)
+      this.log.verbose('PuppetRoomMixin', 'roomPayload(%s)', roomId)
 
       if (!roomId) {
         throw new Error('no id')
@@ -295,7 +292,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
 
       if (!this.cache.disabled) {
         this.cache.room?.set(roomId, payload)
-        log.silly('PuppetRoomMixin', 'roomPayload(%s) cache SET', roomId)
+        this.log.silly('PuppetRoomMixin', 'roomPayload(%s) cache SET', roomId)
       }
 
       return payload
@@ -304,7 +301,7 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
     async roomPayloadDirty (
       id: string,
     ): Promise<void> {
-      log.verbose('PuppetRoomMixin', 'roomPayloadDirty(%s)', id)
+      this.log.verbose('PuppetRoomMixin', 'roomPayloadDirty(%s)', id)
 
       await this.__dirtyPayloadAwait(
         DirtyType.Room,

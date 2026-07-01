@@ -1,6 +1,3 @@
-import {
-  log,
-}                       from '../config.js'
 import type {
   FriendshipAddOptions,
   FriendshipPayload,
@@ -19,7 +16,7 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('PuppetFriendshipMixin', 'constructor()')
+      this.log.verbose('PuppetFriendshipMixin', 'constructor()')
     }
 
     /**
@@ -38,7 +35,7 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
      * @deprecated use `friendshipSearchHandle()` instead.
      */
     friendshipSearchWeixin (weixin: string) : Promise<null | string> {
-      log.warn('Puppet', 'friendshipSearchWeixin() is deprecated. use `friendshipSearchHandle()` instead.')
+      this.log.warn('Puppet', 'friendshipSearchWeixin() is deprecated. use `friendshipSearchHandle()` instead.')
       // console.error(new Error().stack)
       return this.friendshipSearchHandle(weixin)
     }
@@ -61,7 +58,7 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
       searchQueryFilter: FriendshipSearchQueryFilter,
       type?: ContactType,
     ): Promise<string | null> {
-      log.verbose('PuppetFriendshipMixin', 'friendshipSearch("%s")', JSON.stringify(searchQueryFilter))
+      this.log.verbose('PuppetFriendshipMixin', 'friendshipSearch("%s")', JSON.stringify(searchQueryFilter))
 
       if (Object.keys(searchQueryFilter).length !== 1) {
         throw new Error('searchQueryFilter should only include one key for query!')
@@ -74,7 +71,7 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
          * Huan(202203): `weixin` will be removed in Puppet v2.0
          * @deprecate use `handle` instead
          */
-        log.warn('Puppet', 'friendshipSearch() `{ weixin: ... }` is deprecated. use `{ handle: ... }` instead.')
+        this.log.warn('Puppet', 'friendshipSearch() `{ weixin: ... }` is deprecated. use `{ handle: ... }` instead.')
         console.error(new Error().stack)
         return this.friendshipSearchHandle(searchQueryFilter.weixin, type)
       } else if (searchQueryFilter.handle) {
@@ -90,7 +87,7 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
      * @protected
      */
     friendshipPayloadCache (friendshipId: string): undefined | FriendshipPayload {
-      log.silly('PuppetFriendshipMixin', 'friendshipPayloadCache(id=%s) @ %s', friendshipId, this)
+      this.log.silly('PuppetFriendshipMixin', 'friendshipPayloadCache(id=%s) @ %s', friendshipId, this)
 
       if (!friendshipId) {
         throw new Error('no id')
@@ -98,9 +95,9 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
       const cachedPayload = this.cache.friendship?.get(friendshipId)
 
       if (cachedPayload) {
-        // log.silly('PuppetFriendshipMixin', 'friendshipPayloadCache(%s) cache HIT', friendshipId)
+        // this.log.silly('PuppetFriendshipMixin', 'friendshipPayloadCache(%s) cache HIT', friendshipId)
       } else {
-        log.silly('PuppetFriendshipMixin', 'friendshipPayloadCache(%s) cache MISS', friendshipId)
+        this.log.silly('PuppetFriendshipMixin', 'friendshipPayloadCache(%s) cache MISS', friendshipId)
       }
 
       return cachedPayload
@@ -116,7 +113,7 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
       friendshipId : string,
       newPayload?  : FriendshipPayload,
     ): Promise<void | FriendshipPayload> {
-      log.verbose('PuppetFriendshipMixin', 'friendshipPayload(%s)',
+      this.log.verbose('PuppetFriendshipMixin', 'friendshipPayload(%s)',
         friendshipId,
         newPayload
           ? ',' + JSON.stringify(newPayload)
@@ -152,7 +149,7 @@ const friendshipMixin = <MixinBase extends typeof PuppetSkeleton & CacheMixin>(m
     async friendshipPayloadDirty (
       id: string,
     ): Promise<void> {
-      log.verbose('PuppetFriendshipMixin', 'friendshipPayloadDirty(%s)', id)
+      this.log.verbose('PuppetFriendshipMixin', 'friendshipPayloadDirty(%s)', id)
 
       await this.__dirtyPayloadAwait(
         DirtyType.Friendship,

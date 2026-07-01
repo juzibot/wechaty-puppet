@@ -3,10 +3,6 @@ import {
   FileBox,
 }                     from 'file-box'
 
-import {
-  log,
-}                       from '../config.js'
-
 import type {
   ImageType,
 }                                 from '../schemas/image.js'
@@ -72,7 +68,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('PuppetMessageMixin', 'constructor()')
+      this.log.verbose('PuppetMessageMixin', 'constructor()')
     }
 
     /**
@@ -192,15 +188,15 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
      * @protected
      */
     messagePayloadCache (messageId: string): undefined | MessagePayload {
-      // log.silly('PuppetMessageMixin', 'messagePayloadCache(id=%s) @ %s', messageId, this)
+      // this.log.silly('PuppetMessageMixin', 'messagePayloadCache(id=%s) @ %s', messageId, this)
       if (!messageId) {
         throw new Error('no id')
       }
       const cachedPayload = this.cache.message?.get(messageId)
       if (cachedPayload) {
-        // log.silly('PuppetMessageMixin', 'messagePayloadCache(%s) cache HIT', messageId)
+        // this.log.silly('PuppetMessageMixin', 'messagePayloadCache(%s) cache HIT', messageId)
       } else {
-        log.silly('PuppetMessageMixin', 'messagePayloadCache(%s) cache MISS', messageId)
+        this.log.silly('PuppetMessageMixin', 'messagePayloadCache(%s) cache MISS', messageId)
       }
 
       return cachedPayload
@@ -209,7 +205,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     async messagePayload (
       messageId: string,
     ): Promise<MessagePayload> {
-      log.verbose('PuppetMessageMixin', 'messagePayload(%s)', messageId)
+      this.log.verbose('PuppetMessageMixin', 'messagePayload(%s)', messageId)
 
       if (!messageId) {
         throw new Error('no id')
@@ -231,14 +227,14 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
 
       if (!this.cache.disabled) {
         this.cache.message?.set(messageId, payload)
-        log.silly('PuppetMessageMixin', 'messagePayload(%s) cache SET', messageId)
+        this.log.silly('PuppetMessageMixin', 'messagePayload(%s) cache SET', messageId)
       }
 
       return payload
     }
 
     messageList (): string[] {
-      log.verbose('PuppetMessageMixin', 'messageList()')
+      this.log.verbose('PuppetMessageMixin', 'messageList()')
       /**
        * cache.disabled is set synchronously in the CacheAgent constructor,
        * but the LRU instances are only created in the async cache.start().
@@ -254,7 +250,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     async messageSearch (
       query?: MessageQueryFilter,
     ): Promise<string[] /* Message Id List */> {
-      log.verbose('PuppetMessageMixin', 'messageSearch(%s)', JSON.stringify(query))
+      this.log.verbose('PuppetMessageMixin', 'messageSearch(%s)', JSON.stringify(query))
 
       /**
        * Huan(202110): optimize for search id
@@ -265,7 +261,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
           await this.messagePayload(query.id)
           return [ query.id ]
         } catch (e) {
-          log.verbose('PuppetMessageMixin', 'messageSearch() payload not found for id "%s"', query.id)
+          this.log.verbose('PuppetMessageMixin', 'messageSearch() payload not found for id "%s"', query.id)
           return []
         }
       }
@@ -274,7 +270,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
        * Deal with non-id queries
        */
       const allMessageIdList: string[] = this.messageList()
-      log.silly('PuppetMessageMixin', 'messageSearch() allMessageIdList.length=%d', allMessageIdList.length)
+      this.log.silly('PuppetMessageMixin', 'messageSearch() allMessageIdList.length=%d', allMessageIdList.length)
 
       if (!query || Object.keys(query).length <= 0) {
         return allMessageIdList
@@ -292,7 +288,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
         .filter(filterFunction)
         .map(payload => payload.id)
 
-      log.silly('PuppetMessageMixin', 'messageSearch() messageIdList filtered. result length=%d', messageIdList.length)
+      this.log.silly('PuppetMessageMixin', 'messageSearch() messageIdList filtered. result length=%d', messageIdList.length)
 
       return messageIdList
     }
@@ -306,7 +302,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     messageQueryFilterFactory (
       query: MessageQueryFilter,
     ): MessagePayloadFilterFunction {
-      log.verbose('PuppetMessageMixin', 'messageQueryFilterFactory(%s)',
+      this.log.verbose('PuppetMessageMixin', 'messageQueryFilterFactory(%s)',
         JSON.stringify(query),
       )
 
@@ -344,7 +340,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     async messagePayloadDirty (
       id: string,
     ): Promise<void> {
-      log.verbose('PuppetMessageMixin', 'messagePayloadDirty(%s)', id)
+      this.log.verbose('PuppetMessageMixin', 'messagePayloadDirty(%s)', id)
 
       await this.__dirtyPayloadAwait(
         DirtyType.Message,
@@ -363,7 +359,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
       conversationId: string,
       sayable: SayablePayload,
     ): Promise<void | string> {
-      log.verbose('PuppetMessageMixin', 'messageSend(%s, {type:%s})', conversationId, sayable.type)
+      this.log.verbose('PuppetMessageMixin', 'messageSend(%s, {type:%s})', conversationId, sayable.type)
 
       switch (sayable.type) {
         case sayableTypes.Attachment:

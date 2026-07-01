@@ -1,9 +1,5 @@
 import { BooleanIndicator } from 'state-switch'
 
-import {
-  log,
-} from '../config.js'
-
 import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
 
 const readyMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBase) => {
@@ -14,13 +10,13 @@ const readyMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('ReadyMixin', 'constructor()')
+      this.log.verbose('ReadyMixin', 'constructor()')
 
       this.readyIndicator = new BooleanIndicator()
     }
 
     override async start (): Promise<void> {
-      log.verbose('ReadyMixin', 'start()')
+      this.log.verbose('ReadyMixin', 'start()')
       await super.start()
 
       this.on('ready', () => {
@@ -37,7 +33,7 @@ const readyMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBas
     }
 
     override async stop (): Promise<void> {
-      log.verbose('ReadyMixin', 'stop()')
+      this.log.verbose('ReadyMixin', 'stop()')
       this.readyIndicator.value(false)
 
       /**

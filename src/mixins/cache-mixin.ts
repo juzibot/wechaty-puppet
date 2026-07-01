@@ -2,7 +2,7 @@ import {
   timeoutPromise,
 }                           from 'gerror'
 
-import { STRING_SPLITTER, log }  from '../config.js'
+import { STRING_SPLITTER }  from '../config.js'
 
 import type {
   PuppetOptions,
@@ -34,7 +34,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('PuppetCacheMixin', 'constructor(%s)',
+      this.log.verbose('PuppetCacheMixin', 'constructor(%s)',
         args[0]?.cache
           ? '{ cache: ' + JSON.stringify(args[0].cache) + ' }'
           : '',
@@ -47,24 +47,24 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
     }
 
     override async start (): Promise<void> {
-      log.verbose('PuppetCacheMixin', 'start()')
+      this.log.verbose('PuppetCacheMixin', 'start()')
       await super.start()
       await this.cache.start()
 
       const onDirty = this.onDirty.bind(this)
 
       this.on('dirty', onDirty)
-      log.verbose('PuppetCacheMixin', 'start() "dirty" event listener added')
+      this.log.verbose('PuppetCacheMixin', 'start() "dirty" event listener added')
 
       const cleanFn = () => {
         this.off('dirty', onDirty)
-        log.verbose('PuppetCacheMixin', 'start() "dirty" event listener removed')
+        this.log.verbose('PuppetCacheMixin', 'start() "dirty" event listener removed')
       }
       this.__cacheMixinCleanCallbackList.push(cleanFn)
     }
 
     override async stop (): Promise<void> {
-      log.verbose('PuppetCacheMixin', 'stop()')
+      this.log.verbose('PuppetCacheMixin', 'stop()')
       this.cache.stop()
 
       this.__cacheMixinCleanCallbackList.map(setImmediate)
@@ -85,7 +85,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       type : DirtyType,
       id   : string,
     ): void {
-      log.verbose('PuppetCacheMixin', 'dirtyPayload(%s<%s>, %s)', DirtyType[type], type, id)
+      this.log.verbose('PuppetCacheMixin', 'dirtyPayload(%s<%s>, %s)', DirtyType[type], type, id)
 
       /**
        * Huan(202111): we return first before emit the `dirty` event?
@@ -112,7 +112,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
         payloadId,
       }: EventDirtyPayload,
     ): void {
-      log.verbose('PuppetCacheMixin', 'onDirty(%s<%s>, %s)', DirtyType[payloadType], payloadType, payloadId)
+      this.log.verbose('PuppetCacheMixin', 'onDirty(%s<%s>, %s)', DirtyType[payloadType], payloadType, payloadId)
       if (this.cache.disabled) {
         return
       }
@@ -140,14 +140,14 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
 
       const dirtyFunc = dirtyFuncMap[payloadType]
       if (!dirtyFunc) {
-        log.warn('PuppetCacheMixin', 'onDirty() unsupported payloadType=%s(%s), id=%s; ignored',
+        this.log.warn('PuppetCacheMixin', 'onDirty() unsupported payloadType=%s(%s), id=%s; ignored',
           DirtyType[payloadType], payloadType, payloadId)
         return
       }
       try {
         dirtyFunc(payloadId)
       } catch (e) {
-        log.warn('PuppetCacheMixin', 'onDirty() handler threw for payloadType=%s, id=%s: %s',
+        this.log.warn('PuppetCacheMixin', 'onDirty() handler threw for payloadType=%s, id=%s: %s',
           DirtyType[payloadType], payloadId, (e as Error).message)
       }
     }
@@ -160,10 +160,10 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       type : DirtyType,
       id   : string,
     ): Promise<void> {
-      log.verbose('PuppetCacheMixin', '__dirtyPayloadAwait(%s<%s>, %s)', DirtyType[type], type, id)
+      this.log.verbose('PuppetCacheMixin', '__dirtyPayloadAwait(%s<%s>, %s)', DirtyType[type], type, id)
 
       if (!this.__currentUserId) {
-        log.verbose('PuppetCacheMixin', '__dirtyPayloadAwait() will not dirty any payload when the puppet is not logged in')
+        this.log.verbose('PuppetCacheMixin', '__dirtyPayloadAwait() will not dirty any payload when the puppet is not logged in')
         return
       }
 
@@ -200,7 +200,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       const dirtyResult = this.dirtyPayload(type, id) as void | Promise<void>
       if (dirtyResult && typeof (dirtyResult as Promise<void>).then === 'function') {
         ;(dirtyResult as Promise<void>).catch(e => {
-          log.warn('PuppetCacheMixin',
+          this.log.warn('PuppetCacheMixin',
             '__dirtyPayloadAwait() dirtyPayload(%s<%s>, %s) rejected: %s',
             DirtyType[type], type, id, (e as Error).message,
           )
@@ -217,9 +217,9 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       } catch (e) {
         // timeout, log warning & ignore it
 
-        log.warn('PuppetCacheMixin', '__dirtyPayloadAwait() timeout, probably because the server is using wechaty 0')
+        this.log.warn('PuppetCacheMixin', '__dirtyPayloadAwait() timeout, probably because the server is using wechaty 0')
 
-        // log.warn('PuppetCacheMixin',
+        // this.log.warn('PuppetCacheMixin',
         //   [
         //     '__dirtyPayloadAwait() timeout.',
         //     'The `dirty` event should be received but no one found.',
