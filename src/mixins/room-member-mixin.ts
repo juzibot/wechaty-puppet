@@ -51,6 +51,21 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
       for (const [ contactId, rawPayload ] of rawPayloadMap.entries()) {
         payloadMap.set(contactId, await this.roomMemberRawPayloadParser(rawPayload))
       }
+      /**
+       * Merge the fetched members into `cache.roomMember[roomId]`
+       * against the LATEST snapshot -- same shape rule as the per-id
+       * `roomMemberPayload` fix from PR #99: concurrent writers must
+       * not clobber each other, and we must not blow away a member the
+       * batch call didn't fetch.
+       */
+      if (!this.cache.disabled && this.cache.roomMember && payloadMap.size > 0) {
+        const latest = this.cache.roomMember.get(roomId)
+        const merged: { [memberContactId: string]: RoomMemberPayload } = { ...latest }
+        for (const [ contactId, payload ] of payloadMap.entries()) {
+          merged[contactId] = payload
+        }
+        this.cache.roomMember.set(roomId, merged)
+      }
       return payloadMap
     }
 

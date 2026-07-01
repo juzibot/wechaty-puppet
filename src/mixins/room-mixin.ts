@@ -83,9 +83,9 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
     /**
      * Batch fetch room payloads.
      *
-     * NOTE: bypasses `roomPayloadCache` and does not populate `this.cache.room`.
-     * Callers needing cache must call `roomPayload(id)` individually.
-     * (Same behavior as `batchContactPayload` in contact-mixin.)
+     * Populates `this.cache.room` with every fetched entry so the next
+     * per-id `roomPayload(id)` hits the cache instead of firing a fresh
+     * raw fetch. Same semantics as `batchContactPayload`.
      */
     async batchRoomPayload (roomIds: string[]): Promise<Map<string, RoomPayload>> {
       let rawPayloadMap: Map<string, any>
@@ -100,6 +100,11 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
       const payloadMap = new Map<string, RoomPayload>()
       for (const [ roomId, rawPayload ] of rawPayloadMap.entries()) {
         payloadMap.set(roomId, await this.roomRawPayloadParser(rawPayload))
+      }
+      if (!this.cache.disabled) {
+        for (const [ roomId, payload ] of payloadMap.entries()) {
+          this.cache.room?.set(roomId, payload)
+        }
       }
       return payloadMap
     }

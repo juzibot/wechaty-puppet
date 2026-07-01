@@ -111,6 +111,17 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
       for (const [ contactId, rawPayload ] of rawPayloadMap.entries()) {
         payloadMap.set(contactId, await this.contactRawPayloadParser(rawPayload))
       }
+      /**
+       * Populate the LRU with everything we just fetched, so the next
+       * per-id `contactPayload(id)` hits the cache instead of firing a
+       * fresh raw fetch. The `disabled` guard mirrors the per-id
+       * getter.
+       */
+      if (!this.cache.disabled) {
+        for (const [ contactId, payload ] of payloadMap.entries()) {
+          this.cache.contact?.set(contactId, payload)
+        }
+      }
       return payloadMap
     }
 
