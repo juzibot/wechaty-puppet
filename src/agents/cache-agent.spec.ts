@@ -93,3 +93,51 @@ test('CacheAgent __inflight: two callers get the same Promise for one key', asyn
   resolveIt('done')
   t.equal(await a, 'done', 'promise resolves once for both callers')
 })
+
+/**
+ * Regression: `__gen` is only cleared at `stop()`. On a long-lived
+ * puppet (production dispatchers routinely stay up for weeks) the map
+ * grows by one entry per distinct (type, id) touched by a dirtyPayload
+ * -- millions of contacts / messages accumulate without any bound.
+ *
+ * The fix: `CacheMixin.onDirty` prunes the gen slot after the LRU
+ * handler runs via a `CacheAgent.genDelete(type, id)` helper. Here
+ * we exercise the helper directly against the agent.
+ *
+ * NB: the assertions read the private `__gen` map via `as any`. The
+ * agent gains a public `__genSize()` observer in the follow-up fix
+ * commit; this test commit deliberately relies on the internal shape
+ * so it lands "red" and turns green once the fix arrives.
+ */
+test('CacheAgent genDelete: prunes a single (type, id) slot', async t => {
+  const cache = new CacheAgent()
+  await cache.start()
+
+  cache.bumpGen(DirtyType.Contact, 'gc-1')
+  cache.bumpGen(DirtyType.Contact, 'gc-2')
+  t.equal((cache as any).__gen.size, 2, 'two bumps -> two slots')
+
+  ;(cache as any).genDelete(DirtyType.Contact, 'gc-1')
+  t.equal((cache as any).__gen.size, 1, 'genDelete drops exactly one slot')
+
+  t.equal(cache.snapshotGen(DirtyType.Contact, 'gc-1'), 0,
+    'a fresh snapshot after prune reads as 0 (semantically the same as never-bumped)')
+  t.equal(
+    cache.isFreshWrite(DirtyType.Contact, 'gc-1', 0),
+    true,
+    'pruning does not cause spurious staleness for a new snapshot',
+  )
+})
+
+test('CacheAgent genDelete: idempotent + missing key is a no-op', async t => {
+  const cache = new CacheAgent()
+  await cache.start()
+
+  ;(cache as any).genDelete(DirtyType.Contact, 'never-bumped')
+  t.equal((cache as any).__gen.size, 0, 'delete on a missing key does not throw or grow the map')
+
+  cache.bumpGen(DirtyType.Message, 'mid')
+  ;(cache as any).genDelete(DirtyType.Message, 'mid')
+  ;(cache as any).genDelete(DirtyType.Message, 'mid')
+  t.equal((cache as any).__gen.size, 0, 'delete is idempotent')
+})

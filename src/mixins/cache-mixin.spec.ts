@@ -168,3 +168,36 @@ test('__dirtyPayloadAwait must handle rejection from an overridden async dirtyPa
 
   await puppet.stop()
 })
+
+/**
+ * Regression: `__gen` starts as a `Map<string, number>` that only ever
+ * gains entries -- `bumpGen` on every `dirtyPayload` call, never a
+ * `delete` outside of `stop()`. On a long-lived puppet dispatcher this
+ * quietly leaks memory proportional to the number of distinct
+ * (type, id) pairs ever dirtied.
+ *
+ * Once `onDirty` has run for a given (type, id), no in-flight snapshot
+ * still cares about the pre-bump counter, so the slot can be pruned.
+ * Verify the mixin plumbs `cache.genDelete` from the finally block.
+ *
+ * NB: reads the private `__gen` map via `as any` for the same reason
+ * as the CacheAgent spec -- the observer helper lands in the fix
+ * commit, but the assertion still describes the target behavior.
+ */
+test('onDirty prunes the __gen slot after handling', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  // Bump a couple of slots via the public API.
+  puppet.dirtyPayload(DirtyType.Contact, 'gen-a')
+  puppet.dirtyPayload(DirtyType.Contact, 'gen-b')
+
+  // Let the setImmediate-scheduled emit + onDirty run.
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setImmediate(resolve))
+
+  t.equal((puppet.cache as any).__gen.size, 0,
+    '__gen must be pruned to 0 after onDirty processes both dirtied ids')
+
+  await puppet.stop()
+})
