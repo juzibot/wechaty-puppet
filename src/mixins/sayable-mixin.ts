@@ -1,5 +1,3 @@
-import { log } from '../config.js'
-
 import type { PuppetSkeleton }    from '../puppet/puppet-skeleton.js'
 import {
   MessageType,
@@ -18,13 +16,13 @@ const sayableMixin = <MixinBase extends typeof PuppetSkeleton & MessageMixin & P
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('PuppetSayableMixin', 'constructor()')
+      this.log.verbose('PuppetSayableMixin', 'constructor()')
     }
 
     async sayablePayload (
       sayableId: string,
     ): Promise<undefined | SayablePayload> {
-      log.verbose('PuppetMessageMixin', 'sayablePayload(%s)', sayableId)
+      this.log.verbose('PuppetMessageMixin', 'sayablePayload(%s)', sayableId)
 
       const payload = await this.messagePayload(sayableId)
 
@@ -87,7 +85,7 @@ const sayableMixin = <MixinBase extends typeof PuppetSkeleton & MessageMixin & P
           return sayablePayloads.wxxdOrder(orderId)
         }
         default:
-          log.warn('PuppetSayableMixin',
+          this.log.warn('PuppetSayableMixin',
             'sayablePayload() can not convert not re-sayable type: %s(%s) for %s\n%s',
             MessageType[payload.type],
             payload.type,

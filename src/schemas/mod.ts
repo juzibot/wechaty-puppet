@@ -119,6 +119,9 @@ import type {
   PuppetEventName,
   ChatEventName,
 }                         from './puppet.js'
+import type {
+  LoggerLike,
+}                         from './logger.js'
 
 import {
   type ChannelPayload,
@@ -300,6 +303,7 @@ export {
   type PostPayloadClient,
   type PostPayloadServer,
   type PostQueryFilter,
+  type LoggerLike,
   type PuppetEventName,
   type PuppetOptions,
   type RoomInvitationPayload,

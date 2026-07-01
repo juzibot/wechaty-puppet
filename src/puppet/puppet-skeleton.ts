@@ -39,6 +39,9 @@ import type { EventErrorPayload } from '../schemas/event.js'
 import type {
   PuppetOptions,
 }                                 from '../schemas/puppet.js'
+import type {
+  LoggerLike,
+}                                 from '../schemas/logger.js'
 
 import {
   PuppetEventEmitter,
@@ -59,6 +62,16 @@ abstract class PuppetSkeleton extends PuppetEventEmitter {
   readonly options: PuppetOptions
 
   /**
+   * Instance-scoped logger.
+   *
+   * Falls back to the module-level `brolog` singleton when the caller does
+   * not inject one via `PuppetOptions.logger`. All mixins reach this via
+   * `this.log`, which lets a multi-bot host tag every log line with e.g.
+   * a botId while keeping single-bot setups unchanged.
+   */
+  readonly log: LoggerLike
+
+  /**
    * Wrap promise in sync way (catch error by emitting it)
    *  1. convert a async callback function to be sync function
    *    by catcing any errors and emit them to error event
@@ -77,14 +90,20 @@ abstract class PuppetSkeleton extends PuppetEventEmitter {
     ...args: any[]
   ) {
     super()
-    log.verbose('PuppetSkeleton', 'constructor(%s)',
+
+    this.options = args[0] || {}
+    this.log     = this.options.logger ?? log
+
+    this.log.verbose('PuppetSkeleton', 'constructor(%s)',
       args.length
-        ? JSON.stringify(args[0])
+        // Strip `logger` before stringifying: an injected logger is an object
+        // with methods (and potentially circular refs), which would either
+        // serialize as `{}` noise or throw at construction time.
+        ? JSON.stringify(args[0], (key, value) => (key === 'logger' ? undefined : value))
         : '',
     )
 
-    this.id       = UUID.v4()
-    this.options  = args[0] || {}
+    this.id = UUID.v4()
 
     /**
      * We will use RxJS & Redux to handle the state of the puppet
@@ -101,11 +120,11 @@ abstract class PuppetSkeleton extends PuppetEventEmitter {
    *  so that all start()/stop() calls can be chained through all mixins.
    */
   async start (): Promise<void> {
-    log.info('PuppetSkeleton', 'start()')
+    this.log.info('PuppetSkeleton', 'start()')
   }
 
   async stop (): Promise<void> {
-    log.info('PuppetSkeleton', 'stop()')
+    this.log.info('PuppetSkeleton', 'stop()')
   }
 
   /**
@@ -144,7 +163,7 @@ abstract class PuppetSkeleton extends PuppetEventEmitter {
 
 }
 
-type PuppetSkeletonProtectedProperty = never
+type PuppetSkeletonProtectedProperty = 'log'
 
 export type {
   PuppetSkeletonProtectedProperty,

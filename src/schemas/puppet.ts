@@ -1,3 +1,5 @@
+import type { LoggerLike } from './logger.js'
+
 /**
  * This is used internally to as a placeholder for the bot name.
  *
@@ -61,11 +63,14 @@ export type PuppetEventName = keyof typeof PUPPET_EVENT_DICT
 /**
  * endpoint: URL/Path for the puppet underlining system
  * timeout: WatchDog Timeout in Seconds
+ * logger: optional per-instance logger. When omitted the puppet falls back
+ *   to the module-level brolog singleton, so existing setups keep working.
  */
 export interface PuppetOptions {
   endpoint?       : string
   timeoutSeconds? : number
   token?          : string
+  logger?         : LoggerLike
   cache?: {
     disable?        : boolean
     contact?        : number

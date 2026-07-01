@@ -1,5 +1,4 @@
 import {
-  log,
   STRING_SPLITTER,
 }                       from '../config.js'
 
@@ -24,7 +23,7 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('PuppetRoomMemberMixin', 'constructor()')
+      this.log.verbose('PuppetRoomMemberMixin', 'constructor()')
     }
 
     abstract roomMemberList (roomId: string): Promise<string[]>
@@ -147,7 +146,7 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
       roomId : string,
       query  : (symbol | string) | RoomMemberQueryFilter,
     ): Promise<string[]> {
-      log.verbose('PuppetRoomMemberMixin', 'roomMemberSearch(%s, %s)', roomId, JSON.stringify(query))
+      this.log.verbose('PuppetRoomMemberMixin', 'roomMemberSearch(%s, %s)', roomId, JSON.stringify(query))
 
       if (!this.isLoggedIn) {
         throw new Error('no puppet.id. need puppet to be login-ed for a search')
@@ -238,7 +237,7 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
       roomId    : string,
       memberId : string,
     ): Promise<RoomMemberPayload> {
-      log.verbose('PuppetRoomMemberMixin', 'roomMemberPayload(roomId=%s, memberId=%s)',
+      this.log.verbose('PuppetRoomMemberMixin', 'roomMemberPayload(roomId=%s, memberId=%s)',
         roomId,
         memberId,
       )
@@ -285,7 +284,7 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
           ...latest,
           [memberId]: payload,
         })
-        log.silly('PuppetRoomMemberMixin', 'roomMemberPayload(%s) cache SET', roomId)
+        this.log.silly('PuppetRoomMemberMixin', 'roomMemberPayload(%s) cache SET', roomId)
       }
 
       return payload
@@ -294,7 +293,7 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
     async roomMemberPayloadDirty (
       id: string,
     ): Promise<void> {
-      log.verbose('PuppetRoomMemberMixin', 'roomMemberPayloadDirty(%s)', id)
+      this.log.verbose('PuppetRoomMemberMixin', 'roomMemberPayloadDirty(%s)', id)
 
       await this.__dirtyPayloadAwait(
         DirtyType.RoomMember,
@@ -315,7 +314,7 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
       roomId    : string,
       memberId? : string,
     ): Promise<void> {
-      log.verbose('PuppetRoomMemberMixin', 'dirtyRoomMemberPayload(%s, %s)', roomId, memberId)
+      this.log.verbose('PuppetRoomMemberMixin', 'dirtyRoomMemberPayload(%s, %s)', roomId, memberId)
 
       if (!roomId) {
         throw new Error('dirtyRoomMemberPayload: roomId is required')

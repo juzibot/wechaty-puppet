@@ -19,7 +19,6 @@
 import { function as FP } from 'fp-ts'
 
 import {
-  log,
   VERSION,
 }                       from '../config.js'
 
@@ -121,7 +120,7 @@ abstract class Puppet extends MixinBase {
     options: PuppetOptions = {},
   ) {
     super(options)
-    log.verbose('Puppet', 'constructor(%s)', JSON.stringify(options))
+    this.log.verbose('Puppet', 'constructor(%s)', JSON.stringify(options))
   }
 
   /**

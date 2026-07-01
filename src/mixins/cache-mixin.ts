@@ -2,7 +2,7 @@ import {
   timeoutPromise,
 }                           from 'gerror'
 
-import { STRING_SPLITTER, log }  from '../config.js'
+import { STRING_SPLITTER }  from '../config.js'
 
 import type {
   PuppetOptions,
@@ -34,7 +34,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('PuppetCacheMixin', 'constructor(%s)',
+      this.log.verbose('PuppetCacheMixin', 'constructor(%s)',
         args[0]?.cache
           ? '{ cache: ' + JSON.stringify(args[0].cache) + ' }'
           : '',
@@ -47,24 +47,24 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
     }
 
     override async start (): Promise<void> {
-      log.verbose('PuppetCacheMixin', 'start()')
+      this.log.verbose('PuppetCacheMixin', 'start()')
       await super.start()
       await this.cache.start()
 
       const onDirty = this.onDirty.bind(this)
 
       this.on('dirty', onDirty)
-      log.verbose('PuppetCacheMixin', 'start() "dirty" event listener added')
+      this.log.verbose('PuppetCacheMixin', 'start() "dirty" event listener added')
 
       const cleanFn = () => {
         this.off('dirty', onDirty)
-        log.verbose('PuppetCacheMixin', 'start() "dirty" event listener removed')
+        this.log.verbose('PuppetCacheMixin', 'start() "dirty" event listener removed')
       }
       this.__cacheMixinCleanCallbackList.push(cleanFn)
     }
 
     override async stop (): Promise<void> {
-      log.verbose('PuppetCacheMixin', 'stop()')
+      this.log.verbose('PuppetCacheMixin', 'stop()')
       this.cache.stop()
 
       this.__cacheMixinCleanCallbackList.map(setImmediate)
@@ -85,7 +85,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       type : DirtyType,
       id   : string,
     ): void {
-      log.verbose('PuppetCacheMixin', 'dirtyPayload(%s<%s>, %s)', DirtyType[type], type, id)
+      this.log.verbose('PuppetCacheMixin', 'dirtyPayload(%s<%s>, %s)', DirtyType[type], type, id)
 
       /**
        * Contract check for RoomMember ids.
@@ -104,7 +104,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
             `dirtyPayload: malformed RoomMember id "${id}" -- `
             + 'expected bare roomId or roomId+SEP+memberId',
           )
-          log.error('PuppetCacheMixin', err.message)
+          this.log.error('PuppetCacheMixin', err.message)
           /**
            * Best-effort local fallback: the old (pre-contract-check)
            * code path unconditionally dropped `roomMember[id.split(SEP)[0]]`
@@ -155,7 +155,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
         payloadId,
       }: EventDirtyPayload,
     ): void {
-      log.verbose('PuppetCacheMixin', 'onDirty(%s<%s>, %s)', DirtyType[payloadType], payloadType, payloadId)
+      this.log.verbose('PuppetCacheMixin', 'onDirty(%s<%s>, %s)', DirtyType[payloadType], payloadType, payloadId)
       if (this.cache.disabled) {
         return
       }
@@ -169,7 +169,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       try {
         dirtyFunc(payloadId)
       } catch (e) {
-        log.warn('PuppetCacheMixin', 'onDirty() handler threw for payloadType=%s, id=%s: %s',
+        this.log.warn('PuppetCacheMixin', 'onDirty() handler threw for payloadType=%s, id=%s: %s',
           DirtyType[payloadType], payloadId, (e as Error).message)
       }
       /**
@@ -215,7 +215,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
           const err = new Error(
             `dirtyPayload emitted DirtyType.Unspecified<0> (id=${id}); refusing to invalidate`,
           )
-          log.error('PuppetCacheMixin', err.message)
+          this.log.error('PuppetCacheMixin', err.message)
           this.emit('error', err)
         },
         [DirtyType.Contact]:      (id: string) => { this.cache.contact?.delete(id) },
@@ -272,10 +272,10 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       type : DirtyType,
       id   : string,
     ): Promise<void> {
-      log.verbose('PuppetCacheMixin', '__dirtyPayloadAwait(%s<%s>, %s)', DirtyType[type], type, id)
+      this.log.verbose('PuppetCacheMixin', '__dirtyPayloadAwait(%s<%s>, %s)', DirtyType[type], type, id)
 
       if (!this.__currentUserId) {
-        log.verbose('PuppetCacheMixin', '__dirtyPayloadAwait() will not dirty any payload when the puppet is not logged in')
+        this.log.verbose('PuppetCacheMixin', '__dirtyPayloadAwait() will not dirty any payload when the puppet is not logged in')
         return
       }
 
@@ -312,7 +312,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       const dirtyResult = this.dirtyPayload(type, id) as void | Promise<void>
       if (dirtyResult && typeof (dirtyResult as Promise<void>).then === 'function') {
         ;(dirtyResult as Promise<void>).catch(e => {
-          log.warn('PuppetCacheMixin',
+          this.log.warn('PuppetCacheMixin',
             '__dirtyPayloadAwait() dirtyPayload(%s<%s>, %s) rejected: %s',
             DirtyType[type], type, id, (e as Error).message,
           )
@@ -337,7 +337,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
         // Fix: invoke `onDirty` locally with the same event payload so
         // the LRU is at least invalidated, and enrich the warn line
         // with the exact (type, id).
-        log.warn('PuppetCacheMixin',
+        this.log.warn('PuppetCacheMixin',
           '__dirtyPayloadAwait() timeout for %s<%s>, id=%s -- falling back to local LRU delete '
           + '(server likely on wechaty 0 or the dirty echo path is broken): %s',
           DirtyType[type], type, id, (e as Error).message,
@@ -346,7 +346,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
         try {
           this.onDirty({ payloadId: id, payloadType: type })
         } catch (fallbackErr) {
-          log.warn('PuppetCacheMixin',
+          this.log.warn('PuppetCacheMixin',
             '__dirtyPayloadAwait() local fallback onDirty threw: %s',
             (fallbackErr as Error).message,
           )

@@ -1,7 +1,3 @@
-import {
-  log,
-} from '../config.js'
-
 import type { PuppetSkeleton } from '../puppet/mod.js'
 
 const verifyCodeMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinBase) => {
@@ -10,7 +6,7 @@ const verifyCodeMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: Mix
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('PuppetVerifyCodeMixin', 'constructor()')
+      this.log.verbose('PuppetVerifyCodeMixin', 'constructor()')
     }
 
     abstract enterVerifyCode(id: string, code: string): Promise<void>

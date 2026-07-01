@@ -42,6 +42,9 @@ import {
 import type {
   PuppetOptions,
 }                             from '../schemas/puppet.js'
+import type {
+  LoggerLike,
+}                             from '../schemas/logger.js'
 import {
   Puppet,
 }                             from '../puppet/puppet-abstract.js'
@@ -50,6 +53,7 @@ import {
 }                             from '../throw-unsupported-error.js'
 
 export type {
+  LoggerLike,
   PuppetOptions,
 }
 export {

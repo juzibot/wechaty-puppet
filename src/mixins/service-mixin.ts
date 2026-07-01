@@ -24,20 +24,20 @@ const serviceMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: MixinB
       super(...args)
 
       this.__counter = PUPPET_COUNTER++
-      log.verbose('PuppetServiceMixin', 'constructor() #%s', this.__counter)
+      this.log.verbose('PuppetServiceMixin', 'constructor() #%s', this.__counter)
 
       this.__watchdog = new WatchdogAgent(this)
     }
 
     override async start (): Promise<void> {
-      log.verbose('PuppetServiceMixin', 'start()')
+      this.log.verbose('PuppetServiceMixin', 'start()')
       await super.start()
       this.__watchdog.start()
       this.emit('start')
     }
 
     override async stop (): Promise<void> {
-      log.verbose('PuppetServiceMixin', 'stop()')
+      this.log.verbose('PuppetServiceMixin', 'stop()')
       this.__watchdog.stop()
       await super.stop()
       this.emit('stop')

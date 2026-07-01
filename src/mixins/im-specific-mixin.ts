@@ -1,7 +1,3 @@
-import {
-  log,
-} from '../config.js'
-
 import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
 import type { ConsultCardListRequest, ConsultCardListResponse, ContactIdExternalUserIdPair, IntentCommentPayload, PaginationRequest, PaginationResponse, PremiumOnlineAppointmentCardListRequest, PremiumOnlineAppointmentCardListResponse } from '../schemas/mod.js'
 import type { CorpMessageInterceptionStrategy, RoomAntiSpamStrategy } from '../schemas/wecom.js'
@@ -15,7 +11,7 @@ const imSpecificMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: Mix
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('ImSpecificMixin', 'constructor()')
+      this.log.verbose('ImSpecificMixin', 'constructor()')
     }
 
     // Wecom

@@ -1,7 +1,3 @@
-import {
-  log,
-}                       from '../config.js'
-
 import type {
   PostPayload,
   PostQueryFilter,
@@ -24,22 +20,22 @@ const postMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMi
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('PuppetPostMixin', 'constructor()')
+      this.log.verbose('PuppetPostMixin', 'constructor()')
     }
 
     abstract postRawPayload (postId: string)        : Promise<any>
     abstract postRawPayloadParser (rawPayload: any) : Promise<PostPayload>
 
     postPayloadCache (postId: string): undefined | PostPayload {
-      // log.silly('PuppetPostMixin', 'postPayloadCache(id=%s) @ %s', postId, this)
+      // this.log.silly('PuppetPostMixin', 'postPayloadCache(id=%s) @ %s', postId, this)
       if (!postId) {
         throw new Error('no id')
       }
       const cachedPayload = this.cache.post?.get(postId)
       if (cachedPayload) {
-        // log.silly('PuppetPostMixin', 'postPayloadCache(%s) cache HIT', postId)
+        // this.log.silly('PuppetPostMixin', 'postPayloadCache(%s) cache HIT', postId)
       } else {
-        log.silly('PuppetPostMixin', 'postPayloadCache(%s) cache MISS', postId)
+        this.log.silly('PuppetPostMixin', 'postPayloadCache(%s) cache MISS', postId)
       }
 
       return cachedPayload
@@ -48,7 +44,7 @@ const postMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMi
     async postPayload (
       postId: string,
     ): Promise<PostPayload> {
-      log.verbose('PuppetPostMixin', 'postPayload(%s)', postId)
+      this.log.verbose('PuppetPostMixin', 'postPayload(%s)', postId)
 
       if (!postId) {
         throw new Error('no id')
@@ -79,9 +75,9 @@ const postMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMi
 
         if (!this.cache.disabled && this.cache.isFreshWrite(DirtyType.Post, postId, gen)) {
           this.cache.post?.set(postId, payload)
-          log.silly('PuppetPostMixin', 'postPayload(%s) cache SET', postId)
+          this.log.silly('PuppetPostMixin', 'postPayload(%s) cache SET', postId)
         } else if (!this.cache.disabled) {
-          log.silly('PuppetPostMixin',
+          this.log.silly('PuppetPostMixin',
             'postPayload(%s) cache SET skipped: dirty landed during raw fetch', postId)
         }
 
@@ -117,7 +113,7 @@ const postMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMi
      * List from the local, will return all ids from cache
      */
     postList (): string[] {
-      log.verbose('PuppetPostMixin', 'postList()')
+      this.log.verbose('PuppetPostMixin', 'postList()')
       /**
        * cache.disabled is set synchronously in the CacheAgent constructor,
        * but the LRU instances are only created in the async cache.start().
@@ -133,7 +129,7 @@ const postMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMi
     async postPayloadDirty (
       id: string,
     ): Promise<void> {
-      log.verbose('PuppetPostMixin', 'postPayloadDirty(%s)', id)
+      this.log.verbose('PuppetPostMixin', 'postPayloadDirty(%s)', id)
 
       await this.__dirtyPayloadAwait(
         DirtyType.Post,

@@ -1,5 +1,4 @@
 import {
-  log,
   NAME,
   VERSION,
 }                       from '../config.js'
@@ -14,7 +13,7 @@ const miscMixin = <MixinBase extends typeof PuppetSkeleton & MemoryMixin>(mixinB
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('PuppetMiscMixin', 'constructor()')
+      this.log.verbose('PuppetMiscMixin', 'constructor()')
     }
 
     override toString () {

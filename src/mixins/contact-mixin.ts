@@ -1,9 +1,6 @@
 import type {
   FileBoxInterface,
 }                       from 'file-box'
-import {
-  log,
-}                       from '../config.js'
 import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
 
 import type {
@@ -21,7 +18,7 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
 
     constructor (...args: any[]) {
       super(...args)
-      log.verbose('PuppetContactMixin', 'constructor()')
+      this.log.verbose('PuppetContactMixin', 'constructor()')
     }
 
     /**
@@ -77,7 +74,7 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
     // async contactRoomList (
     //   contactId: string,
     // ): Promise<string[] /* roomId */> {
-    //   log.verbose('PuppetContactMixin', 'contactRoomList(%s)', contactId)
+    //   this.log.verbose('PuppetContactMixin', 'contactRoomList(%s)', contactId)
 
     //   const roomIdList = await this.roomList()
     //   const roomPayloadList = await Promise.all(
@@ -165,7 +162,7 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
       query?        : string | ContactQueryFilter,
       searchIdList? : string[],
     ): Promise<string[]> {
-      log.verbose('PuppetContactMixin', 'contactSearch(query=%s, %s)',
+      this.log.verbose('PuppetContactMixin', 'contactSearch(query=%s, %s)',
         JSON.stringify(query),
         searchIdList
           ? `idList.length = ${searchIdList.length}`
@@ -181,7 +178,7 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
           await this.contactPayload(query.id)
           return [ query.id ]
         } catch (e) {
-          log.verbose('PuppetContactMixin', 'contactSearch() payload not found for id "%s"', query.id)
+          this.log.verbose('PuppetContactMixin', 'contactSearch() payload not found for id "%s"', query.id)
           await this.contactPayloadDirty(query.id)
           return []
         }
@@ -194,7 +191,7 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
         searchIdList = await this.contactList()
       }
 
-      log.silly('PuppetContactMixin', 'contactSearch() searchIdList.length = %d', searchIdList.length)
+      this.log.silly('PuppetContactMixin', 'contactSearch() searchIdList.length = %d', searchIdList.length)
 
       if (!query) {
         return searchIdList
@@ -260,7 +257,7 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
         batchIndex++
       }
 
-      log.silly('PuppetContactMixin', 'contactSearch() searchContactPayloadList.length = %d', resultIdList.length)
+      this.log.silly('PuppetContactMixin', 'contactSearch() searchContactPayloadList.length = %d', resultIdList.length)
 
       return resultIdList
     }
@@ -273,7 +270,7 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
     contactQueryFilterFactory (
       query: ContactQueryFilter,
     ): ContactPayloadFilterFunction {
-      log.verbose('PuppetContactMixin', 'contactQueryFilterFactory(%s)',
+      this.log.verbose('PuppetContactMixin', 'contactQueryFilterFactory(%s)',
         JSON.stringify(query),
       )
 
@@ -329,7 +326,7 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
      *  For example: talk to the server, and see if it should be deleted in the local cache.
      */
     async contactValidate (contactId: string) : Promise<boolean> {
-      log.silly('PuppetContactMixin', 'contactValidate(%s) base class just return `true`', contactId)
+      this.log.silly('PuppetContactMixin', 'contactValidate(%s) base class just return `true`', contactId)
       return true
     }
 
@@ -339,16 +336,16 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
      * @protected
      */
     contactPayloadCache (contactId: string): undefined | ContactPayload {
-      // log.silly('PuppetContactMixin', 'contactPayloadCache(id=%s) @ %s', contactId, this)
+      // this.log.silly('PuppetContactMixin', 'contactPayloadCache(id=%s) @ %s', contactId, this)
       if (!contactId) {
         throw new Error('no id')
       }
       const cachedPayload = this.cache.contact?.get(contactId)
 
       if (cachedPayload) {
-        // log.silly('PuppetContactMixin', 'contactPayload(%s) cache HIT', contactId)
+        // this.log.silly('PuppetContactMixin', 'contactPayload(%s) cache HIT', contactId)
       } else {
-        log.silly('PuppetContactMixin', 'contactPayload(%s) cache MISS', contactId)
+        this.log.silly('PuppetContactMixin', 'contactPayload(%s) cache MISS', contactId)
       }
 
       return cachedPayload
@@ -357,7 +354,7 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
     async contactPayload (
       contactId: string,
     ): Promise<ContactPayload> {
-      // log.silly('PuppetContactMixin', 'contactPayload(id=%s) @ %s', contactId, this)
+      // this.log.silly('PuppetContactMixin', 'contactPayload(id=%s) @ %s', contactId, this)
 
       if (!contactId) {
         throw new Error('no id')
@@ -389,9 +386,9 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
 
         if (!this.cache.disabled && this.cache.isFreshWrite(DirtyType.Contact, contactId, gen)) {
           this.cache.contact?.set(contactId, payload)
-          log.silly('PuppetContactMixin', 'contactPayload(%s) cache SET', contactId)
+          this.log.silly('PuppetContactMixin', 'contactPayload(%s) cache SET', contactId)
         } else if (!this.cache.disabled) {
-          log.silly('PuppetContactMixin',
+          this.log.silly('PuppetContactMixin',
             'contactPayload(%s) cache SET skipped: dirty landed during raw fetch', contactId)
         }
 
@@ -405,7 +402,7 @@ const contactMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixi
     async contactPayloadDirty (
       id: string,
     ): Promise<void> {
-      log.verbose('PuppetContactMixin', 'contactPayloadDirty(%s)', id)
+      this.log.verbose('PuppetContactMixin', 'contactPayloadDirty(%s)', id)
 
       await this.__dirtyPayloadAwait(
         DirtyType.Contact,
