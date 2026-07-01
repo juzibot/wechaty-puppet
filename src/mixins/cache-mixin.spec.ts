@@ -107,6 +107,33 @@ test('__dirtyPayloadAwait: 5s timeout falls back to local LRU delete', async t =
   await puppet.stop()
 })
 
+/**
+ * Regression: the dirtyFuncMap started as a hand-maintained
+ * `Partial<Record<DirtyType, ...>>`. It's easy to add a new DirtyType
+ * (RoomMember, Post, Tag, ...) and forget to wire a handler; the
+ * silent Partial then makes the miss invisible.
+ *
+ * The map must cover every DirtyType enum value. Enforce this
+ * structurally so a new DirtyType is a compile-time error unless a
+ * handler is added.
+ */
+test('dirtyFuncMap covers every DirtyType', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  // DirtyType is a numeric enum, so Object.values returns both
+  // numeric and reverse-mapped string entries -- keep only the numbers.
+  const dirtyTypes = Object.values(DirtyType).filter(v => typeof v === 'number') as DirtyType[]
+
+  const map = puppet.__dirtyFuncMap as Record<DirtyType, unknown>
+  for (const type of dirtyTypes) {
+    t.equal(typeof map[type], 'function',
+      `dirtyFuncMap must define a handler for DirtyType.${DirtyType[type]}<${type}>`)
+  }
+
+  await puppet.stop()
+})
+
 test('__dirtyPayloadAwait must handle rejection from an overridden async dirtyPayload', async t => {
   const puppet = new TestPuppet() as any
   await puppet.start()
