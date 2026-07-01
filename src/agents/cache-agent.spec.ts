@@ -95,45 +95,21 @@ test('CacheAgent __inflight: two callers get the same Promise for one key', asyn
 })
 
 /**
- * Regression: `__gen` is only cleared at `stop()`. On a long-lived
- * puppet (production dispatchers routinely stay up for weeks) the map
- * grows by one entry per distinct (type, id) touched by a dirtyPayload
- * -- millions of contacts / messages accumulate without any bound.
- *
- * The fix: `CacheMixin.onDirty` prunes the gen slot after the LRU
- * handler runs via a `CacheAgent.genDelete(type, id)` helper. Here
- * we exercise the helper directly against the agent; `__genSize()`
- * is a test-only observer for the internal map size.
+ * Round-3 removed `CacheAgent.genDelete` after HIGH-A showed the
+ * onDirty finally-prune reopened the first-dirty race (see the
+ * cache-mixin "pin no-prune invariant" spec). `__genSize()` stays
+ * behind as an observer hook for the mixin spec that pins the
+ * no-prune shape.
  */
-test('CacheAgent genDelete: prunes a single (type, id) slot', async t => {
+test('CacheAgent __gen: bumpGen without prune keeps the slot around', async t => {
   const cache = new CacheAgent()
   await cache.start()
 
-  cache.bumpGen(DirtyType.Contact, 'gc-1')
-  cache.bumpGen(DirtyType.Contact, 'gc-2')
-  t.equal(cache.__genSize(), 2, 'two bumps -> two slots')
+  cache.bumpGen(DirtyType.Contact, 'nc-1')
+  cache.bumpGen(DirtyType.Contact, 'nc-2')
 
-  cache.genDelete(DirtyType.Contact, 'gc-1')
-  t.equal(cache.__genSize(), 1, 'genDelete drops exactly one slot')
-
-  t.equal(cache.snapshotGen(DirtyType.Contact, 'gc-1'), 0,
-    'a fresh snapshot after prune reads as 0 (semantically the same as never-bumped)')
-  t.equal(
-    cache.isFreshWrite(DirtyType.Contact, 'gc-1', 0),
-    true,
-    'pruning does not cause spurious staleness for a new snapshot',
-  )
-})
-
-test('CacheAgent genDelete: idempotent + missing key is a no-op', async t => {
-  const cache = new CacheAgent()
-  await cache.start()
-
-  cache.genDelete(DirtyType.Contact, 'never-bumped')
-  t.equal(cache.__genSize(), 0, 'delete on a missing key does not throw or grow the map')
-
-  cache.bumpGen(DirtyType.Message, 'mid')
-  cache.genDelete(DirtyType.Message, 'mid')
-  cache.genDelete(DirtyType.Message, 'mid')
-  t.equal(cache.__genSize(), 0, 'delete is idempotent')
+  t.equal(cache.__genSize(), 2,
+    'both bumped slots survive (there is no post-onDirty prune anymore)')
+  t.equal(cache.snapshotGen(DirtyType.Contact, 'nc-1'), 1,
+    'snapshotGen still reports the bumped value')
 })

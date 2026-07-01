@@ -171,21 +171,32 @@ test('__dirtyPayloadAwait must handle rejection from an overridden async dirtyPa
 })
 
 /**
- * Regression: `__gen` starts as a `Map<string, number>` that only ever
- * gains entries -- `bumpGen` on every `dirtyPayload` call, never a
- * `delete` outside of `stop()`. On a long-lived puppet dispatcher this
- * quietly leaks memory proportional to the number of distinct
- * (type, id) pairs ever dirtied.
+ * Regression: HIGH-A (round-3) -- an earlier revision pruned `__gen`
+ * inside `onDirty`'s `finally` to bound memory growth. That prune
+ * reopened the pre-existing dirty-during-fetch race for the FIRST
+ * dirty a given (type, id) ever sees:
  *
- * Once `onDirty` has run for a given (type, id), no in-flight snapshot
- * still cares about the pre-bump counter, so the slot can be pruned.
- * Verify the mixin plumbs `cache.genDelete` from the finally block.
+ *   Getter A: snap = snapshotGen(Contact, X) = 0   (X not in map yet)
+ *   Server:   bumpGen(Contact, X)          -> map[X]=1
+ *   onDirty:  ...runs LRU delete... finally { genDelete(X) }  -> map[X] gone
+ *   Getter A: fetch resolves; isFreshWrite reads snapshotGen -> 0 (missing)
+ *             0 === 0 -> true  -> stale payload written back into the LRU.
+ *
+ * First-dirty is the common case (onboarding, first-view, first-refresh),
+ * so the prune was a net regression. The fix (round-3) drops the prune
+ * entirely and accepts bounded `__gen` growth against the CRM-scale
+ * contact/room ceiling. Pin the no-prune invariant so a future well-
+ * meaning "bound the map" refactor does not re-open the race.
+ *
+ * We assert on both the (type, id)-specific snapshot AND on `__genSize`:
+ *   - snapshotGen > 0 proves the bump survived, which is what closes the
+ *     race for the in-flight fetch.
+ *   - __genSize > 0 pins the "no unconditional prune from onDirty" shape.
  */
-test('onDirty prunes the __gen slot after handling', async t => {
+test('onDirty must NOT prune __gen (pin no-prune invariant)', async t => {
   const puppet = new TestPuppet() as any
   await puppet.start()
 
-  // Bump a couple of slots via the public API.
   puppet.dirtyPayload(DirtyType.Contact, 'gen-a')
   puppet.dirtyPayload(DirtyType.Contact, 'gen-b')
 
@@ -193,8 +204,12 @@ test('onDirty prunes the __gen slot after handling', async t => {
   await new Promise(resolve => setImmediate(resolve))
   await new Promise(resolve => setImmediate(resolve))
 
-  t.equal(puppet.cache.__genSize(), 0,
-    '__gen must be pruned to 0 after onDirty processes both dirtied ids')
+  t.equal(puppet.cache.snapshotGen(DirtyType.Contact, 'gen-a'), 1,
+    'gen-a bump survives onDirty (any pre-bump snapshot must still see stale)')
+  t.equal(puppet.cache.snapshotGen(DirtyType.Contact, 'gen-b'), 1,
+    'gen-b bump survives onDirty (any pre-bump snapshot must still see stale)')
+  t.ok(puppet.cache.__genSize() >= 2,
+    '__gen retains both slots after onDirty -- no unconditional prune')
 
   await puppet.stop()
 })
