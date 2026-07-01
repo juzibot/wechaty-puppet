@@ -9,7 +9,8 @@ import type {
   ProtectedPropertyMessageMixin,
 }                                   from './message-mixin.js'
 
-import { Puppet } from '../puppet/mod.js'
+import { Puppet }    from '../puppet/mod.js'
+import { DirtyType } from '../schemas/dirty.js'
 
 test('ProtectedPropertyMessageMixin', async t => {
   type NotExistInMixin = Exclude<ProtectedPropertyMessageMixin, keyof InstanceType<MessageMixin>>
@@ -67,5 +68,53 @@ test('messageList() must not throw while cache.start() is pending', async t => {
   t.doesNotThrow(() => puppet.messageList(), 'pending-start call must not throw')
   await startPromise
   t.same(puppet.messageList(), [], 'still empty after start resolves')
+  await puppet.stop()
+})
+
+test('messagePayload: concurrent callers dedup to a single raw fetch', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  let rawCalls = 0
+  puppet.messageRawPayload = async (id: string) => {
+    rawCalls++
+    await new Promise(resolve => setTimeout(resolve, 40))
+    return { id, text: `t-${id}` }
+  }
+  puppet.messageRawPayloadParser = async (raw: any) => raw
+
+  const [ a, b ] = await Promise.all([
+    puppet.messagePayload('m1'),
+    puppet.messagePayload('m1'),
+  ])
+
+  t.equal(rawCalls, 1, 'raw fetcher fires exactly once for 2 concurrent callers')
+  t.equal(a.id, 'm1')
+  t.equal(b.id, 'm1')
+
+  await puppet.stop()
+})
+
+test('messagePayload: dirty during in-flight fetch must not repopulate cache', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  let releaseRaw: () => void = () => {}
+  const rawGate = new Promise<void>(resolve => { releaseRaw = resolve })
+
+  puppet.messageRawPayload = async (id: string) => {
+    await rawGate
+    return { id, text: 'stale' }
+  }
+  puppet.messageRawPayloadParser = async (raw: any) => raw
+
+  const inflight = puppet.messagePayload('m2')
+  puppet.cache.bumpGen(DirtyType.Message, 'm2')
+  releaseRaw()
+  await inflight
+
+  t.equal(puppet.cache.message?.get('m2'), undefined,
+    'LRU must NOT hold the stale payload after dirty-during-fetch')
+
   await puppet.stop()
 })
