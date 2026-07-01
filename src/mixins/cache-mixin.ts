@@ -246,26 +246,30 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
           .finally(() => this.off('dirty', onDirty))
 
       } catch (e) {
-        // timeout, log warning & ignore it
+        // timeout: the server never echoed back a `dirty` event within
+        // 5s. Two things go wrong if we just log-and-return:
+        //   1. the local LRU keeps the stale payload for up to
+        //      maxAge (15 minutes), poisoning subsequent reads.
+        //   2. the warning line before this fix carried no type/id, so
+        //      grep-based on-call triage could not localize the miss.
+        //
+        // Fix: invoke `onDirty` locally with the same event payload so
+        // the LRU is at least invalidated, and enrich the warn line
+        // with the exact (type, id).
+        log.warn('PuppetCacheMixin',
+          '__dirtyPayloadAwait() timeout for %s<%s>, id=%s -- falling back to local LRU delete '
+          + '(server likely on wechaty 0 or the dirty echo path is broken): %s',
+          DirtyType[type], type, id, (e as Error).message,
+        )
 
-        log.warn('PuppetCacheMixin', '__dirtyPayloadAwait() timeout, probably because the server is using wechaty 0')
-
-        // log.warn('PuppetCacheMixin',
-        //   [
-        //     '__dirtyPayloadAwait() timeout.',
-        //     'The `dirty` event should be received but no one found.',
-        //     'Learn more from https://github.com/wechaty/puppet/issues/158',
-        //     'payloadType: %s(%s)',
-        //     'payloadId: %s',
-        //     'error: %s',
-        //     'stack: %s',
-        //   ].join('\n  '),
-        //   DirtyType[type],
-        //   type,
-        //   id,
-        //   (e as Error).message,
-        //   (e as Error).stack,
-        // )
+        try {
+          this.onDirty({ payloadId: id, payloadType: type })
+        } catch (fallbackErr) {
+          log.warn('PuppetCacheMixin',
+            '__dirtyPayloadAwait() local fallback onDirty threw: %s',
+            (fallbackErr as Error).message,
+          )
+        }
       }
 
       /**
