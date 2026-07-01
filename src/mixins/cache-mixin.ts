@@ -219,12 +219,18 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
 
           const [ roomId, memberId ] = id.split(STRING_SPLITTER) as [ string, string ]
           const current = this.cache.roomMember?.get(roomId)
-          if (!current || !(memberId in current)) {
+          /**
+           * `in` walks the prototype chain, so a memberId of
+           * `__proto__`/`toString` would match on any plain object even
+           * when the room genuinely has no such member. `hasOwn` (via
+           * the safe indirection) restricts the check to own keys.
+           */
+          if (!current || !Object.prototype.hasOwnProperty.call(current, memberId)) {
             return
           }
 
-          const { [memberId]: _drop, ...rest } = current
-          void _drop
+          const rest = { ...current }
+          delete rest[memberId]
           if (Object.keys(rest).length === 0) {
             this.cache.roomMember?.delete(roomId)
           } else {
