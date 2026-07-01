@@ -9,8 +9,9 @@ import type {
   ProtectedPropertyCacheMixin,
 }                               from './cache-mixin.js'
 
-import { Puppet }    from '../puppet/mod.js'
-import { DirtyType } from '../schemas/dirty.js'
+import { Puppet }         from '../puppet/mod.js'
+import { STRING_SPLITTER } from '../config.js'
+import { DirtyType }      from '../schemas/dirty.js'
 
 test('ProtectedPropertyCacheMixin', async t => {
   type NotExistInMixin = Exclude<ProtectedPropertyCacheMixin, keyof InstanceType<CacheMixin>>
