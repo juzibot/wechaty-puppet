@@ -64,6 +64,16 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
       const genSnap = new Map<string, number>()
       const inflightWaits: Array<{ id: string, promise: Promise<RoomMemberPayload> }> = []
 
+      /**
+       * MEDIUM-A (round-3): snap the WHOLE-ROOM gen too. Per-member
+       * snapshots use `${roomId}${SEP}${memberId}` keys and cannot
+       * observe a bare-roomId dirty (`dirtyPayload(RoomMember, roomId)`),
+       * which bumps the bare `roomId` key. Without this snapshot the
+       * batch write would partially resurrect the room with data older
+       * than the whole-room invalidation.
+       */
+      const roomSnap = this.cache.snapshotGen(DirtyType.RoomMember, roomId)
+
       for (const memberId of contactIds) {
         const inflightKey = `roommember:${roomId}${STRING_SPLITTER}${memberId}`
         const flying = this.cache.__inflightGet<RoomMemberPayload>(inflightKey)
@@ -93,7 +103,19 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
           result.set(memberId, payload)
         }
 
-        if (!this.cache.disabled && this.cache.roomMember && result.size > 0) {
+        if (
+          !this.cache.disabled
+          && this.cache.roomMember
+          && result.size > 0
+          /**
+           * MEDIUM-A gate: whole-room dirty landed during the fetch --
+           * writing the merged map would partially resurrect the room
+           * with pre-dirty data. Per-member `isFreshWrite` below cannot
+           * see this because it snapshots `roomId${SEP}memberId`,
+           * whereas whole-room bumps happen on the bare `roomId` key.
+           */
+          && this.cache.isFreshWrite(DirtyType.RoomMember, roomId, roomSnap)
+        ) {
           const latest = this.cache.roomMember.get(roomId)
           const merged: { [memberContactId: string]: RoomMemberPayload } = { ...latest }
           let touched = false
