@@ -90,6 +90,63 @@ test('contactPayload: dirty during in-flight fetch must not repopulate cache', a
 })
 
 /**
+ * Regression: HIGH-A (round-3) -- the earlier "prune __gen inside
+ * onDirty.finally" hardening reopened the dirty-during-fetch race for
+ * the FIRST dirty a given (type, id) ever sees. Reproduce it end-to-end
+ * through the real `dirtyPayload` path:
+ *
+ *   1. Getter starts, snap = 0 (map has no entry for c-first-dirty).
+ *   2. `dirtyPayload(Contact, c-first-dirty)` runs synchronously:
+ *      bumpGen sets gen=1, then setImmediate schedules the emit.
+ *   3. onDirty drains via setImmediate; pre-fix it also `genDelete`d
+ *      the (type, id) slot, resetting gen back to 0 (missing).
+ *   4. Raw fetch resolves. isFreshWrite compares snapshotGen (0, since
+ *      the slot was pruned) against snap (0) -> 0 === 0 -> true ->
+ *      stale payload written into the LRU.
+ *
+ * The pin: after the whole sequence, the LRU must not carry the stale
+ * fetched payload. This companions the "no-prune invariant" cache-mixin
+ * spec; that one pins the shape, this one pins the observable outcome.
+ *
+ * Distinct from "contactPayload: dirty during in-flight fetch..." above,
+ * which calls `cache.bumpGen` directly and never triggers onDirty --
+ * so it never exercised the finally-prune. This test uses the real
+ * `dirtyPayload` path and drains setImmediate BEFORE releasing the raw
+ * fetch, which is exactly the pre-fix race window.
+ */
+test('contactPayload: first-time dirty via dirtyPayload during fetch must not repopulate LRU', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  let releaseRaw: () => void = () => {}
+  const rawGate = new Promise<void>(resolve => { releaseRaw = resolve })
+
+  puppet.contactRawPayload = async (id: string) => {
+    await rawGate
+    return { id, name: 'stale' }
+  }
+  puppet.contactRawPayloadParser = async (raw: any) => raw
+
+  // Snapshot the pre-bump gen (0) and register an in-flight fetch.
+  const inflight = puppet.contactPayload('c-first-dirty')
+
+  // Real dirty path: bumpGen synchronously, then setImmediate emit
+  // schedules onDirty. Drain both so the pre-fix genDelete would have
+  // executed by the time the raw fetch resolves.
+  puppet.dirtyPayload(DirtyType.Contact, 'c-first-dirty')
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setImmediate(resolve))
+
+  releaseRaw()
+  await inflight
+
+  t.equal(puppet.cache.contact?.get('c-first-dirty'), undefined,
+    'first-time dirty during raw fetch must not overwrite the LRU with the stale payload')
+
+  await puppet.stop()
+})
+
+/**
  * `batchContactPayload` used to bypass `cache.contact`. That meant a
  * caller batch-fetching 100 contacts would re-fetch every one on the
  * next per-id `contactPayload(id)` call, defeating the LRU. The batch
