@@ -9,7 +9,9 @@ import type {
   ProtectedPropertyRoomMemberMixin,
 }                                         from './room-member-mixin.js'
 
-import { Puppet } from '../puppet/mod.js'
+import { Puppet }         from '../puppet/mod.js'
+import { STRING_SPLITTER } from '../config.js'
+import { DirtyType }       from '../schemas/dirty.js'
 
 test('ProtectedPropertyRoomMemberMixin', async t => {
   type NotExistInMixin = Exclude<ProtectedPropertyRoomMemberMixin, keyof InstanceType<RoomMemberMixin>>
@@ -83,4 +85,113 @@ test('roomMemberPayload() must not throw before cache.start() resolves', async t
     return
   }
   t.ok(returned, 'roomMemberPayload returned a payload pre-start')
+})
+
+/**
+ * `roomMemberPayloadDirty(id)` takes a raw string id and every caller has
+ * to hand-assemble the `${roomId}${SEP}${memberId}` shape (or hand a
+ * bare roomId to mean "whole room"). Callers get this wrong.
+ *
+ * `dirtyRoomMemberPayload(roomId, memberId?)` is the ergonomic public API
+ * -- roomId is required, memberId is optional. The assembled id must
+ * match the format `dirtyPayload(DirtyType.RoomMember, id)` expects.
+ */
+test('dirtyRoomMemberPayload(roomId, memberId) assembles roomId SEP memberId', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+  puppet.__currentUserId = 'me'
+
+  const seen: string[] = []
+  puppet.on('dirty', (ev: any) => {
+    if (ev.payloadType === DirtyType.RoomMember) seen.push(ev.payloadId)
+  })
+
+  const p = puppet.dirtyRoomMemberPayload('r1', 'm1')
+  // 5s __dirtyPayloadAwait timeout is unavoidable in this stub; assert on the
+  // emitted id instead of on p resolving fast.
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setImmediate(resolve))
+
+  t.equal(seen[0], `r1${STRING_SPLITTER}m1`, 'emitted id combines roomId + SEP + memberId')
+
+  await p
+  await puppet.stop()
+})
+
+test('dirtyRoomMemberPayload(roomId) with no memberId emits bare roomId', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+  puppet.__currentUserId = 'me'
+
+  const seen: string[] = []
+  puppet.on('dirty', (ev: any) => {
+    if (ev.payloadType === DirtyType.RoomMember) seen.push(ev.payloadId)
+  })
+
+  const p = puppet.dirtyRoomMemberPayload('r1')
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setImmediate(resolve))
+
+  t.equal(seen[0], 'r1', 'emitted id is the bare roomId when memberId is omitted')
+
+  await p
+  await puppet.stop()
+})
+
+test('dirtyRoomMemberPayload rejects empty roomId', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  await t.rejects(
+    puppet.dirtyRoomMemberPayload(''),
+    /roomId/,
+    'empty roomId is a caller bug -- surface it, not silently proceed',
+  )
+
+  await puppet.stop()
+})
+
+/**
+ * The RoomMember id encoding uses STRING_SPLITTER (0x1F) to separate
+ * roomId and memberId. Any id containing SEP that is NOT exactly
+ * `roomId${SEP}memberId` is a caller bug: emit `error` and do NOT run
+ * the dirtyFuncMap for it.
+ */
+test('dirtyPayload(RoomMember, malformed id with extra SEP) surfaces error', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  // PuppetSkeleton.emit(error, ...) coerces the arg into
+  // EventErrorPayload = { gerror: string }, so we assert on gerror.
+  const errors: { gerror?: string }[] = []
+  puppet.on('error', (payload: any) => errors.push(payload))
+
+  puppet.dirtyPayload(DirtyType.RoomMember, `r1${STRING_SPLITTER}m1${STRING_SPLITTER}extra`)
+
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setTimeout(resolve, 20))
+
+  t.equal(errors.length, 1, 'malformed RoomMember id emits an error')
+  t.match(errors[0]?.gerror, /RoomMember|malformed/, 'gerror mentions RoomMember/malformed')
+
+  await puppet.stop()
+})
+
+test('dirtyPayload(RoomMember, "SEPmemberId" with empty roomId) surfaces error', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  const errors: { gerror?: string }[] = []
+  puppet.on('error', (payload: any) => errors.push(payload))
+
+  puppet.dirtyPayload(DirtyType.RoomMember, `${STRING_SPLITTER}m1`)
+
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setImmediate(resolve))
+  await new Promise(resolve => setTimeout(resolve, 20))
+
+  t.equal(errors.length, 1, 'empty roomId segment emits an error')
+
+  await puppet.stop()
 })
