@@ -54,6 +54,7 @@ import {
   type CorpMessageInterceptionStrategy,
   type TextContent,
   type TagInfo,
+  type LoggerLike,
 }                       from '../schemas/mod.js'
 
 export {
@@ -114,6 +115,7 @@ export {
   type RoomAntiSpamStrategy,
   type TextContent,
   type CorpMessageInterceptionStrategy,
+  type LoggerLike,
   YOU,
   CHAT_EVENT_DICT,
   PUPPET_EVENT_DICT,
