@@ -10,6 +10,7 @@ import type {
 }                                         from './room-mixin.js'
 
 import { PuppetTest } from '../../tests/fixtures/puppet-test/puppet-test.js'
+import { DirtyType } from '../schemas/dirty.js'
 
 test('ProtectedPropertyRoomMixin', async t => {
   type NotExistInMixin = Exclude<ProtectedPropertyRoomMixin, keyof InstanceType<RoomMixin>>
@@ -97,6 +98,54 @@ test('batchRoomPayload: rejects if underlying raw fetcher throws', async t => {
     /boom/,
     'should propagate errors from batchRoomRawPayload',
   )
+
+  await puppet.stop()
+})
+
+test('roomPayload: concurrent callers dedup to a single raw fetch', async t => {
+  const puppet = new PuppetTest()
+  await puppet.start()
+
+  let rawCalls = 0
+  puppet.roomRawPayload = async (id: string) => {
+    rawCalls++
+    await new Promise(resolve => setTimeout(resolve, 40))
+    return { id, topic: `t-${id}` }
+  }
+  puppet.roomRawPayloadParser = async (raw: any) => raw
+
+  const [ a, b ] = await Promise.all([
+    puppet.roomPayload('r1'),
+    puppet.roomPayload('r1'),
+  ])
+
+  t.equal(rawCalls, 1, 'raw fetcher fires exactly once for 2 concurrent callers')
+  t.equal(a.id, 'r1')
+  t.equal(b.id, 'r1')
+
+  await puppet.stop()
+})
+
+test('roomPayload: dirty during in-flight fetch must not repopulate cache', async t => {
+  const puppet = new PuppetTest()
+  await puppet.start()
+
+  let releaseRaw: () => void = () => {}
+  const rawGate = new Promise<void>(resolve => { releaseRaw = resolve })
+
+  puppet.roomRawPayload = async (id: string) => {
+    await rawGate
+    return { id, topic: 'stale' }
+  }
+  puppet.roomRawPayloadParser = async (raw: any) => raw
+
+  const inflight = puppet.roomPayload('r2')
+  puppet.cache.bumpGen(DirtyType.Room, 'r2')
+  releaseRaw()
+  await inflight
+
+  t.equal(puppet.cache.room?.get('r2'), undefined,
+    'LRU must NOT hold the stale payload after dirty-during-fetch')
 
   await puppet.stop()
 })
