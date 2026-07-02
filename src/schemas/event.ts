@@ -15,6 +15,12 @@ export enum ScanStatus {
   Scanned   = 3,
   Confirmed = 4,
   Timeout   = 5,
+  /**
+   * Idle: the login flow is waiting to be triggered manually
+   *  (e.g. IM just opened, or a previous qrcode expired),
+   *  no qrcode is available until `refreshQRCode()` is called.
+   */
+  Idle      = 6,
 }
 
 export enum ScanType {
