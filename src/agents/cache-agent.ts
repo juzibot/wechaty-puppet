@@ -243,6 +243,23 @@ class CacheAgent {
     this.__inflight.delete(key)
   }
 
+  /**
+   * Delete every in-flight promise whose key starts with `prefix`.
+   *
+   * Used by the dirty-event path for a bare-roomId RoomMember dirty:
+   * whole-room invalidation must drop every per-member in-flight fetch
+   * (keyed `roommember:${roomId}${SEP}${memberId}`) so a getter that
+   * joined a pre-dirty fetch cannot resurrect a stale member snapshot.
+   * Deleting the current key during Map iteration is safe.
+   */
+  __inflightDeletePrefix (prefix: string): void {
+    for (const key of this.__inflight.keys()) {
+      if (key.startsWith(prefix)) {
+        this.__inflight.delete(key)
+      }
+    }
+  }
+
 }
 
 export type { PayloadCacheOptions }
