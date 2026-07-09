@@ -204,9 +204,14 @@ test('onDirty must NOT prune __gen (pin no-prune invariant)', async t => {
   await new Promise(resolve => setImmediate(resolve))
   await new Promise(resolve => setImmediate(resolve))
 
-  t.equal(puppet.cache.snapshotGen(DirtyType.Contact, 'gen-a'), 1,
+  // Base `dirtyPayload` bumps once, then the dirty-echo path (onDirty)
+  // bumps the same (type, id) a second time. The exact count is not the
+  // invariant -- what matters is that a pre-bump snapshot (0) can never
+  // equal the post-onDirty gen, so the write stays skipped. Assert the
+  // gen strictly moved off 0 rather than pinning a brittle absolute.
+  t.ok(puppet.cache.snapshotGen(DirtyType.Contact, 'gen-a') >= 1,
     'gen-a bump survives onDirty (any pre-bump snapshot must still see stale)')
-  t.equal(puppet.cache.snapshotGen(DirtyType.Contact, 'gen-b'), 1,
+  t.ok(puppet.cache.snapshotGen(DirtyType.Contact, 'gen-b') >= 1,
     'gen-b bump survives onDirty (any pre-bump snapshot must still see stale)')
   t.ok(puppet.cache.__genSize() >= 2,
     '__gen retains both slots after onDirty -- no unconditional prune')
@@ -257,6 +262,98 @@ test('dirtyPayload(RoomMember, malformed id) still triggers a fallback LRU delet
   await new Promise(resolve => setImmediate(resolve))
 
   t.equal(errors.length, errsBefore + 1, 'leading-SEP shape also surfaces error')
+
+  await puppet.stop()
+})
+
+/**
+ * Unit: `__inflightDeletePrefix` removes exactly the entries whose key
+ * starts with the prefix and leaves every other entry intact. This is
+ * the primitive the whole-room RoomMember dirty relies on.
+ */
+test('CacheAgent.__inflightDeletePrefix removes only prefix-matching keys', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  const p = Promise.resolve('x')
+  // swallow to avoid unhandled-rejection noise (these never reject)
+  p.catch(() => {})
+
+  puppet.cache.__inflightSet(`roommember:room-1${STRING_SPLITTER}m1`, p)
+  puppet.cache.__inflightSet(`roommember:room-1${STRING_SPLITTER}m2`, p)
+  puppet.cache.__inflightSet(`roommember:room-2${STRING_SPLITTER}m1`, p)
+  puppet.cache.__inflightSet('contact:room-1', p)
+
+  puppet.cache.__inflightDeletePrefix(`roommember:room-1${STRING_SPLITTER}`)
+
+  t.equal(puppet.cache.__inflightGet(`roommember:room-1${STRING_SPLITTER}m1`), undefined,
+    'room-1 member m1 in-flight removed')
+  t.equal(puppet.cache.__inflightGet(`roommember:room-1${STRING_SPLITTER}m2`), undefined,
+    'room-1 member m2 in-flight removed')
+  t.ok(puppet.cache.__inflightGet(`roommember:room-2${STRING_SPLITTER}m1`),
+    'a different room is untouched')
+  t.ok(puppet.cache.__inflightGet('contact:room-1'),
+    'a non-roommember key sharing the roomId substring is untouched')
+
+  await puppet.stop()
+})
+
+/**
+ * Regression (dirty-echo path, RoomMember): a single-member dirty
+ * (`${roomId}${SEP}${memberId}`) arriving via `onDirty` must bump BOTH
+ * the composite gen key AND the bare-roomId gen key. The whole-room
+ * batch write-back in room-member-mixin snapshots the bare-roomId key
+ * (and puppet-service's FlashStore row write-back keys by roomId too);
+ * without the bare-key bump a whole-room snapshot flying during the
+ * single-member dirty would be treated as fresh and merged back.
+ */
+test('onDirty(RoomMember composite) bumps both the member gen and the room gen', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  const roomId    = 'room-x'
+  const memberId  = 'member-y'
+  const composite = `${roomId}${STRING_SPLITTER}${memberId}`
+
+  t.equal(puppet.cache.snapshotGen(DirtyType.RoomMember, composite), 0, 'sanity: member gen starts at 0')
+  t.equal(puppet.cache.snapshotGen(DirtyType.RoomMember, roomId), 0, 'sanity: room gen starts at 0')
+
+  puppet.onDirty({ payloadType: DirtyType.RoomMember, payloadId: composite })
+
+  t.equal(puppet.cache.snapshotGen(DirtyType.RoomMember, composite), 1,
+    'single-member dirty bumps the composite gen key')
+  t.equal(puppet.cache.snapshotGen(DirtyType.RoomMember, roomId), 1,
+    'single-member dirty ALSO bumps the bare-roomId gen key (whole-room snapshots go stale)')
+
+  await puppet.stop()
+})
+
+/**
+ * Regression (dirty-echo path, RoomMember): a bare-roomId (whole-room)
+ * dirty via `onDirty` must evict EVERY per-member in-flight fetch for
+ * that room, so a getter that joined a pre-dirty member fetch cannot
+ * resurrect a stale member snapshot.
+ */
+test('onDirty(RoomMember bare roomId) prefix-clears all member in-flight fetches', async t => {
+  const puppet = new TestPuppet() as any
+  await puppet.start()
+
+  const roomId = 'room-whole'
+  const p = Promise.resolve({ id: 'stale' })
+  p.catch(() => {})
+
+  puppet.cache.__inflightSet(`roommember:${roomId}${STRING_SPLITTER}m1`, p)
+  puppet.cache.__inflightSet(`roommember:${roomId}${STRING_SPLITTER}m2`, p)
+  puppet.cache.__inflightSet(`roommember:other${STRING_SPLITTER}m1`, p)
+
+  puppet.onDirty({ payloadType: DirtyType.RoomMember, payloadId: roomId })
+
+  t.equal(puppet.cache.__inflightGet(`roommember:${roomId}${STRING_SPLITTER}m1`), undefined,
+    'm1 in-flight cleared by whole-room dirty')
+  t.equal(puppet.cache.__inflightGet(`roommember:${roomId}${STRING_SPLITTER}m2`), undefined,
+    'm2 in-flight cleared by whole-room dirty')
+  t.ok(puppet.cache.__inflightGet(`roommember:other${STRING_SPLITTER}m1`),
+    'a different room keeps its in-flight fetch')
 
   await puppet.stop()
 })
