@@ -156,52 +156,6 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       }: EventDirtyPayload,
     ): void {
       this.log.verbose('PuppetCacheMixin', 'onDirty(%s<%s>, %s)', DirtyType[payloadType], payloadType, payloadId)
-
-      /**
-       * Bug fix -- dirty-echo path parity.
-       *
-       * The base `dirtyPayload` above bumps the (type, id) generation and
-       * (via the getters that share `__inflight`) relies on that bump to
-       * skip stale writes. But production puppets -- the
-       * wechaty-puppet-service client and puppet-rabbit -- fully override
-       * `dirtyPayload` to only forward the invalidation to the server and
-       * never call `super`. Their ONLY local invalidation path is the
-       * server echoing a `dirty` event back into `onDirty`. Without the
-       * maintenance below, that echo path neither bumps `__gen` nor clears
-       * `__inflight`, so:
-       *   1. a raw fetch already in flight when the dirty lands passes
-       *      `isFreshWrite` and poisons the just-cleared LRU, and
-       *   2. readers after the dirty join the pre-dirty in-flight promise
-       *      and observe the stale value.
-       * The visible symptom was "must dirty twice before the new value
-       * shows up". Perform the same gen bump + in-flight cleanup here so
-       * the echo path closes the race too.
-       *
-       * When the base `dirtyPayload` DID run (LRU-local puppets), this
-       * double-bumps the same (type, id); that is harmless -- `__gen` is
-       * only ever compared for equality, never read as an absolute count.
-       *
-       * This runs BEFORE the `disabled` early-return: even with the LRU
-       * off, `__inflight` dedup is still live and its stale promises must
-       * still be evicted.
-       */
-      this.cache.bumpGen(payloadType, payloadId)
-
-      /**
-       * A single-member RoomMember dirty (`${roomId}${SEP}${memberId}`)
-       * must also bump the bare-`roomId` gen key, because the whole-room
-       * batch write-back in room-member-mixin snapshots that bare key
-       * (and puppet-service's FlashStore row write-back is keyed by
-       * roomId too). Without this, a whole-room snapshot flying during a
-       * single-member dirty would be treated as fresh and merged back.
-       */
-      if (payloadType === DirtyType.RoomMember && payloadId.includes(STRING_SPLITTER)) {
-        const [ roomId ] = payloadId.split(STRING_SPLITTER) as [ string, string ]
-        this.cache.bumpGen(DirtyType.RoomMember, roomId)
-      }
-
-      this.__cleanDirtyInflight(payloadType, payloadId)
-
       if (this.cache.disabled) {
         return
       }
@@ -236,53 +190,6 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
        * to keep the race closed. See the "no-prune invariant" spec in
        * cache-mixin.spec.ts and the HIGH-A pin in contact-mixin.spec.ts.
        */
-    }
-
-    /**
-     * Evict the `__inflight` entries a dirty invalidates, so a getter
-     * that joined a pre-dirty raw fetch cannot hand back stale data.
-     *
-     * The key schemes are owned by each payload mixin; they are mirrored
-     * here (drift between the two would silently reopen the race):
-     *   - Contact    `contact:${id}`                        contact-mixin.ts
-     *   - Message    `message:${id}`                        message-mixin.ts
-     *   - Post       `post:${id}`                           post-mixin.ts
-     *   - Room       `room:${id}`                           room-mixin.ts
-     *   - RoomMember `roommember:${roomId}${SEP}${memberId}` room-member-mixin.ts
-     *
-     * A composite RoomMember id targets exactly that member's key; a bare
-     * roomId (whole-room dirty) must drop EVERY member's in-flight fetch
-     * for that room, hence the prefix delete. The remaining DirtyTypes
-     * (Friendship/Tag/TagGroup/WxxdProduct/WxxdOrder/Call/Unspecified)
-     * have no in-flight dedup, so the gen bump alone suffices.
-     */
-    __cleanDirtyInflight (
-      payloadType : DirtyType,
-      payloadId   : string,
-    ): void {
-      switch (payloadType) {
-        case DirtyType.Contact:
-          this.cache.__inflightDelete(`contact:${payloadId}`)
-          break
-        case DirtyType.Message:
-          this.cache.__inflightDelete(`message:${payloadId}`)
-          break
-        case DirtyType.Post:
-          this.cache.__inflightDelete(`post:${payloadId}`)
-          break
-        case DirtyType.Room:
-          this.cache.__inflightDelete(`room:${payloadId}`)
-          break
-        case DirtyType.RoomMember:
-          if (payloadId.includes(STRING_SPLITTER)) {
-            this.cache.__inflightDelete(`roommember:${payloadId}`)
-          } else {
-            this.cache.__inflightDeletePrefix(`roommember:${payloadId}${STRING_SPLITTER}`)
-          }
-          break
-        default:
-          break
-      }
     }
 
     /**
@@ -465,7 +372,6 @@ type ProtectedPropertyCacheMixin =
   | 'cache'
   | 'onDirty'
   | '__cacheMixinCleanCallbackList'
-  | '__cleanDirtyInflight'
   | '__dirtyFuncMap'
   | '__dirtyPayloadAwait'
 
