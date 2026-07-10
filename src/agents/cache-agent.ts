@@ -39,7 +39,6 @@ import type {
 import type {
   CallPayload,
 }                         from '../schemas/call.js'
-import type { DirtyType } from '../schemas/dirty.js'
 import { WECHATY_PUPPET_DISABLE_LRU_CACHE } from '../env-vars.js'
 
 type PayloadCacheOptions = Required<PuppetOptions>['cache']
@@ -64,25 +63,6 @@ class CacheAgent {
   call?           : QuickLru<string, CallPayload>
 
   readonly disabled: boolean
-
-  /**
-   * Per (payloadType, id) generation counter.
-   *
-   * `dirtyPayload` in CacheMixin bumps the counter *before* the `dirty`
-   * event is emitted. Payload getters snapshot the counter before the
-   * raw fetch and re-check it before the LRU set: if the counter has
-   * moved, the fetch is stale-with-respect-to a dirty and the write is
-   * skipped. The stored value is never zero -- callers do not
-   * dereference the map directly.
-   */
-  private readonly __gen: Map<string, number> = new Map()
-
-  /**
-   * In-flight raw-payload promises keyed by `${type}:${id}` (or any
-   * caller-chosen scheme). Payload getters share a single Promise per
-   * key so N concurrent callers only trigger one raw fetch.
-   */
-  private readonly __inflight: Map<string, Promise<any>> = new Map()
 
   constructor (
     protected options?: PayloadCacheOptions,
@@ -184,63 +164,6 @@ class CacheAgent {
     this.wxxdProduct?.clear()
     this.wxxdOrder?.clear()
     this.call?.clear()
-
-    this.__gen.clear()
-    this.__inflight.clear()
-  }
-
-  /**
-   * Bump the generation counter for a (payloadType, id) so any snapshot
-   * taken before this call is now considered stale. Called from
-   * `CacheMixin.dirtyPayload` before the `dirty` event is scheduled.
-   */
-  bumpGen (type: DirtyType, id: string): void {
-    const key = this.__genKey(type, id)
-    this.__gen.set(key, (this.__gen.get(key) ?? 0) + 1)
-  }
-
-  /**
-   * Snapshot the current generation for a (payloadType, id). Payload
-   * getters MUST call this before the raw fetch and pass the result to
-   * `isFreshWrite` before setting the LRU.
-   */
-  snapshotGen (type: DirtyType, id: string): number {
-    return this.__gen.get(this.__genKey(type, id)) ?? 0
-  }
-
-  /**
-   * True iff no `bumpGen` for the same key has been observed since the
-   * snapshot was taken -- i.e. writing the LRU now is not overriding a
-   * dirty that arrived during the raw fetch.
-   */
-  isFreshWrite (type: DirtyType, id: string, snapshot: number): boolean {
-    return this.snapshotGen(type, id) === snapshot
-  }
-
-  /**
-   * @internal test hook -- exposes the internal gen map size so specs
-   * can pin the round-3 no-prune invariant (an earlier revision drained
-   * this map from `CacheMixin.onDirty`'s `finally`, reopening the
-   * first-dirty race; see the "no-prune invariant" spec).
-   */
-  __genSize (): number {
-    return this.__gen.size
-  }
-
-  private __genKey (type: DirtyType, id: string): string {
-    return `${type}:${id}`
-  }
-
-  __inflightGet<T> (key: string): Promise<T> | undefined {
-    return this.__inflight.get(key) as Promise<T> | undefined
-  }
-
-  __inflightSet<T> (key: string, promise: Promise<T>): void {
-    this.__inflight.set(key, promise)
-  }
-
-  __inflightDelete (key: string): void {
-    this.__inflight.delete(key)
   }
 
 }

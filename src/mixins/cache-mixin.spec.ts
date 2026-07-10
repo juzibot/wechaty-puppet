@@ -9,9 +9,8 @@ import type {
   ProtectedPropertyCacheMixin,
 }                               from './cache-mixin.js'
 
-import { Puppet }         from '../puppet/mod.js'
-import { STRING_SPLITTER } from '../config.js'
-import { DirtyType }      from '../schemas/dirty.js'
+import { Puppet }    from '../puppet/mod.js'
+import { DirtyType } from '../schemas/dirty.js'
 
 test('ProtectedPropertyCacheMixin', async t => {
   type NotExistInMixin = Exclude<ProtectedPropertyCacheMixin, keyof InstanceType<CacheMixin>>
@@ -74,67 +73,6 @@ test('onDirty(Unspecified) must NOT crash the process via uncaughtException', as
  * The fix must surface the rejection through logging without leaking
  * it to the process-level unhandledRejection handler.
  */
-/**
- * Regression: `__dirtyPayloadAwait` waits up to 5s for a `dirty` event
- * that echoes back from the server. When the server never delivers (or
- * an override no-ops the emit path), the previous implementation just
- * logged a warning and returned -- the local LRU stayed populated with
- * whatever stale value it held, poisoning the next `xxxPayload(id)`
- * call for up to the LRU maxAge (15m).
- *
- * The fix: on timeout, invoke the same local-cache invalidator that
- * `onDirty` runs -- so the local LRU at least gets cleaned even when
- * the remote round-trip fails.
- */
-test('__dirtyPayloadAwait: 5s timeout falls back to local LRU delete', async t => {
-  const puppet = new TestPuppet() as any
-  await puppet.start()
-  puppet.__currentUserId = 'me'
-
-  // Seed the local LRU with a stale value.
-  puppet.cache.contact?.set('c-stale', { id: 'c-stale' } as any)
-  t.ok(puppet.cache.contact?.get('c-stale'), 'sanity: stale entry seeded')
-
-  // No-op dirtyPayload -- simulates a puppet-service whose emit-path
-  // is disabled or a server that never echoes back.
-  puppet.dirtyPayload = () => {}
-
-  // Await the full 5s timeout window; must resolve, not throw.
-  await puppet.__dirtyPayloadAwait(DirtyType.Contact, 'c-stale')
-
-  t.equal(puppet.cache.contact?.get('c-stale'), undefined,
-    'local LRU entry removed by timeout fallback')
-
-  await puppet.stop()
-})
-
-/**
- * Regression: the dirtyFuncMap started as a hand-maintained
- * `Partial<Record<DirtyType, ...>>`. It's easy to add a new DirtyType
- * (RoomMember, Post, Tag, ...) and forget to wire a handler; the
- * silent Partial then makes the miss invisible.
- *
- * The map must cover every DirtyType enum value. Enforce this
- * structurally so a new DirtyType is a compile-time error unless a
- * handler is added.
- */
-test('dirtyFuncMap covers every DirtyType', async t => {
-  const puppet = new TestPuppet() as any
-  await puppet.start()
-
-  // DirtyType is a numeric enum, so Object.values returns both
-  // numeric and reverse-mapped string entries -- keep only the numbers.
-  const dirtyTypes = Object.values(DirtyType).filter(v => typeof v === 'number') as DirtyType[]
-
-  const map = puppet.__dirtyFuncMap as Record<DirtyType, unknown>
-  for (const type of dirtyTypes) {
-    t.equal(typeof map[type], 'function',
-      `dirtyFuncMap must define a handler for DirtyType.${DirtyType[type]}<${type}>`)
-  }
-
-  await puppet.stop()
-})
-
 test('__dirtyPayloadAwait must handle rejection from an overridden async dirtyPayload', async t => {
   const puppet = new TestPuppet() as any
   await puppet.start()
@@ -166,97 +104,6 @@ test('__dirtyPayloadAwait must handle rejection from an overridden async dirtyPa
     0,
     `dirtyPayload rejection must be captured, not leaked as unhandledRejection (got ${unhandled.length})`,
   )
-
-  await puppet.stop()
-})
-
-/**
- * Regression: HIGH-A (round-3) -- an earlier revision pruned `__gen`
- * inside `onDirty`'s `finally` to bound memory growth. That prune
- * reopened the pre-existing dirty-during-fetch race for the FIRST
- * dirty a given (type, id) ever sees:
- *
- *   Getter A: snap = snapshotGen(Contact, X) = 0   (X not in map yet)
- *   Server:   bumpGen(Contact, X)          -> map[X]=1
- *   onDirty:  ...runs LRU delete... finally { genDelete(X) }  -> map[X] gone
- *   Getter A: fetch resolves; isFreshWrite reads snapshotGen -> 0 (missing)
- *             0 === 0 -> true  -> stale payload written back into the LRU.
- *
- * First-dirty is the common case (onboarding, first-view, first-refresh),
- * so the prune was a net regression. The fix (round-3) drops the prune
- * entirely and accepts bounded `__gen` growth against the CRM-scale
- * contact/room ceiling. Pin the no-prune invariant so a future well-
- * meaning "bound the map" refactor does not re-open the race.
- *
- * We assert on both the (type, id)-specific snapshot AND on `__genSize`:
- *   - snapshotGen > 0 proves the bump survived, which is what closes the
- *     race for the in-flight fetch.
- *   - __genSize > 0 pins the "no unconditional prune from onDirty" shape.
- */
-test('onDirty must NOT prune __gen (pin no-prune invariant)', async t => {
-  const puppet = new TestPuppet() as any
-  await puppet.start()
-
-  puppet.dirtyPayload(DirtyType.Contact, 'gen-a')
-  puppet.dirtyPayload(DirtyType.Contact, 'gen-b')
-
-  // Let the setImmediate-scheduled emit + onDirty run.
-  await new Promise(resolve => setImmediate(resolve))
-  await new Promise(resolve => setImmediate(resolve))
-
-  t.equal(puppet.cache.snapshotGen(DirtyType.Contact, 'gen-a'), 1,
-    'gen-a bump survives onDirty (any pre-bump snapshot must still see stale)')
-  t.equal(puppet.cache.snapshotGen(DirtyType.Contact, 'gen-b'), 1,
-    'gen-b bump survives onDirty (any pre-bump snapshot must still see stale)')
-  t.ok(puppet.cache.__genSize() >= 2,
-    '__gen retains both slots after onDirty -- no unconditional prune')
-
-  await puppet.stop()
-})
-
-/**
- * Regression: MEDIUM-2 -- when RoomMember dirty is called with a
- * malformed id shape (e.g. bare `${SEP}memberId` or trailing SEP),
- * the pre-round-2 code path used to unconditionally delete the whole
- * `roomMember[first-segment]` entry. The contract-check we added
- * emits `error` and returns early, which is safer BUT drops the
- * old fallback delete -- any stale LRU entry linked to that room
- * then survives for the full 15-minute maxAge.
- *
- * The fix: emit `error` (contract violation is still surfaced) AND
- * best-effort delete `roomMember[segments[0] || id]` first so a buggy
- * caller does not accidentally poison the cache for 15 minutes.
- */
-test('dirtyPayload(RoomMember, malformed id) still triggers a fallback LRU delete', async t => {
-  const puppet = new TestPuppet() as any
-  await puppet.start()
-
-  const errors: any[] = []
-  puppet.on('error', (payload: any) => errors.push(payload))
-
-  puppet.cache.roomMember?.set('rm-fb-1', { m1: { id: 'm1' } as any })
-  puppet.cache.roomMember?.set('', { m0: { id: 'm0' } as any })
-
-  // Trailing SEP: segments=[roomId,''] -> non-empty first segment.
-  puppet.dirtyPayload(DirtyType.RoomMember, `rm-fb-1${STRING_SPLITTER}`)
-
-  await new Promise(resolve => setImmediate(resolve))
-  await new Promise(resolve => setImmediate(resolve))
-
-  t.equal(errors.length, 1, 'malformed id still surfaces the error event')
-  t.equal(puppet.cache.roomMember?.get('rm-fb-1'), undefined,
-    'best-effort fallback still evicts `roomMember[segments[0]]` for a trailing-SEP shape')
-
-  // Leading SEP: segments=['', memberId] -> first segment falsy, so we
-  // fall back to `id` (the whole malformed string). No cache entry
-  // exists at that key -- but we must not throw.
-  const errsBefore = errors.length
-  puppet.dirtyPayload(DirtyType.RoomMember, `${STRING_SPLITTER}orphan`)
-
-  await new Promise(resolve => setImmediate(resolve))
-  await new Promise(resolve => setImmediate(resolve))
-
-  t.equal(errors.length, errsBefore + 1, 'leading-SEP shape also surfaces error')
 
   await puppet.stop()
 })

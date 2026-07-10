@@ -80,61 +80,25 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
     /**
      * Batch fetch room payloads.
      *
-     * Populates `this.cache.room` with every fetched entry so the next
-     * per-id `roomPayload(id)` hits the cache instead of firing a fresh
-     * raw fetch. Same semantics as `batchContactPayload`.
+     * NOTE: bypasses `roomPayloadCache` and does not populate `this.cache.room`.
+     * Callers needing cache must call `roomPayload(id)` individually.
+     * (Same behavior as `batchContactPayload` in contact-mixin.)
      */
     async batchRoomPayload (roomIds: string[]): Promise<Map<string, RoomPayload>> {
-      /**
-       * See `batchContactPayload` for the full rationale -- same
-       * in-flight dedup + gen-guard shape applied to rooms so a dirty
-       * that lands during the batch raw fetch is not clobbered, and a
-       * concurrent per-id `roomPayload(id)` shares the raw fetch
-       * instead of firing a second one.
-       */
-      const result = new Map<string, RoomPayload>()
-      const toFetch: string[] = []
-      const genSnap = new Map<string, number>()
-      const inflightWaits: Array<{ id: string, promise: Promise<RoomPayload> }> = []
-
-      for (const roomId of roomIds) {
-        const inflightKey = `room:${roomId}`
-        const flying = this.cache.__inflightGet<RoomPayload>(inflightKey)
-        if (flying) {
-          inflightWaits.push({ id: roomId, promise: flying })
-          continue
-        }
-        genSnap.set(roomId, this.cache.snapshotGen(DirtyType.Room, roomId))
-        toFetch.push(roomId)
-      }
-
-      if (toFetch.length > 0) {
-        let rawPayloadMap: Map<string, any>
-        if (typeof this.batchRoomRawPayload === 'function') {
-          rawPayloadMap = await this.batchRoomRawPayload(toFetch)
-        } else {
-          rawPayloadMap = new Map<string, any>()
-          for (const roomId of toFetch) {
-            rawPayloadMap.set(roomId, await this.roomRawPayload(roomId))
-          }
-        }
-        for (const [ roomId, rawPayload ] of rawPayloadMap.entries()) {
-          const payload = await this.roomRawPayloadParser(rawPayload)
-          result.set(roomId, payload)
-          if (
-            !this.cache.disabled
-            && this.cache.isFreshWrite(DirtyType.Room, roomId, genSnap.get(roomId) ?? 0)
-          ) {
-            this.cache.room?.set(roomId, payload)
-          }
+      let rawPayloadMap: Map<string, any>
+      if (typeof this.batchRoomRawPayload === 'function') {
+        rawPayloadMap = await this.batchRoomRawPayload(roomIds)
+      } else {
+        rawPayloadMap = new Map<string, any>()
+        for (const roomId of roomIds) {
+          rawPayloadMap.set(roomId, await this.roomRawPayload(roomId))
         }
       }
-
-      for (const { id, promise } of inflightWaits) {
-        result.set(id, await promise)
+      const payloadMap = new Map<string, RoomPayload>()
+      for (const [ roomId, rawPayload ] of rawPayloadMap.entries()) {
+        payloadMap.set(roomId, await this.roomRawPayloadParser(rawPayload))
       }
-
-      return result
+      return payloadMap
     }
 
     /**
@@ -321,33 +285,17 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
       }
 
       /**
-       * 2. Dedup concurrent callers and guard the LRU set against a
-       *    dirty that lands during the raw fetch. See CacheAgent.
-       */
-      const inflightKey = `room:${roomId}`
-      const inflight = this.cache.__inflightGet<RoomPayload>(inflightKey)
-      if (inflight) {
-        return inflight
+        * 2. Cache not found
+        */
+      const rawPayload = await this.roomRawPayload(roomId)
+      const payload    = await this.roomRawPayloadParser(rawPayload)
+
+      if (!this.cache.disabled) {
+        this.cache.room?.set(roomId, payload)
+        this.log.silly('PuppetRoomMixin', 'roomPayload(%s) cache SET', roomId)
       }
 
-      const gen = this.cache.snapshotGen(DirtyType.Room, roomId)
-      const fetch = (async () => {
-        const rawPayload = await this.roomRawPayload(roomId)
-        const payload    = await this.roomRawPayloadParser(rawPayload)
-
-        if (!this.cache.disabled && this.cache.isFreshWrite(DirtyType.Room, roomId, gen)) {
-          this.cache.room?.set(roomId, payload)
-          this.log.silly('PuppetRoomMixin', 'roomPayload(%s) cache SET', roomId)
-        } else if (!this.cache.disabled) {
-          this.log.silly('PuppetRoomMixin',
-            'roomPayload(%s) cache SET skipped: dirty landed during raw fetch', roomId)
-        }
-
-        return payload
-      })().finally(() => this.cache.__inflightDelete(inflightKey))
-
-      this.cache.__inflightSet(inflightKey, fetch)
-      return fetch
+      return payload
     }
 
     async roomPayloadDirty (
