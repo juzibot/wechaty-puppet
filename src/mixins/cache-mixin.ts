@@ -88,48 +88,6 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       this.log.verbose('PuppetCacheMixin', 'dirtyPayload(%s<%s>, %s)', DirtyType[type], type, id)
 
       /**
-       * Contract check for RoomMember ids.
-       *
-       * A legitimate RoomMember id is either a bare roomId (whole-room
-       * dirty) OR `${roomId}${SEP}${memberId}` (single-member dirty).
-       * Anything containing SEP that does not split into exactly two
-       * non-empty segments is a caller bug: surface it via `error`
-       * (never throw -- the setImmediate below would turn a throw into
-       * uncaughtException) and abort emission.
-       */
-      if (type === DirtyType.RoomMember && id.includes(STRING_SPLITTER)) {
-        const segments = id.split(STRING_SPLITTER)
-        if (segments.length !== 2 || !segments[0] || !segments[1]) {
-          const err = new Error(
-            `dirtyPayload: malformed RoomMember id "${id}" -- `
-            + 'expected bare roomId or roomId+SEP+memberId',
-          )
-          this.log.error('PuppetCacheMixin', err.message)
-          /**
-           * Best-effort local fallback: the old (pre-contract-check)
-           * code path unconditionally dropped `roomMember[id.split(SEP)[0]]`
-           * even on shape violations. Keep the fallback delete BEFORE
-           * emitting `error` so a buggy caller still frees its stale
-           * entry -- otherwise a malformed id (e.g. `roomId${SEP}` or
-           * accidentally embedded SEP) would poison the LRU until the
-           * 15-minute maxAge.
-           */
-          const fallbackRoomId = segments[0] || id
-          this.cache.roomMember?.delete(fallbackRoomId)
-          this.emit('error', err)
-          return
-        }
-      }
-
-      /**
-       * Bump the (type, id) generation counter BEFORE scheduling the
-       * emit so that any payload getter whose raw fetch is currently
-       * in-flight will see a stale snapshot and skip its LRU set.
-       * See CacheAgent.bumpGen for the full contract.
-       */
-      this.cache.bumpGen(type, id)
-
-      /**
        * Huan(202111): we return first before emit the `dirty` event?
        */
       setImmediate(() => this.emit('dirty', {
@@ -146,8 +104,7 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
      * (see `dirtyPayload`), so any throw from this listener becomes an
      * uncaughtException. Defensive coding around bad payloadType values
      * (notably `Unspecified`) must therefore not throw -- we log and
-     * emit an `error` event instead. The outer try/catch below is a
-     * belt-and-braces safety net for future per-cache bugs.
+     * skip instead.
      */
     onDirty (
       {
@@ -156,197 +113,22 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       }: EventDirtyPayload,
     ): void {
       this.log.verbose('PuppetCacheMixin', 'onDirty(%s<%s>, %s)', DirtyType[payloadType], payloadType, payloadId)
-
-      /**
-       * Bug fix -- dirty-echo path parity.
-       *
-       * The base `dirtyPayload` above bumps the (type, id) generation and
-       * (via the getters that share `__inflight`) relies on that bump to
-       * skip stale writes. But production puppets -- the
-       * wechaty-puppet-service client and puppet-rabbit -- fully override
-       * `dirtyPayload` to only forward the invalidation to the server and
-       * never call `super`. Their ONLY local invalidation path is the
-       * server echoing a `dirty` event back into `onDirty`. Without the
-       * maintenance below, that echo path neither bumps `__gen` nor clears
-       * `__inflight`, so:
-       *   1. a raw fetch already in flight when the dirty lands passes
-       *      `isFreshWrite` and poisons the just-cleared LRU, and
-       *   2. readers after the dirty join the pre-dirty in-flight promise
-       *      and observe the stale value.
-       * The visible symptom was "must dirty twice before the new value
-       * shows up". Perform the same gen bump + in-flight cleanup here so
-       * the echo path closes the race too.
-       *
-       * When the base `dirtyPayload` DID run (LRU-local puppets), this
-       * double-bumps the same (type, id); that is harmless -- `__gen` is
-       * only ever compared for equality, never read as an absolute count.
-       *
-       * This runs BEFORE the `disabled` early-return: even with the LRU
-       * off, `__inflight` dedup is still live and its stale promises must
-       * still be evicted.
-       */
-      this.cache.bumpGen(payloadType, payloadId)
-
-      /**
-       * A single-member RoomMember dirty (`${roomId}${SEP}${memberId}`)
-       * must also bump the bare-`roomId` gen key, because the whole-room
-       * batch write-back in room-member-mixin snapshots that bare key
-       * (and puppet-service's FlashStore row write-back is keyed by
-       * roomId too). Without this, a whole-room snapshot flying during a
-       * single-member dirty would be treated as fresh and merged back.
-       */
-      if (payloadType === DirtyType.RoomMember && payloadId.includes(STRING_SPLITTER)) {
-        const [ roomId ] = payloadId.split(STRING_SPLITTER) as [ string, string ]
-        this.cache.bumpGen(DirtyType.RoomMember, roomId)
-      }
-
-      this.__cleanDirtyInflight(payloadType, payloadId)
-
       if (this.cache.disabled) {
         return
       }
-      /**
-       * __dirtyFuncMap is a complete `Record<DirtyType, ...>`, so
-       * TypeScript rejects the map at compile time if a new DirtyType
-       * lands without a handler. That makes the runtime miss check the
-       * previous `Partial` version needed unnecessary.
-       */
-      const dirtyFunc = this.__dirtyFuncMap[payloadType]
-      try {
-        dirtyFunc(payloadId)
-      } catch (e) {
-        this.log.warn('PuppetCacheMixin', 'onDirty() handler threw for payloadType=%s, id=%s: %s',
-          DirtyType[payloadType], payloadId, (e as Error).message)
-      }
-      /**
-       * Round-3 note: an earlier revision pruned the `__gen` slot for
-       * this (type, id) here (a `finally { this.cache.genDelete(...) }`
-       * block) so the map could not grow without bound on a long-lived
-       * puppet. That prune reopened the dirty-during-fetch race for the
-       * FIRST dirty a given (type, id) ever sees:
-       *
-       *   Getter:  snap = snapshotGen(...) = 0     (X not yet in map)
-       *   Server:  bumpGen(...) -> map[X] = 1
-       *   onDirty: ...LRU delete... finally genDelete -> map[X] removed
-       *   Getter:  fetch resolves; snapshotGen(...) reads 0 (missing);
-       *            isFreshWrite(0 === 0) -> true -> stale write.
-       *
-       * We now accept bounded `__gen` growth (worst case: one entry per
-       * distinct contact/room ever dirtied -- CRM-scale, not unbounded)
-       * to keep the race closed. See the "no-prune invariant" spec in
-       * cache-mixin.spec.ts and the HIGH-A pin in contact-mixin.spec.ts.
-       */
-    }
-
-    /**
-     * Evict the `__inflight` entries a dirty invalidates, so a getter
-     * that joined a pre-dirty raw fetch cannot hand back stale data.
-     *
-     * The key schemes are owned by each payload mixin; they are mirrored
-     * here (drift between the two would silently reopen the race):
-     *   - Contact    `contact:${id}`                        contact-mixin.ts
-     *   - Message    `message:${id}`                        message-mixin.ts
-     *   - Post       `post:${id}`                           post-mixin.ts
-     *   - Room       `room:${id}`                           room-mixin.ts
-     *   - RoomMember `roommember:${roomId}${SEP}${memberId}` room-member-mixin.ts
-     *
-     * A composite RoomMember id targets exactly that member's key; a bare
-     * roomId (whole-room dirty) must drop EVERY member's in-flight fetch
-     * for that room, hence the prefix delete. The remaining DirtyTypes
-     * (Friendship/Tag/TagGroup/WxxdProduct/WxxdOrder/Call/Unspecified)
-     * have no in-flight dedup, so the gen bump alone suffices.
-     */
-    __cleanDirtyInflight (
-      payloadType : DirtyType,
-      payloadId   : string,
-    ): void {
-      switch (payloadType) {
-        case DirtyType.Contact:
-          this.cache.__inflightDelete(`contact:${payloadId}`)
-          break
-        case DirtyType.Message:
-          this.cache.__inflightDelete(`message:${payloadId}`)
-          break
-        case DirtyType.Post:
-          this.cache.__inflightDelete(`post:${payloadId}`)
-          break
-        case DirtyType.Room:
-          this.cache.__inflightDelete(`room:${payloadId}`)
-          break
-        case DirtyType.RoomMember:
-          if (payloadId.includes(STRING_SPLITTER)) {
-            this.cache.__inflightDelete(`roommember:${payloadId}`)
-          } else {
-            this.cache.__inflightDeletePrefix(`roommember:${payloadId}${STRING_SPLITTER}`)
-          }
-          break
-        default:
-          break
-      }
-    }
-
-    /**
-     * Exhaustive map from every DirtyType to its cache invalidator.
-     *
-     * Modeled as a complete `Record<DirtyType, ...>` (mirrors PR #94
-     * on puppet-service): adding a new DirtyType now forces a compile
-     * error until a handler lands, closing the class of "new enum
-     * silently unmapped" bugs the prior Partial hid.
-     *
-     * Getter (not a field) so the closure captures `this` and can be
-     * regenerated per-call if a subclass overrides -- and so the
-     * structural test (`__dirtyFuncMap`) can read it without needing an
-     * instantiation-order dance.
-     *
-     * Unspecified is a caller bug: emit an `error` event (log.error too)
-     * but do NOT throw -- `dirty` is scheduled via setImmediate, and a
-     * throw here would become an uncaughtException.
-     */
-    get __dirtyFuncMap (): Record<DirtyType, (id: string) => void> {
-      return {
-        [DirtyType.Unspecified]: (id: string) => {
-          const err = new Error(
-            `dirtyPayload emitted DirtyType.Unspecified<0> (id=${id}); refusing to invalidate`,
-          )
-          this.log.error('PuppetCacheMixin', err.message)
-          this.emit('error', err)
-        },
+      const dirtyFuncMap: Partial<Record<DirtyType, (id: string) => void>> = {
         [DirtyType.Contact]:      (id: string) => { this.cache.contact?.delete(id) },
         [DirtyType.Friendship]:   (id: string) => { this.cache.friendship?.delete(id) },
         [DirtyType.Message]:      (id: string) => { this.cache.message?.delete(id) },
         [DirtyType.Post]:         (id: string) => { this.cache.post?.delete(id) },
         [DirtyType.Room]:         (id: string) => { this.cache.room?.delete(id) },
         [DirtyType.RoomMember]:   (id: string) => {
-          /**
-           * Precision dirty: an id of `${roomId}${SEP}${memberId}`
-           * must drop only that member from the nested map, not the
-           * whole room. Only a bare roomId means "drop the whole room".
-           * (Id shape has already been validated in dirtyPayload above,
-           * so a SEP here means exactly two non-empty segments.)
-           */
-          if (!id.includes(STRING_SPLITTER)) {
-            this.cache.roomMember?.delete(id)
-            return
-          }
-
-          const [ roomId, memberId ] = id.split(STRING_SPLITTER) as [ string, string ]
-          const current = this.cache.roomMember?.get(roomId)
-          /**
-           * `in` walks the prototype chain, so a memberId of
-           * `__proto__`/`toString` would match on any plain object even
-           * when the room genuinely has no such member. `hasOwn` (via
-           * the safe indirection) restricts the check to own keys.
-           */
-          if (!current || !Object.prototype.hasOwnProperty.call(current, memberId)) {
-            return
-          }
-
-          const rest = { ...current }
-          delete rest[memberId]
-          if (Object.keys(rest).length === 0) {
-            this.cache.roomMember?.delete(roomId)
+          const frags = id.split(STRING_SPLITTER)
+          if (frags.length > 1) {
+            const roomId = frags[0]
+            this.cache.roomMember?.delete(roomId!)
           } else {
-            this.cache.roomMember?.set(roomId, rest)
+            this.cache.roomMember?.delete(id)
           }
         },
         [DirtyType.Tag]:          (id: string) => { this.cache.tag?.delete(id) },
@@ -354,6 +136,19 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
         [DirtyType.WxxdProduct]:  (id: string) => { this.cache.wxxdProduct?.delete(id) },
         [DirtyType.WxxdOrder]:    (id: string) => { this.cache.wxxdOrder?.delete(id) },
         [DirtyType.Call]:         (id: string) => { this.cache.call?.delete(id) },
+      }
+
+      const dirtyFunc = dirtyFuncMap[payloadType]
+      if (!dirtyFunc) {
+        this.log.warn('PuppetCacheMixin', 'onDirty() unsupported payloadType=%s(%s), id=%s; ignored',
+          DirtyType[payloadType], payloadType, payloadId)
+        return
+      }
+      try {
+        dirtyFunc(payloadId)
+      } catch (e) {
+        this.log.warn('PuppetCacheMixin', 'onDirty() handler threw for payloadType=%s, id=%s: %s',
+          DirtyType[payloadType], payloadId, (e as Error).message)
       }
     }
 
@@ -420,30 +215,26 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
           .finally(() => this.off('dirty', onDirty))
 
       } catch (e) {
-        // timeout: the server never echoed back a `dirty` event within
-        // 5s. Two things go wrong if we just log-and-return:
-        //   1. the local LRU keeps the stale payload for up to
-        //      maxAge (15 minutes), poisoning subsequent reads.
-        //   2. the warning line before this fix carried no type/id, so
-        //      grep-based on-call triage could not localize the miss.
-        //
-        // Fix: invoke `onDirty` locally with the same event payload so
-        // the LRU is at least invalidated, and enrich the warn line
-        // with the exact (type, id).
-        this.log.warn('PuppetCacheMixin',
-          '__dirtyPayloadAwait() timeout for %s<%s>, id=%s -- falling back to local LRU delete '
-          + '(server likely on wechaty 0 or the dirty echo path is broken): %s',
-          DirtyType[type], type, id, (e as Error).message,
-        )
+        // timeout, log warning & ignore it
 
-        try {
-          this.onDirty({ payloadId: id, payloadType: type })
-        } catch (fallbackErr) {
-          this.log.warn('PuppetCacheMixin',
-            '__dirtyPayloadAwait() local fallback onDirty threw: %s',
-            (fallbackErr as Error).message,
-          )
-        }
+        this.log.warn('PuppetCacheMixin', '__dirtyPayloadAwait() timeout, probably because the server is using wechaty 0')
+
+        // log.warn('PuppetCacheMixin',
+        //   [
+        //     '__dirtyPayloadAwait() timeout.',
+        //     'The `dirty` event should be received but no one found.',
+        //     'Learn more from https://github.com/wechaty/puppet/issues/158',
+        //     'payloadType: %s(%s)',
+        //     'payloadId: %s',
+        //     'error: %s',
+        //     'stack: %s',
+        //   ].join('\n  '),
+        //   DirtyType[type],
+        //   type,
+        //   id,
+        //   (e as Error).message,
+        //   (e as Error).stack,
+        // )
       }
 
       /**
@@ -465,8 +256,6 @@ type ProtectedPropertyCacheMixin =
   | 'cache'
   | 'onDirty'
   | '__cacheMixinCleanCallbackList'
-  | '__cleanDirtyInflight'
-  | '__dirtyFuncMap'
   | '__dirtyPayloadAwait'
 
 export type {

@@ -59,33 +59,17 @@ const postMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(baseMi
       }
 
       /**
-       * 2. Dedup concurrent callers and guard the LRU set against a
-       *    dirty that lands during the raw fetch. See CacheAgent.
-       */
-      const inflightKey = `post:${postId}`
-      const inflight = this.cache.__inflightGet<PostPayload>(inflightKey)
-      if (inflight) {
-        return inflight
+     * 2. Cache not found
+     */
+      const rawPayload = await this.postRawPayload(postId)
+      const payload    = await this.postRawPayloadParser(rawPayload)
+
+      if (!this.cache.disabled) {
+        this.cache.post?.set(postId, payload)
+        this.log.silly('PuppetPostMixin', 'postPayload(%s) cache SET', postId)
       }
 
-      const gen = this.cache.snapshotGen(DirtyType.Post, postId)
-      const fetch = (async () => {
-        const rawPayload = await this.postRawPayload(postId)
-        const payload    = await this.postRawPayloadParser(rawPayload)
-
-        if (!this.cache.disabled && this.cache.isFreshWrite(DirtyType.Post, postId, gen)) {
-          this.cache.post?.set(postId, payload)
-          this.log.silly('PuppetPostMixin', 'postPayload(%s) cache SET', postId)
-        } else if (!this.cache.disabled) {
-          this.log.silly('PuppetPostMixin',
-            'postPayload(%s) cache SET skipped: dirty landed during raw fetch', postId)
-        }
-
-        return payload
-      })().finally(() => this.cache.__inflightDelete(inflightKey))
-
-      this.cache.__inflightSet(inflightKey, fetch)
-      return fetch
+      return payload
     }
 
     // get a sayable from server post (which comes with Id)
