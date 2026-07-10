@@ -1,7 +1,3 @@
-import {
-  STRING_SPLITTER,
-}                       from '../config.js'
-
 import type {
   ContactQueryFilter,
 }                                 from '../schemas/contact.js'
