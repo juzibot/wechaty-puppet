@@ -55,6 +55,9 @@ export interface PremiumOnlineAppointmentCardPayload {
   subTitle: string          // 子标题
   cardType: string          //
   url: string                // 跳转链接
+  commentContent?: string   // 评论文本内容（小红书分享笔记评论卡 cardType='shareComment' 专用）
+  authorNickname?: string   // 作者昵称（小红书笔记卡 cardType='post' 与分享笔记评论卡 'shareComment'）
+  authorAvatar?: string     // 作者头像（小红书笔记卡 cardType='post' 专用）
 }
 
 export interface PremiumOnlineAppointmentCardSendPayload {
