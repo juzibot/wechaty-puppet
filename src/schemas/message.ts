@@ -31,6 +31,7 @@ export enum MessageType {
   PremiumOnlineAppointmentCard = 25,   // Premium Online Appointment Card
   WxxdProduct                  = 26,   // Wxxd Product
   WxxdOrder                    = 27,   // Wxxd Order
+  Email                        = 28,   // Email
 }
 
 /**

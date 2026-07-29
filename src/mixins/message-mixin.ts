@@ -51,6 +51,7 @@ import type { CallRecordPayload } from '../schemas/call.js'
 import type { ChatHistoryPayload } from '../schemas/chat-history.js'
 import type { WxxdProductPayload } from '../schemas/wxxd-product.js'
 import type { WxxdOrderPayload } from '../schemas/wxxd-order.js'
+import type { EmailPayload } from '../schemas/email.js'
 
 const filebox = (filebox: string | FileBoxInterface) => typeof filebox === 'string' ? FileBox.fromJSON(filebox) : filebox
 
@@ -85,7 +86,12 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     *
     */
     abstract messageContact                       (messageId: string)                       : Promise<string>
-    abstract messageFile                          (messageId: string)                       : Promise<FileBoxInterface>
+    /**
+     * `index` selects the N-th attachment of an Email message (see messageEmail).
+     * Omitting it preserves the original single-file semantics, so existing
+     * puppet implementations that accept only `messageId` remain valid.
+     */
+    abstract messageFile                          (messageId: string, index?: number)       : Promise<FileBoxInterface>
     abstract messageImage                         (messageId: string, imageType: ImageType) : Promise<FileBoxInterface>
     /**
      * Second-request accessor for a voice message's audio file.
@@ -118,6 +124,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     abstract messagePremiumOnlineAppointmentCard  (messageId: string)                       : Promise<PremiumOnlineAppointmentCardPayload>
     abstract messageWxxdProduct                   (messageId: string)                       : Promise<WxxdProductPayload>
     abstract messageWxxdOrder                     (messageId: string)                       : Promise<WxxdOrderPayload>
+    abstract messageEmail                         (messageId: string)                       : Promise<EmailPayload>
     abstract messageCallRecord                    (messageId: string)                       : Promise<CallRecordPayload>
     abstract messageChatHistory                   (messageId: string)                       : Promise<ChatHistoryPayload[]>
 
@@ -148,6 +155,7 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
     abstract messageSendDouyinOneClickPhoneCollection(conversationId: string, douyinOneClickPhoneCollectionSendPayload: {}) : Promise<void | string>
     abstract messageSendWxxdProduct(conversationId: string, productId: string) : Promise<void | string>
     abstract messageSendWxxdOrder(conversationId: string, orderId: string) : Promise<void | string>
+    abstract messageSendEmail(conversationId: string, emailPayload: EmailPayload) : Promise<void | string>
 
     abstract messageRecall (messageId: string) : Promise<boolean>
 
@@ -390,6 +398,8 @@ const messageMixin = <MinxinBase extends typeof PuppetSkeleton & CacheMixin>(bas
           return this.messageSendWxxdProduct(conversationId, sayable.payload.productId)
         case sayableTypes.WxxdOrder:
           return this.messageSendWxxdOrder(conversationId, sayable.payload.orderId)
+        case sayableTypes.Email:
+          return this.messageSendEmail(conversationId, sayable.payload)
         default:
           throw new Error('unsupported sayable payload: ' + JSON.stringify(sayable))
       }

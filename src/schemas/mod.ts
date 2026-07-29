@@ -188,6 +188,12 @@ import {
 } from './call.js'
 import type { ChatHistoryPayload } from './chat-history.js'
 
+import type {
+  EmailAddress,
+  EmailAttachment,
+  EmailPayload,
+} from './email.js'
+
 import {
   type ContactIdExternalUserIdPair,
   type RoomAntiSpamStrategy,
@@ -341,6 +347,9 @@ export {
   type VoiceTextPayload,
   type EventCallPayload,
   type ChatHistoryPayload,
+  type EmailAddress,
+  type EmailAttachment,
+  type EmailPayload,
   type ContactIdExternalUserIdPair,
   type RoomAntiSpamStrategy,
   type TextContent,

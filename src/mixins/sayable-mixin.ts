@@ -84,6 +84,10 @@ const sayableMixin = <MixinBase extends typeof PuppetSkeleton & MessageMixin & P
           const orderId = await this.messageWxxdOrder(sayableId)
           return sayablePayloads.wxxdOrder(orderId)
         }
+        case MessageType.Email: {
+          const emailPayload = await this.messageEmail(sayableId)
+          return sayablePayloads.email(emailPayload)
+        }
         default:
           this.log.warn('PuppetSayableMixin',
             'sayablePayload() can not convert not re-sayable type: %s(%s) for %s\n%s',

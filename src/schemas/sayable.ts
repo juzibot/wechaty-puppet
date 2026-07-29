@@ -15,6 +15,7 @@ import type {
 import type { ConsultCardPayload, PremiumOnlineAppointmentCardPayload } from './consult-card.js'
 import type { WxxdProductPayload } from './wxxd-product.js'
 import type { WxxdOrderPayload } from './wxxd-order.js'
+import type { EmailPayload } from './email.js'
 
 const payloadContact     = (contactId: string)                      => ({ contactId })
 const payloadFilebox     = (filebox: string | FileBoxInterface)     => ({ filebox })
@@ -36,6 +37,7 @@ const payloadPremiumOnlineAppointmentCard = (premiumOnlineAppointmentCardPayload
 })
 const payloadWxxdProduct                  = (wxxdProductPayload: WxxdProductPayload)                                   => ({ ...wxxdProductPayload })
 const payloadWxxdOrder                    = (wxxdOrderPayload: WxxdOrderPayload)                                   => ({ ...wxxdOrderPayload })
+const payloadEmail                        = (emailPayload: EmailPayload)                                         => ({ ...emailPayload })
 /**
  * using `types` as a static typed string name list for `createAction`
  *
@@ -83,6 +85,7 @@ const consultCard                  = createAction(sayableTypes.ConsultCard,     
 const premiumOnlineAppointmentCard = createAction(sayableTypes.PremiumOnlineAppointmentCard, payloadPremiumOnlineAppointmentCard)()
 const wxxdProduct                  = createAction(sayableTypes.WxxdProduct,                  payloadWxxdProduct)()
 const wxxdOrder                    = createAction(sayableTypes.WxxdOrder,                    payloadWxxdOrder)()
+const email                        = createAction(sayableTypes.Email,                       payloadEmail)()
 /**
  * Huan(202201): Recursive type references
  *  @link https://github.com/microsoft/TypeScript/pull/33050#issuecomment-1002455128
@@ -106,6 +109,7 @@ const sayablePayloadsNoPost = {
   premiumOnlineAppointmentCard,
   wxxdProduct,
   wxxdOrder,
+  email,
 } as const
 
 /**
