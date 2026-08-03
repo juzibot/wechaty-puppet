@@ -25,6 +25,7 @@ export interface EmailAttachment {
   size?        : number,             // bytes; always present on receive
   inline?      : boolean,            // true = inline resource referenced by html via cid:
   cid?         : string,             // Content-ID anchor for cid: references in html
+  url?         : string,             // RECEIVE ONLY: public URL after the attachment lands on object storage, for direct display/download; messageFile(messageId, index) stays as the fallback fetch path
   fileBox?     : FileBoxInterface,   // SEND ONLY: attachment content; never set on receive — fetch via messageFile(messageId, index)
 }
 
