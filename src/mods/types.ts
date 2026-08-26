@@ -55,6 +55,7 @@ import {
   type TextContent,
   type TagInfo,
   type LoggerLike,
+  type CallInviteWithMediaOptions,
 }                       from '../schemas/mod.js'
 
 export {
@@ -106,6 +107,7 @@ export {
   BroadcastTargetStatus,
   CallStatus,
   PostStatus,
+  type CallInviteWithMediaOptions,
   type FriendshipAddOptions,
   type MessageSendTextOptions,
   type RoomPermission,
