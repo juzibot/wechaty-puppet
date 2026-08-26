@@ -87,3 +87,16 @@ export interface CallMediaEndpointPayload {
   expiresAt? : number  // epoch ms when the token expires; pull again after expiry
   protocol?  : string  // dialect of the entry, e.g. 'whip' | 'livekit' | custom — consumed by the media SDK to pick the handshake, opaque to this contract
 }
+
+/**
+ * Playback / hangup orchestration options for callInviteWithMedia.
+ * The "playback finished" moment is the end of the file playback when a file
+ * is given, and the connected moment when it is not; hangupDelayMs counts
+ * from that moment.
+ */
+export interface CallInviteWithMediaOptions {
+  /** Hang up automatically once playback finished; MUST be true when file is empty (otherwise use callInvite directly). */
+  hangupOnFinish?: boolean
+  /** Milliseconds between playback finished and the automatic hangup, default 0 = immediately; only honored together with hangupOnFinish. */
+  hangupDelayMs?: number
+}

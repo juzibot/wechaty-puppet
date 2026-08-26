@@ -1,5 +1,7 @@
+import type { FileBoxInterface } from 'file-box'
+
 import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
-import type { CallMediaEndpointPayload, CallMediaType, CallPayload } from '../schemas/call.js'
+import type { CallInviteWithMediaOptions, CallMediaEndpointPayload, CallMediaType, CallPayload } from '../schemas/call.js'
 import { DirtyType } from '../schemas/dirty.js'
 
 import type { CacheMixin }    from './cache-mixin.js'
@@ -11,6 +13,7 @@ import type { CacheMixin }    from './cache-mixin.js'
 type CallMixinReturn<MixinBase extends CacheMixin & typeof PuppetSkeleton> =
   MixinBase & (abstract new (...args: any[]) => {
     callInvite(contactIds: string[], media: CallMediaType): Promise<string>,
+    callInviteWithMedia(contactIds: string[], file?: FileBoxInterface, options?: CallInviteWithMediaOptions): Promise<string>,
     callAdd(callId: string, contactIds: string[]): Promise<void>,
     callMediaEndpoint(callId: string): Promise<CallMediaEndpointPayload>,
     callAccept(callId: string): Promise<void>,
@@ -56,6 +59,38 @@ const callMixin = <MixinBase extends CacheMixin & typeof PuppetSkeleton>(mixinBa
      * `throw throwUnsupportedError()` (see other puppet implementations' convention).
      */
     abstract callInvite (contactIds: string[], media: CallMediaType): Promise<string>
+
+    /**
+     * Place an outbound voice call and, once it is connected, automatically
+     * play `file` to the callee — the announcement-style variant of
+     * callInvite().
+     *
+     * The implementation is expected to pre-download and transcode `file`
+     * while the call is still ringing, so that playback starts with zero
+     * delay at the connected moment.
+     *
+     * When `file` is omitted, this is a plain dial: the connected moment is
+     * itself treated as "playback finished", which — combined with
+     * options.hangupOnFinish and options.hangupDelayMs — expresses "hang up N
+     * milliseconds after the callee answers".
+     *
+     * Errors-only semantics, identical to callInvite(): a resolved Promise
+     * carries the minted callId and only means the protocol side has accepted
+     * the invite. The callId is minted by the puppet implementation, and
+     * 'call' events (ringing / accept / reject / hangup) may arrive before
+     * this Promise resolves.
+     *
+     * If the call is never connected (rejected / timed out / canceled),
+     * nothing is played and the call ends through the normal terminal
+     * events — no extra signal is introduced by this method.
+     *
+     * Group announcement (a multi-element contactIds) has no implementation
+     * support at the moment.
+     *
+     * Implementations that do not support call signaling should
+     * `throw throwUnsupportedError()` (see other puppet implementations' convention).
+     */
+    abstract callInviteWithMedia (contactIds: string[], file?: FileBoxInterface, options?: CallInviteWithMediaOptions): Promise<string>
 
     /**
      * Add contacts to an existing call (callAdd is to callInvite what

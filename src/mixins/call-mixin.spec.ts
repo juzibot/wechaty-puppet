@@ -4,7 +4,10 @@ import {
   test,
 }           from 'tstest'
 
+import type { FileBoxInterface }    from 'file-box'
+
 import type {
+  CallInviteWithMediaOptions,
   CallMediaEndpointPayload,
   CallMediaType,
   CallPayload,
@@ -29,6 +32,10 @@ test('CallMixin abstract method signatures', async t => {
   type HasCallInvite = Instance extends { callInvite (contactIds: string[], media: CallMediaType): Promise<string> } ? true : false
   const hasCallInvite: HasCallInvite = true
   t.ok(hasCallInvite, 'should declare callInvite(contactIds, media): Promise<string>')
+
+  type HasCallInviteWithMedia = Instance extends { callInviteWithMedia (contactIds: string[], file?: FileBoxInterface, options?: CallInviteWithMediaOptions): Promise<string> } ? true : false
+  const hasCallInviteWithMedia: HasCallInviteWithMedia = true
+  t.ok(hasCallInviteWithMedia, 'should declare callInviteWithMedia(contactIds, file?, options?): Promise<string>')
 
   type HasCallAdd = Instance extends { callAdd (callId: string, contactIds: string[]): Promise<void> } ? true : false
   const hasCallAdd: HasCallAdd = true
