@@ -26,6 +26,7 @@ import type {
   EventRoomAnnouncePayload,
   EventVerifyCodePayload,
   EventVerifySlidePayload,
+  EventSameNetVerifyPayload,
   EventLoginUrlPayload,
   EventIntentCommentPayload,
   EventContactEnterConversationPayload,
@@ -58,6 +59,7 @@ export type PuppetTagListener          = (payload: EventTagPayload)         => v
 export type PuppetTagGroupListener     = (payload: EventTagGroupPayload)    => void | Promise<void>
 export type PuppetVerifyCodeListener   = (payload: EventVerifyCodePayload)  => void | Promise<void>
 export type PuppetVerifySlideListener  = (payload: EventVerifySlidePayload) => void | Promise<void>
+export type PuppetSameNetVerifyListener = (payload: EventSameNetVerifyPayload) => void | Promise<void>
 export type PuppetLoginUrlListener     = (payload: EventLoginUrlPayload)    => void | Promise<void>
 export type PuppetIntentCommentListener     = (payload: EventIntentCommentPayload)    => void | Promise<void>
 export type PuppetContactEnterConversationListener     = (payload: EventContactEnterConversationPayload)    => void | Promise<void>
@@ -97,6 +99,7 @@ interface PuppetEventListener {
   'login-url'    : PuppetLoginUrlListener,
   'intent-comment'    : PuppetIntentCommentListener,
   'verify-slide'     : PuppetVerifySlideListener,
+  'same-net-verify'  : PuppetSameNetVerifyListener,
   'contact-enter-conversation'     : PuppetContactEnterConversationListener,
   'contact-lead-filled'     : PuppetContactLeadFilledListener,
   'wxxd-shop'     : PuppetWxxdShopListener,

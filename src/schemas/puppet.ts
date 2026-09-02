@@ -37,6 +37,7 @@ export const CHAT_EVENT_DICT = {
   'login-url'    : 'an oauth url is required',
   'intent-comment': 'received a new intent comment',
   'verify-slide' : 'a verify slide is required',
+  'same-net-verify' : 'a same network verify is required for the login qrcode',
   'contact-enter-conversation' : 'a contact enters the conversation',
   'contact-lead-filled' : 'a contact fills the lead card',
   'wxxd-shop'     : 'received a new wxxd shop',
