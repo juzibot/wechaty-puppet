@@ -81,6 +81,7 @@ import type {
   EventTagGroupPayload,
   EventVerifyCodePayload,
   EventVerifySlidePayload,
+  EventSameNetVerifyPayload,
   EventLoginUrlPayload,
   EventIntentCommentPayload,
   EventContactEnterConversationPayload,
@@ -178,6 +179,11 @@ import {
 } from './verify-slide.js'
 
 import {
+  SameNetVerifyStatus,
+  SameNetVerifyScene,
+} from './same-net-verify.js'
+
+import {
   CallType,
   CallStatus,
   type CallRecordPayload,
@@ -255,6 +261,8 @@ export {
   VerifyCodeScene,
   VerifySlideStatus,
   VerifySlideScene,
+  SameNetVerifyStatus,
+  SameNetVerifyScene,
   CallMediaType,
   CallSignal,
   CallStatus,
@@ -288,6 +296,7 @@ export {
   type EventTagGroupPayload,
   type EventVerifyCodePayload,
   type EventVerifySlidePayload,
+  type EventSameNetVerifyPayload,
   type EventLoginUrlPayload,
   type EventIntentCommentPayload,
   type EventContactEnterConversationPayload,

@@ -3,6 +3,7 @@ import type { TagEventType, TapType } from './mod.js'
 import type { TagGroupEventType } from './tag.js'
 import type { VerifyCodeScene, VerifyCodeStatus } from './verify-code.js'
 import type { VerifySlideStatus, VerifySlideScene } from './verify-slide.js'
+import type { SameNetVerifyStatus, SameNetVerifyScene } from './same-net-verify.js'
 import type { CallSignal } from './call.js'
 
 /**
@@ -169,6 +170,16 @@ export interface EventVerifySlidePayload {
   sliderExeUrl: string,
 }
 
+export interface EventSameNetVerifyPayload {
+  id: string,                 // 登录码 qrcodeKey，与 verify-code 的 id 同口径
+  scene: SameNetVerifyScene,
+  status: SameNetVerifyStatus,
+  apkQrcodeUrl?: string,      // 验证工具 APK 下载二维码图片
+  apkUrl?: string,            // 验证工具 APK 文件链接
+  verifyQrcodeUrl?: string,   // 用 APK 扫的同网络验证码图片
+  expireTimestamp?: number,   // 对应登录码的过期时刻（ms）
+}
+
 export interface EventLoginUrlPayload {
   url: string,
 }
@@ -256,6 +267,7 @@ export type EventPayload =
   | EventPostTapPayload
   | EventVerifyCodePayload
   | EventVerifySlidePayload
+  | EventSameNetVerifyPayload
   | EventLoginUrlPayload
   | EventIntentCommentPayload
   | EventContactEnterConversationPayload
