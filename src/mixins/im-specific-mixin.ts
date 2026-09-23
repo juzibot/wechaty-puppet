@@ -27,7 +27,8 @@ const imSpecificMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: Mix
     /**
      * Execute (confirm sending) an org broadcast plan.
      * targetIds: omitted means all targets of the plan; otherwise a subset of the plan targets
-     * (contact ids or room ids according to the conversation type)
+     * (contact ids or room ids according to the conversation type).
+     * An empty array is invalid and must be rejected: it would otherwise be read as all targets.
      */
     abstract orgBroadcastExecute (orgBroadcastId: string, targetIds?: string[]): Promise<void>
 

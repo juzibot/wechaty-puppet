@@ -53,11 +53,11 @@ export interface OrgBroadcastTarget {
 
 export interface OrgBroadcastPayload {
   id: string,
-  sendType: number,
+  sendType: number,           // 0: official (org admin), 1: personal, 2: special
   conversationType: OrgBroadcastConversationType,
   creatorId?: string,
-  execTime: number,           // seconds, 0 means immediately
-  status: number,
+  execTime: number,           // milliseconds timestamp of the scheduled sending, 0 means immediately
+  status: number,             // 0: checking, 1: check succeeded, 2: check failed, 3: delayed send succeeded, 4: delayed send canceled
   canCancel: boolean,
   allowSelect: boolean,       // members may adjust targets before sending
   sent: boolean,
