@@ -38,6 +38,8 @@ export const CHAT_EVENT_DICT = {
   'intent-comment': 'received a new intent comment',
   'verify-slide' : 'a verify slide is required',
   'same-net-verify' : 'a same network verify is required for the login qrcode',
+  'org-broadcast-created' : 'an org broadcast plan is delivered to the member',
+  'org-broadcast-sent'    : 'an org broadcast plan has been executed',
   'contact-enter-conversation' : 'a contact enters the conversation',
   'contact-lead-filled' : 'a contact fills the lead card',
   'wxxd-shop'     : 'received a new wxxd shop',

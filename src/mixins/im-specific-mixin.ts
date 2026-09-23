@@ -1,6 +1,6 @@
 import type { PuppetSkeleton } from '../puppet/puppet-skeleton.js'
 import type { ConsultCardListRequest, ConsultCardListResponse, ContactIdExternalUserIdPair, IntentCommentPayload, PaginationRequest, PaginationResponse, PremiumOnlineAppointmentCardListRequest, PremiumOnlineAppointmentCardListResponse } from '../schemas/mod.js'
-import type { CorpMessageInterceptionStrategy, RoomAntiSpamStrategy } from '../schemas/wecom.js'
+import type { CorpMessageInterceptionStrategy, OrgBroadcastPayload, RoomAntiSpamStrategy } from '../schemas/wecom.js'
 import type { WxxdShopPayload } from '../schemas/wxxd-shop.js'
 import type { WxxdProductPayload } from '../schemas/wxxd-product.js'
 import type { WxxdOrderPayload, WxxdOrderDeliveryCompanyPayload, WxxdOrderDeliverySendRequest, WxxdOrderGenAfterSaleOrderRequest } from '../schemas/wxxd-order.js'
@@ -22,6 +22,14 @@ const imSpecificMixin = <MixinBase extends typeof PuppetSkeleton>(mixinBase: Mix
     abstract applyRoomAntiSpamStrategy (strategyId: string, roomIds: string[], active: boolean): Promise<void>
 
     abstract getCorpMessageInterceptionStrategies (): Promise<CorpMessageInterceptionStrategy[]>
+
+    abstract orgBroadcastPayload (orgBroadcastId: string): Promise<OrgBroadcastPayload>
+    /**
+     * Execute (confirm sending) an org broadcast plan.
+     * targetIds: omitted means all targets of the plan; otherwise a subset of the plan targets
+     * (contact ids or room ids according to the conversation type)
+     */
+    abstract orgBroadcastExecute (orgBroadcastId: string, targetIds?: string[]): Promise<void>
 
     // 抖音
     abstract listConsultCards                  (query: ConsultCardListRequest)                  : Promise<ConsultCardListResponse>
