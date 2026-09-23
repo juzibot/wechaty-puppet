@@ -355,6 +355,14 @@ class PuppetTest extends PUPPET.Puppet {
     return {} as any
   }
 
+  override orgBroadcastPayload (orgBroadcastId: string): Promise<PUPPET.payloads.OrgBroadcast> {
+    return { orgBroadcastId } as any
+  }
+
+  override orgBroadcastExecute (orgBroadcastId: string, targetIds?: string[]): Promise<void> {
+    return { orgBroadcastId, targetIds } as any
+  }
+
   override listConsultCards (
     query: ConsultCardListRequest,
   ): Promise<ConsultCardListResponse> {

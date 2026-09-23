@@ -180,6 +180,15 @@ export interface EventSameNetVerifyPayload {
   expireTimestamp?: number,   // 对应登录码的过期时刻（ms）
 }
 
+export interface EventOrgBroadcastCreatedPayload {
+  orgBroadcastId: string,
+  messageId: string,          // the broadcast assistant card message
+}
+
+export interface EventOrgBroadcastSentPayload {
+  orgBroadcastId: string,
+}
+
 export interface EventLoginUrlPayload {
   url: string,
 }
@@ -268,6 +277,8 @@ export type EventPayload =
   | EventVerifyCodePayload
   | EventVerifySlidePayload
   | EventSameNetVerifyPayload
+  | EventOrgBroadcastCreatedPayload
+  | EventOrgBroadcastSentPayload
   | EventLoginUrlPayload
   | EventIntentCommentPayload
   | EventContactEnterConversationPayload

@@ -27,6 +27,8 @@ import type {
   EventVerifyCodePayload,
   EventVerifySlidePayload,
   EventSameNetVerifyPayload,
+  EventOrgBroadcastCreatedPayload,
+  EventOrgBroadcastSentPayload,
   EventLoginUrlPayload,
   EventIntentCommentPayload,
   EventContactEnterConversationPayload,
@@ -60,6 +62,8 @@ export type PuppetTagGroupListener     = (payload: EventTagGroupPayload)    => v
 export type PuppetVerifyCodeListener   = (payload: EventVerifyCodePayload)  => void | Promise<void>
 export type PuppetVerifySlideListener  = (payload: EventVerifySlidePayload) => void | Promise<void>
 export type PuppetSameNetVerifyListener = (payload: EventSameNetVerifyPayload) => void | Promise<void>
+export type PuppetOrgBroadcastCreatedListener = (payload: EventOrgBroadcastCreatedPayload) => void | Promise<void>
+export type PuppetOrgBroadcastSentListener = (payload: EventOrgBroadcastSentPayload) => void | Promise<void>
 export type PuppetLoginUrlListener     = (payload: EventLoginUrlPayload)    => void | Promise<void>
 export type PuppetIntentCommentListener     = (payload: EventIntentCommentPayload)    => void | Promise<void>
 export type PuppetContactEnterConversationListener     = (payload: EventContactEnterConversationPayload)    => void | Promise<void>
@@ -100,6 +104,8 @@ interface PuppetEventListener {
   'intent-comment'    : PuppetIntentCommentListener,
   'verify-slide'     : PuppetVerifySlideListener,
   'same-net-verify'  : PuppetSameNetVerifyListener,
+  'org-broadcast-created' : PuppetOrgBroadcastCreatedListener,
+  'org-broadcast-sent'    : PuppetOrgBroadcastSentListener,
   'contact-enter-conversation'     : PuppetContactEnterConversationListener,
   'contact-lead-filled'     : PuppetContactLeadFilledListener,
   'wxxd-shop'     : PuppetWxxdShopListener,
