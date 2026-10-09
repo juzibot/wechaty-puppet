@@ -24,6 +24,7 @@ export const CHAT_EVENT_DICT = {
   post           : 'received a new post',
   'room-invite'  : 'received a room invitation',
   'room-join'    : 'be added to a room',
+  'room-member-load': 'room member loading state changed',
   'room-leave'   : 'leave or be removed from a room',
   'room-topic'   : 'room topic had been changed',
   'room-announce': 'new room announcement received',

@@ -5,6 +5,7 @@ import type { VerifyCodeScene, VerifyCodeStatus } from './verify-code.js'
 import type { VerifySlideStatus, VerifySlideScene } from './verify-slide.js'
 import type { SameNetVerifyStatus, SameNetVerifyScene } from './same-net-verify.js'
 import type { CallSignal } from './call.js'
+import type { RoomMemberLoadState } from './room.js'
 
 /**
  * The event `scan` status number.
@@ -67,6 +68,8 @@ export interface EventPostTapPayload {
 export interface EventRoomInvitePayload {
   roomInvitationId: string,
 }
+
+export type EventRoomMemberLoadPayload = RoomMemberLoadState
 
 export interface EventRoomJoinPayload {
   inviteeIdList : string[],
@@ -265,6 +268,7 @@ export type EventPayload =
   | EventResetPayload
   | EventRoomInvitePayload
   | EventRoomJoinPayload
+  | EventRoomMemberLoadPayload
   | EventRoomLeavePayload
   | EventRoomTopicPayload
   | EventRoomAnnouncePayload

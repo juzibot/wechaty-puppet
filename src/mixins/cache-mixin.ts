@@ -7,6 +7,7 @@ import { STRING_SPLITTER }  from '../config.js'
 import type {
   PuppetOptions,
   EventDirtyPayload,
+  EventRoomMemberLoadPayload,
 }                               from '../schemas/mod.js'
 import { DirtyType }          from '../schemas/mod.js'
 
@@ -30,6 +31,8 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
 
     cache: CacheAgent
 
+    readonly __roomPayloadCacheGenerationMap = new Map<string, number>()
+
     __cacheMixinCleanCallbackList: (() => void)[]
 
     constructor (...args: any[]) {
@@ -52,12 +55,15 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       await this.cache.start()
 
       const onDirty = this.onDirty.bind(this)
+      const onRoomMemberLoad = this.onRoomMemberLoad.bind(this)
 
       this.on('dirty', onDirty)
+      this.prependListener('room-member-load', onRoomMemberLoad)
       this.log.verbose('PuppetCacheMixin', 'start() "dirty" event listener added')
 
       const cleanFn = () => {
         this.off('dirty', onDirty)
+        this.off('room-member-load', onRoomMemberLoad)
         this.log.verbose('PuppetCacheMixin', 'start() "dirty" event listener removed')
       }
       this.__cacheMixinCleanCallbackList.push(cleanFn)
@@ -94,6 +100,20 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
         payloadId   : id,
         payloadType : type,
       }))
+    }
+
+    /** @hidden Public only so composed mixins and adapters can guard local cache commits. */
+    roomPayloadCacheGeneration (roomId: string): number {
+      return this.__roomPayloadCacheGenerationMap.get(roomId) ?? 0
+    }
+
+    onRoomMemberLoad ({ roomId }: EventRoomMemberLoadPayload): void {
+      this.__roomPayloadCacheGenerationMap.set(roomId, this.roomPayloadCacheGeneration(roomId) + 1)
+      if (this.cache.disabled) {
+        return
+      }
+      this.cache.room?.delete(roomId)
+      this.cache.roomMember?.delete(roomId)
     }
 
     /**
@@ -255,7 +275,9 @@ type CacheMixin = ReturnType<typeof cacheMixin>
 type ProtectedPropertyCacheMixin =
   | 'cache'
   | 'onDirty'
+  | 'onRoomMemberLoad'
   | '__cacheMixinCleanCallbackList'
+  | '__roomPayloadCacheGenerationMap'
   | '__dirtyPayloadAwait'
 
 export type {

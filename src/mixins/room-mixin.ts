@@ -85,6 +85,9 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
      * (Same behavior as `batchContactPayload` in contact-mixin.)
      */
     async batchRoomPayload (roomIds: string[]): Promise<Map<string, RoomPayload>> {
+      const generations = new Map<string, number>(roomIds.map(
+        (roomId: string): [string, number] => [ roomId, this.roomPayloadCacheGeneration(roomId) ],
+      ))
       let rawPayloadMap: Map<string, any>
       if (typeof this.batchRoomRawPayload === 'function') {
         rawPayloadMap = await this.batchRoomRawPayload(roomIds)
@@ -97,6 +100,12 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
       const payloadMap = new Map<string, RoomPayload>()
       for (const [ roomId, rawPayload ] of rawPayloadMap.entries()) {
         payloadMap.set(roomId, await this.roomRawPayloadParser(rawPayload))
+      }
+      // Batch reads bypass cache; reject invalidated results instead of returning a mixed-generation batch.
+      for (const [ roomId, generation ] of generations) {
+        if (this.roomPayloadCacheGeneration(roomId) !== generation) {
+          throw new Error('batchRoomPayload invalidated by room-member-load')
+        }
       }
       return payloadMap
     }
@@ -287,10 +296,11 @@ const roomMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin & Room
       /**
         * 2. Cache not found
         */
+      const generation = this.roomPayloadCacheGeneration(roomId)
       const rawPayload = await this.roomRawPayload(roomId)
       const payload    = await this.roomRawPayloadParser(rawPayload)
 
-      if (!this.cache.disabled) {
+      if (!this.cache.disabled && this.roomPayloadCacheGeneration(roomId) === generation) {
         this.cache.room?.set(roomId, payload)
         this.log.silly('PuppetRoomMixin', 'roomPayload(%s) cache SET', roomId)
       }
