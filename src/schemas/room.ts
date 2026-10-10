@@ -1,3 +1,35 @@
+export enum RoomMemberLoadMode {
+  Unspecified = 0,
+  Normal = 1,
+  Lazy = 2,
+}
+
+export enum RoomMemberLoadStatus {
+  Unspecified = 0,
+  Pending = 1,
+  Loading = 2,
+  Loaded = 3,
+  Failed = 4,
+}
+
+export interface RoomMemberSyncOptions {
+  force?: boolean
+}
+
+export interface RoomMemberSnapshotOptions {
+  pageToken?: string
+  pageSize?: number
+}
+
+export interface RoomMemberLoadState {
+  roomId: string
+  taskId: string
+  status: RoomMemberLoadStatus
+  revision: string
+  loadedAt?: number
+  error?: string
+}
+
 export enum RoomMemberJoinSceneType {
   Unknown       = 0,
   Add           = 1,
@@ -31,6 +63,11 @@ export interface RoomPayload {
   handle?      : string
 
   memberIdList : string[]
+  memberCount? : number
+  memberLoadMode? : RoomMemberLoadMode
+  memberLoadStatus? : RoomMemberLoadStatus
+  memberLoadRevision? : string
+  memberLoadedAt? : number
   ownerId?     : string
   adminIdList  : string[]
   external?    : boolean
@@ -57,6 +94,14 @@ export interface RoomMemberPayload {
  * a stringified JSON object to handle any IM specific data
  */
   additionalInfo?: string
+}
+
+export interface RoomMemberSnapshot {
+  roomId: string
+  revision: string
+  loadedAt?: number
+  members: RoomMemberPayload[]
+  nextPageToken?: string
 }
 
 export interface RoomPermission {
