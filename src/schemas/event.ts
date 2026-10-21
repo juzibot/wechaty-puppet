@@ -5,7 +5,6 @@ import type { VerifyCodeScene, VerifyCodeStatus } from './verify-code.js'
 import type { VerifySlideStatus, VerifySlideScene } from './verify-slide.js'
 import type { SameNetVerifyStatus, SameNetVerifyScene } from './same-net-verify.js'
 import type { CallSignal } from './call.js'
-import type { RoomMemberLoadState } from './room.js'
 
 /**
  * The event `scan` status number.
@@ -69,7 +68,13 @@ export interface EventRoomInvitePayload {
   roomInvitationId: string,
 }
 
-export type EventRoomMemberLoadPayload = RoomMemberLoadState
+/** Members of one lazily loaded room are ready; cached room and member payloads are stale. */
+export interface EventRoomMemberLoadPayload {
+  roomId: string,
+}
+
+/** Every lazily loaded room of the current account has its members ready. */
+export type EventRoomMemberLazyLoadFinishedPayload = Record<string, never>
 
 export interface EventRoomJoinPayload {
   inviteeIdList : string[],
@@ -269,6 +274,7 @@ export type EventPayload =
   | EventRoomInvitePayload
   | EventRoomJoinPayload
   | EventRoomMemberLoadPayload
+  | EventRoomMemberLazyLoadFinishedPayload
   | EventRoomLeavePayload
   | EventRoomTopicPayload
   | EventRoomAnnouncePayload
