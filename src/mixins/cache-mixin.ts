@@ -31,8 +31,6 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
 
     cache: CacheAgent
 
-    readonly __roomPayloadCacheGenerationMap = new Map<string, number>()
-
     __cacheMixinCleanCallbackList: (() => void)[]
 
     constructor (...args: any[]) {
@@ -102,13 +100,12 @@ const cacheMixin = <MixinBase extends typeof PuppetSkeleton & LoginMixin>(mixinB
       }))
     }
 
-    /** @hidden Public only so composed mixins and adapters can guard local cache commits. */
-    roomPayloadCacheGeneration (roomId: string): number {
-      return this.__roomPayloadCacheGenerationMap.get(roomId) ?? 0
-    }
-
+    /**
+     * Registered ahead of every other `room-member-load` listener so business
+     *  handlers reading the room in the same tick never hit the pre-load cache.
+     */
     onRoomMemberLoad ({ roomId }: EventRoomMemberLoadPayload): void {
-      this.__roomPayloadCacheGenerationMap.set(roomId, this.roomPayloadCacheGeneration(roomId) + 1)
+      this.log.verbose('PuppetCacheMixin', 'onRoomMemberLoad(%s)', roomId)
       if (this.cache.disabled) {
         return
       }
@@ -277,7 +274,6 @@ type ProtectedPropertyCacheMixin =
   | 'onDirty'
   | 'onRoomMemberLoad'
   | '__cacheMixinCleanCallbackList'
-  | '__roomPayloadCacheGenerationMap'
   | '__dirtyPayloadAwait'
 
 export type {

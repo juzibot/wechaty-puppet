@@ -4,10 +4,6 @@ import type {
 import type {
   RoomMemberPayload,
   RoomMemberQueryFilter,
-  RoomMemberLoadState,
-  RoomMemberSnapshot,
-  RoomMemberSyncOptions,
-  RoomMemberSnapshotOptions,
 }                                 from '../schemas/room.js'
 import {
   YOU,
@@ -28,23 +24,13 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
 
     abstract roomMemberList (roomId: string): Promise<string[]>
 
-    async roomMemberSync (roomId: string, options?: RoomMemberSyncOptions): Promise<RoomMemberLoadState> {
-      void { roomId, options }
-      throw new Error('roomMemberSync is unsupported by this puppet')
-    }
-
-    async roomMemberLoadState (roomId: string): Promise<RoomMemberLoadState> {
-      void roomId
-      throw new Error('roomMemberLoadState is unsupported by this puppet')
-    }
-
-    async roomMemberSnapshot (
-      roomId: string,
-      revision: string,
-      options?: RoomMemberSnapshotOptions,
-    ): Promise<RoomMemberSnapshot> {
-      void { roomId, revision, options }
-      throw new Error('roomMemberSnapshot is unsupported by this puppet')
+    /**
+     * Account-level: load members of every room still pending lazy loading now,
+     *  instead of at the adapter's paced rate. Completion is reported by
+     *  `room-member-load` per room and `room-member-lazy-load-finished` overall.
+     */
+    async roomMemberLazyLoadNow (): Promise<void> {
+      throw new Error('roomMemberLazyLoadNow is unsupported by this puppet')
     }
 
     /** @protected */
@@ -56,7 +42,6 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
     abstract batchRoomMemberRawPayload (roomId: string, contactIds: string[]): Promise<Map<string, any>>
 
     async batchRoomMemberPayload (roomId: string, contactIds: string[]): Promise<Map<string, RoomMemberPayload>> {
-      const generation = this.roomPayloadCacheGeneration(roomId)
       let rawPayloadMap: Map<string, any>
       if (typeof this.batchRoomMemberRawPayload === 'function') {
         rawPayloadMap = await this.batchRoomMemberRawPayload(roomId, contactIds)
@@ -69,10 +54,6 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
       const payloadMap = new Map<string, RoomMemberPayload>()
       for (const [ contactId, rawPayload ] of rawPayloadMap.entries()) {
         payloadMap.set(contactId, await this.roomMemberRawPayloadParser(rawPayload))
-      }
-      // Like batchRoomPayload, this path does not write cache or automatically re-fetch.
-      if (this.roomPayloadCacheGeneration(roomId) !== generation) {
-        throw new Error('batchRoomMemberPayload invalidated by room-member-load')
       }
       return payloadMap
     }
@@ -194,14 +175,13 @@ const roomMemberMixin = <MixinBase extends typeof PuppetSkeleton & ContactMixin>
       /**
         * 2. Cache not found
         */
-      const generation = this.roomPayloadCacheGeneration(roomId)
       const rawPayload = await this.roomMemberRawPayload(roomId, memberId)
       if (!rawPayload) {
         throw new Error('contact(' + memberId + ') is not in the Room(' + roomId + ')')
       }
       const payload = await this.roomMemberRawPayloadParser(rawPayload)
 
-      if (!this.cache.disabled && this.cache.roomMember && this.roomPayloadCacheGeneration(roomId) === generation) {
+      if (!this.cache.disabled && this.cache.roomMember) {
         /**
          * Merge against the LATEST snapshot rather than the one captured
          * at the start of the call. Two concurrent requests for distinct

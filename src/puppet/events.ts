@@ -16,6 +16,7 @@ import type {
   EventResetPayload,
   EventRoomJoinPayload,
   EventRoomMemberLoadPayload,
+  EventRoomMemberLazyLoadFinishedPayload,
   EventRoomLeavePayload,
   EventRoomTopicPayload,
   EventRoomInvitePayload,
@@ -55,6 +56,7 @@ export type PuppetResetListener        = (payload: EventResetPayload)       => v
 export type PuppetRoomInviteListener   = (payload: EventRoomInvitePayload)  => void | Promise<void>
 export type PuppetRoomJoinListener     = (payload: EventRoomJoinPayload)    => void | Promise<void>
 export type PuppetRoomMemberLoadListener = (payload: EventRoomMemberLoadPayload) => void | Promise<void>
+export type PuppetRoomMemberLazyLoadFinishedListener = (payload: EventRoomMemberLazyLoadFinishedPayload) => void | Promise<void>
 export type PuppetRoomLeaveListener    = (payload: EventRoomLeavePayload)   => void | Promise<void>
 export type PuppetRoomTopicListener    = (payload: EventRoomTopicPayload)   => void | Promise<void>
 export type PuppetRoomAnnounceListener = (payload: EventRoomAnnouncePayload)=> void | Promise<void>
@@ -94,6 +96,7 @@ interface PuppetEventListener {
   'room-invite'  : PuppetRoomInviteListener
   'room-join'    : PuppetRoomJoinListener
   'room-member-load': PuppetRoomMemberLoadListener
+  'room-member-lazy-load-finished': PuppetRoomMemberLazyLoadFinishedListener
   'room-leave'   : PuppetRoomLeaveListener
   'room-topic'   : PuppetRoomTopicListener
   'room-announce': PuppetRoomAnnounceListener
